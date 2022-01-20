@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
-const FeedbackSchema = new mongoose.Schema({
-rating: {
+const PolicySchema = new mongoose.Schema({
+title: {
     type: String,
     trim: true,
     required: true,
-        },
-comment: {
+    },
+description: {
     type: String,
     trim: true,
     required: true,
@@ -26,6 +26,6 @@ organizationCode:{
   },
 );
 
-const Feedback = mongoose.model("feedback", FeedbackSchema);
+const Policy = mongoose.model("policy", PolicySchema);
 
-module.exports = Feedback;
+module.exports = Policy;

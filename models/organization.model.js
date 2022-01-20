@@ -6,7 +6,7 @@ const OrganizationSchema = new mongoose.Schema({
     trim: true,
     required: true,
   },
-organizationCode:{
+  organizationCode:{
     type: String,
     trim: true,
     required: true,

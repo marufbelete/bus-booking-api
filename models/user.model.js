@@ -24,7 +24,7 @@ phoneNumber:{
     required: true,
   },
   //only for organization user
-  orgCode:{
+  organizationCode:{
     type: String,
     trim: true,
   }

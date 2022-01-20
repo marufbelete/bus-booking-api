@@ -11,7 +11,6 @@ organizationCode:{
     trim: true,
     required: true,
 }
-
 },
   {
     timestamps: true,

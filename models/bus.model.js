@@ -15,7 +15,7 @@ driverId: {
    type: Schema.Types.ObjectId, ref: 'user', 
    required: true,
 },
-NoOfSit: {
+totalNoOfSit: {
     type: number,
     trim: true,
     required: true,

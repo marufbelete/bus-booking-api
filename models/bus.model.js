@@ -32,6 +32,6 @@ organizationCode:{
   },
 );
 
-const Bus = mongoose.model("Bus", BusSchema);
+const Bus = mongoose.model("bus", BusSchema);
 
 module.exports = Bus;

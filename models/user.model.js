@@ -37,6 +37,11 @@ password: {
   },
 );
 
+  // {_requester: 1, _requestedBook: 1, status: 1},
+  // {unique: true, partialFilterExpression: { "status" : "opened" }}
+// usersSchema.index({name: 1 });
+// usersSchema.index({email: 1 });
+
 const User = mongoose.model("user", UserSchema);
 
 module.exports = User;

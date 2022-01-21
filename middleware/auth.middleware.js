@@ -14,7 +14,7 @@ const authenticateJWT = (req, res, next) => {
         return res.status(403).send({ msg: "something wrong" });
       }
 
-      req.user = user;
+      req.userinfo = user;
       console.log(user)
       next();
     });

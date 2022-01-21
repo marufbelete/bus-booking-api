@@ -1,27 +1,29 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  fullName: {
+  name:{
     type: String,
     trim: true,
-    required: true,
-  },
-phoneNumber:{
+},
+  phoneNumber:{
     type: String,
     trim: true,
     required: true,
 },
-  password: {
+password: {
     type: String,
     trim: true,
     required: true,
   },
   //10 for mobile user and 20 for organization user
-  userType:{
-    type: String,
-    enum: ['10','20'],
-    trim: true,
+  isMobileUser:{
+    type:Boolean,
     required: true,
+  },
+  userRole:{
+    type: String,
+    enum: ['admin','casher','driver','agent'],
+    trim: true,
   },
   //only for organization user
   organizationCode:{

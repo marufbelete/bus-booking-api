@@ -59,7 +59,7 @@ exports.saveMobileUser = async (req, res, next) => {
   }
 };
 //register organization user
-exports.saveorganizationUser = async (req, res, next) => {
+exports.saveOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
     const phone_number = req.body.phoneNumber;
@@ -119,7 +119,7 @@ exports.saveorganizationUser = async (req, res, next) => {
 };
 
 //log in mobile user
-exports.loginUser = async (req, res, next) => {
+exports.loginMobileUser = async (req, res, next) => {
 
   try {
     const phone_number  = req.body.phonenumber;
@@ -158,7 +158,7 @@ exports.loginUser = async (req, res, next) => {
   }
 };
 //log in organization user
-exports.loginUser = async (req, res, next) => {
+exports.loginOrganizationUser = async (req, res, next) => {
 
   try {
     const phone_number  = req.body.phonenumber;
@@ -199,4 +199,73 @@ exports.loginUser = async (req, res, next) => {
     res.status(500).json({ err: error.message })
   }
 };
-//update user info
+
+//update organization user info
+exports.updateOrganizationUser = async (req, res, next) => {
+
+  try {
+    const name = req.body.name;
+    const phone_number = req.body.phoneNumber;
+    const password=req.body.password;
+    const confirm_password=req.body.confirmPassword;
+    const change_role=req.body.userRole;
+
+    const organization_code=req.userinfo.organization_code;
+    const user_role=req.userinfo.organization_code;
+
+    if (!!!name || !!!phone_number || !!!password || !!!user_role) {
+      return res.status(400).json({ message: "Please fill all field." })
+    }
+
+    if (password != confirm_password) {
+
+      return res.status(400).json({ error: true, message: "password doesn't match. please try again." })
+    }
+
+    if (password.length < 5) {
+      return res.status(400).json({ error: true, message: "the password need to be atleast 5 charcter long." })
+    }
+
+    if (password != confirm_password) {
+
+      return res.status(400).json({ error: true, message: "password doesn't match. please try again." })
+    }
+
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
+
+  const firstadminuser=await User.findOne({userRole:'firstadmin',organizationCode:organization_code})
+
+if(user_role==='firstadmin' ||user_role==='admin')
+
+{ 
+  if(phone_number!=firstadminuser.phoneNumber){
+
+  const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organizationCode:organization_code},{
+  $set:{
+  name:name,
+  password:passwordHash,
+  userRole:change_role,
+}
+  })
+  res.json(updateduser)
+}
+
+  res.json("you can't change the state of master user")
+
+}
+
+const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organizationCode:organization_code},{
+  $set:{
+  name:name,
+  password:passwordHash,
+}
+  })
+res.json(updateduser)    
+
+  }
+
+  catch {
+    res.status(500).json({ err: error.message })
+  }
+};

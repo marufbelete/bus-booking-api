@@ -22,8 +22,9 @@ password: {
   },
   userRole:{
     type: String,
-    enum: ['admin','casher','driver','agent'],
+    enum: ['firstadmin','admin','casher','driver','agent'],
     trim: true,
+    toLowerCase:true,
   },
   //only for organization user
   organizationCode:{

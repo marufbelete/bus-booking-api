@@ -7,7 +7,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
     const phone_number = req.body.phoneNumber;
-    const user_role=req.body.userRole;
+    const user_role=req.body.userRole; 
     const password=req.body.password;
     const confirm_password=req.body.confirmPassword;
     const organization_code=req.userinfo.organization_code;
@@ -75,7 +75,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credential."});
     }
     const user_role=user.userRole
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role }, "marufsecret");
+    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, "marufsecret");
     res.json({
       token
     });

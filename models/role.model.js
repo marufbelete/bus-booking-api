@@ -6,12 +6,8 @@ const RoleSchema = new mongoose.Schema({
     trim: true,
     enum: ['firstadmin','admin','casher','driver','agent'],
     required: true,
-  },
-  rolePrivilage: {
-    type: String,
-    trim: true,
-    required: true,
-}
+    unique: true
+  }
 
 },
   {

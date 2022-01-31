@@ -3,35 +3,32 @@ const Role = require("../models/role.model");
 //signup for mobile user
 exports.createRole = async (req, res, next) => {
   try {
-    const role = req.body.userRole;
+    const user_role = req.body.userRole;
     const role = new Role({
-    roleType:role    
+    roleType:user_role   
     })
-    await role.save()
-  res.json("User saved successfully")
+    const addedrole=await role.save()
+    res.json(addedrole)
   }
-catch {
-    res.status(500).json({ err: error.message })
+catch(error) {
+next(error);
   }
 };
-
 //log in mobile user
 exports.getRole = async (req, res, next) => {
   try {
    const role= await Role.find()
    res.json(role)
   }
-  catch {
-    res.status(500).json({ err: error.message })
+  catch(error) {
+    next(error)
   }
 };
-
+//delete role
 exports.deleteRole = async (req, res, next) => {
   try {
-    
-    const deleteid=req.params.userid
+   const deleteid=req.params.userid
    await Role.findByIdAndDelete(deleteid)
-
   }
   catch {
     res.status(500).json({ err: error.message })

@@ -1,6 +1,7 @@
-const User = require("../models/mobileUser.model");
+const User = require("../models/User.model");
 const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken');
+const config = require('../config.json');
 
 //signup for mobile user
 exports.saveMobileUser = async (req, res, next) => {
@@ -9,23 +10,28 @@ exports.saveMobileUser = async (req, res, next) => {
     const password=req.body.password;
     const confirmpassword=req.body.confirmpassword;
     if (!!!phone_number || !!!password) {
-      return res.status(400).json({ message: "Please fill all field." })
+      const error = new Error("Please fill all field.")
+      error.statusCode = 400
+      throw error;
     }
     const anyphone_number = await User.find({
       phone_number: phone_number,
       user_type: user_type,
     });
     if (anyphone_number.length>0) {
-      return res.status(400).json({
-        error: true,
-        message: "User with this phone number already exist!!!",
-      });
+      const error = new Error("User with this phone number already exist!!!")
+      error.statusCode = 400
+      throw error;
     }
     if (password.length < 5) {
-      return res.status(400).json({ error: true, message: "the password need to be atleast 5 charcter long." })
+      const error = new Error("the password need to be atleast 5 charcter long.")
+      error.statusCode = 400
+      throw error;
     }
     if (password != confirmpassword) {
-      return res.status(400).json({ error: true, message: "password doesn't match. please try again." })
+      const error = new Error("password doesn't match. please try again." )
+      error.statusCode = 400
+      throw error;
     }
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
@@ -35,13 +41,13 @@ exports.saveMobileUser = async (req, res, next) => {
       isMobileUser:true,    
     })
     await user.save()
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, "marufsecret");
+    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, config.SECRET);
     res.json({
       token
     });
   }
-catch {
-    res.status(500).json({ err: error.message })
+catch(error) {
+ next(error)
   }
 };
 
@@ -51,29 +57,32 @@ exports.loginMobileUser = async (req, res, next) => {
     const phone_number  = req.body.phonenumber;
     const password=req.body.password
     if (!!!phone_number || !!!password) {
-      return res.status(400).json({ message: "Please fill all field." })
+      const error = new Error("Please fill all field.")
+      error.statusCode = 400
+      throw error;
     }
     const user = await User.find({
       phone_number: phone_number
     });
     if (user.length===0) {
-      return res.status(400).json({
-        error: true,
-        message: "No account with this Phone exist",
-      });
+      const error = new Error("No account with this Phone exist.")
+      error.statusCode = 400
+      throw error;
     }
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credential."});
+      const error = new Error("Invalid credential.")
+      error.statusCode = 400
+      throw error;
     }
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number}, "marufsecret");
+    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number},config.SECRET);
     res.json({
       token
     });
   }
-  catch {
-    res.status(500).json({ err: error.message })
-  }
+  catch(error) {
+    next(error)
+     }
 };
 //update mobile user info
 exports.updateMobileUser = async (req, res, next) => {
@@ -83,13 +92,19 @@ exports.updateMobileUser = async (req, res, next) => {
     const password=req.body.password;
     const confirm_password=req.body.confirmPassword;
     if (!!!phone_number || !!!password) {
-      return res.status(400).json({ message: "Please fill all field." })
+      const error = new Error("Please fill all field.")
+      error.statusCode = 400
+      throw error;
     }
     if (password.length < 5) {
-      return res.status(400).json({ error: true, message: "the password need to be atleast 5 charcter long." })
+      const error = new Error("the password need to be atleast 5 charcter long.")
+      error.statusCode = 400
+      throw error;
     }
     if (password != confirm_password) {
-     return res.status(400).json({ error: true, message: "password doesn't match. please try again." })
+      const error = new Error("password doesn't match. please try again.")
+      error.statusCode = 400
+      throw error;
     }
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
@@ -101,8 +116,8 @@ exports.updateMobileUser = async (req, res, next) => {
   })
   res.json(updateduser)
   }
-  catch {
-    res.status(500).json({ err: error.message })
+  catch(error) {
+   next(error)
   }
 };
 

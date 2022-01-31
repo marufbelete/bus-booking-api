@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  name:{
+name:{
     type: String,
     trim: true,
 },
-  phoneNumber:{
+phoneNumber:{
     type: String,
     trim: true,
     required: true,
@@ -15,7 +15,6 @@ password: {
     trim: true,
     required: true,
   },
-  //10 for mobile user and 20 for organization user
   isMobileUser:{
     type:Boolean,
     required: true,

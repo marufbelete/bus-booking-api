@@ -3,17 +3,21 @@ const { saveMobileUser,loginMobileUser,updateMobileUser } = require('../controll
 const {saveOrganizationUser,loginOrganizationUser,updateOrganizationUser,deleteOrganizationUser } = require('../controllers/organizationUser.controller');
 const {createRole,getRole,deleteRole}=require('../controllers/manageRole.controller')
 const userauth = require("../middleware/auth.middleware")
+const {authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
+const {errorHandler} = require('../middleware/errohandling.middleware')
 const router = express.Router();
 
-//user 
-router.post('/registermobileuser', saveMobileUser)
-router.post('/registermobileuser',userauth ,saveMobileUser)
-router.post('/registermobileuser', saveMobileUser)
-router.post('/registermobileuser',userauth ,saveMobileUser)
-router.post('/registermobileuser', saveMobileUser)
-router.post('/registermobileuser',userauth ,saveMobileUser)
+//mobile user 
+router.post('/registermobileuser', saveMobileUser,errorHandler)
+router.post('/loginmobileuser',loginMobileUser,errorHandler)
+router.put('/updatemobileuser',userauth, updateMobileUser,errorHandler)
+//organization user 
+router.post('/registerorganizationuser',userauth,authAdmin,saveOrganizationUser,errorHandler)
+router.post('/loginorganizationuser', loginOrganizationUser,errorHandler)
+router.put('/updateorganizationuser',userauth ,authaAdminCasherAgent,updateOrganizationUser,errorHandler)
+router.delete('/deleteorganizationuser',userauth,authAdmin ,deleteOrganizationUser,errorHandler)
+//role
 
-router.post('/login', loginUser)
 
 
 module.exports = router

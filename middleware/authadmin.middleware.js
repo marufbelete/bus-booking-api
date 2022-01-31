@@ -1,5 +1,23 @@
 const Role=require("../accesscontoller.json")
 
+exports.authOwner = (req, res, next) => {
+  const userrole=req.userinfo.user_role;
+  if (userrole===Role.OWNER) {
+    next()
+    }
+  res.status(403).json({message:"you do not have privillage",status:false})
+
+};
+
+exports.authSuperAdmin = (req, res, next) => {
+  const userrole=req.userinfo.user_role;
+  if (userrole===Role.SUPERADMIN) {
+    next()
+      }
+  res.status(403).json({message:"you do not have privillage",status:false})
+
+};
+
 exports.authAdmin = (req, res, next) => {
   const userrole=req.userinfo.user_role;
   if (userrole===Role.ADMIN || userrole===Role.SUPERADMIN) {

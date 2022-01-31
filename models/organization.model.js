@@ -5,11 +5,13 @@ const OrganizationSchema = new mongoose.Schema({
     type: String,
     trim: true,
     required: true,
+    unique: [true,"this organization name already exist"]
   },
   organizationCode:{
     type: String,
     trim: true,
     required: true,
+    unique: [true,"this organization code already exist"]
 }
 },
   {

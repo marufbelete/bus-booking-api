@@ -21,7 +21,7 @@ password: {
   },
   userRole:{
     type: String,
-    enum: ['firstadmin','admin','casher','driver','agent'],
+    enum: ['ownwer','superadmin','admin','casher','driver','agent'],
     trim: true,
     toLowerCase:true,
   },
@@ -35,8 +35,9 @@ password: {
     timestamps: true,
   },
 );
-
-UserSchema.index({userRole: 1},{unique: true, partialFilterExpression: { "userRole" : "firstadmin" }});
+//solve this
+UserSchema.index({userRole: 1},{unique: true, partialFilterExpression: { "userRole" : "owner" }});
+UserSchema.index({organizationCode: 1},{unique: true, partialFilterExpression: { "userRole" : "superadmin" }});
 
 const User = mongoose.model("user", UserSchema);
 

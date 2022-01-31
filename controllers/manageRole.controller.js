@@ -30,7 +30,7 @@ exports.deleteRole = async (req, res, next) => {
    const deleteid=req.params.userid
    await Role.findByIdAndDelete(deleteid)
   }
-  catch {
-    res.status(500).json({ err: error.message })
+  catch(error) {
+    next(error)
   }
 };

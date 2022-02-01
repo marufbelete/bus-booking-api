@@ -11,14 +11,19 @@ busSideNo: {
     trim: true,
     required: true,
 },
-driverId: {
-   type: Schema.Types.ObjectId, ref: 'user', 
+driverUserName: {
+   type:String, 
+   trim: true,
    required: true,
 },
 totalNoOfSit: {
     type: number,
     trim: true,
     required: true,
+},
+createdBy:{
+   type: Schema.Types.ObjectId, ref: 'user', 
+   required: true,
 },
 organizationCode:{
     type: String,

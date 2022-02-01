@@ -25,6 +25,7 @@ password: {
     trim: true,
     toLowerCase:true,
   },
+  createdBy:[this],
   //only for organization user
   organizationCode:{
     type: String,

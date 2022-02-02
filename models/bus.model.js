@@ -22,8 +22,13 @@ totalNoOfSit: {
     required: true,
 },
 createdBy:{
-   type: Schema.Types.ObjectId, ref: 'user', 
-   required: true,
+  type: Schema.Types.ObjectId, ref: 'user', 
+  required: true,
+},
+isActive:{
+  type:Boolean,
+  default: true,
+  required: true,
 },
 organizationCode:{
     type: String,

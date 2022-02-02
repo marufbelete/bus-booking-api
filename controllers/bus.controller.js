@@ -40,6 +40,28 @@ exports.getAllOrganizationBus = async (req, res, next) => {
     next(error)
   }
 };
+//only active bus this is for assigning bus to some schedule
+exports.getAllOrganizationActiveBus = async (req, res, next) => {
+  try {
+  const orgcode =req.user.organization_code;
+  const allbus= await Bus.find({organizationCode:orgcode,isActive:true})
+  res.json(allbus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//only non-active bus this is for assigning bus to some schedule
+exports.getAllOrganizationNonActiveBus = async (req, res, next) => {
+  try {
+  const orgcode =req.user.organization_code;
+  const allbus= await Bus.find({organizationCode:orgcode,isActive:false})
+  res.json(allbus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 //get organization by id
 exports.updateBusInfo = async (req, res, next) => {
   try {
@@ -48,12 +70,30 @@ exports.updateBusInfo = async (req, res, next) => {
    const bussideno= req.body.organizationcode;
    const driverusername =req.body.driversuername;
    const totalsit =req.body.totalsit;
+   const createdby =req.user.sub;
    const bus= await Bus.findAndUpdateById(id,{
      $set:{
       busPlateNo:busplateno ,
       busSideNo:bussideno,
       driverUserName:driverusername,
       totalNoOfSit:totalsit,
+      createdBy:createdby,
+     }
+   })
+   res.json(bus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//change bus status
+exports.updateBusStatus = async (req, res, next) => {
+  try {
+   const id=req.params.id
+   const is_active = req.body.isactive;
+   const bus= await Bus.findAndUpdateById(id,{
+     $set:{
+     isActive:is_active
      }
    })
    res.json(bus)

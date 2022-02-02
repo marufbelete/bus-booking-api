@@ -16,14 +16,14 @@ tarif: {
     trim: true,
     required: true,
 }, 
-selectedBusForRoute: [{
-    type: Schema.Types.ObjectId, ref: 'user', 
-    required: true,
-}],
 estimatedHour: {
     type: String,
     trim: true,
     required: true,
+},
+createdBy:{
+  type: Schema.Types.ObjectId, ref: 'user', 
+  required: true,
 },
 organizationCode:{
     type: String,

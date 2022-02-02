@@ -50,7 +50,7 @@ exports.updateCityInfo = async (req, res, next) => {
   }
 };
 //delete role
-exports.deleteBus = async (req, res, next) => {
+exports.deleteCity = async (req, res, next) => {
   try {
    const deleteid=req.params.id
    await City.findByIdAndDelete(deleteid)

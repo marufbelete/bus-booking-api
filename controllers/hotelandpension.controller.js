@@ -1,6 +1,6 @@
 const HotelAndPension = require("../models/hotelandpension.model");
 
-exports.registerHotelsAndPensions = async (req, res, next) => {
+exports.registerHotelOrPension = async (req, res, next) => {
   try {
     const cityname = req.body.cityname;
     const hotelname =req.body.hotelrname;
@@ -31,28 +31,28 @@ next(error);
   }
 };
 
-exports.getGetAllHotelAndPension = async (req, res, next) => {
+exports.getGetAllHotelOrPension = async (req, res, next) => {
   try {
-  const all_hotel_and_pension= await HotelAndPension.find()
-  return res.json(all_hotel_and_pension)
+  const all_hotel_Or_pension= await HotelAndPension.find()
+  return res.json(all_hotel_Or_pension)
   }
   catch(error) {
     next(error)
   }
 };
 
-exports.getGetAllHotelAndPensionByCity = async (req, res, next) => {
+exports.getGetAllHotelOrPensionByCity = async (req, res, next) => {
   try {
   const city_name=req.params.cityname
-  const all_hotel_and_pension_in_city= await HotelAndPension.find({cityName:city_name})
-  return res.json(all_hotel_and_pension_in_city)
+  const all_hotel_Or_pension_in_city= await HotelAndPension.find({cityName:city_name})
+  return res.json(all_hotel_Or_pension_in_city)
   }
   catch(error) {
     next(error)
   }
 };
 //get organization by id
-exports.updateHotelAndPensionInfo = async (req, res, next) => {
+exports.updateHotelOrPensionInfo = async (req, res, next) => {
   try {
     const cityname = req.body.cityname;
     const hotelname =req.body.hotelrname;
@@ -63,7 +63,7 @@ exports.updateHotelAndPensionInfo = async (req, res, next) => {
     const pensiondescription =req.body.pensiondescription;
     const pensioncontact =req.body.pensioncontact;
     const pensionmaplocation=req.body.pensionmaplocation
-    const hotelandpension= await HotelAndPension.findAndUpdateById(id,{
+    const hotelOrpension= await HotelAndPension.findOrUpdateById(id,{
      $set:{
       cityName:cityname,
       hotelName:hotelname,
@@ -76,17 +76,17 @@ exports.updateHotelAndPensionInfo = async (req, res, next) => {
       pensionMapLocation:pensionmaplocation,
      }
    })
-   return res.json(hotelandpension)
+   return res.json(hotelOrpension)
   }
   catch(error) {
     next(error)
   }
 };
 //delete role
-exports.deleteHotelAndPension = async (req, res, next) => {
+exports.deleteHotelOrPension = async (req, res, next) => {
   try {
    const deleteid=req.params.id
-   await HotelAndPension.findByIdAndDelete(deleteid)
+   await HotelAndPension.findByIdOrDelete(deleteid)
    res.json("deleted successfully")
   }
   catch(error) {

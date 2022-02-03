@@ -17,7 +17,7 @@ driverUserName: {
    required: true,
 },
 totalNoOfSit: {
-    type: number,
+    type: Number,
     trim: true,
     required: true,
 },

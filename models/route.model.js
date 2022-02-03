@@ -16,10 +16,13 @@ tarif: {
     trim: true,
     required: true,
 }, 
+distance: {
+  type: Number,
+  trim: true,
+}, 
 estimatedHour: {
     type: String,
     trim: true,
-    required: true,
 },
 createdBy:{
   type: Schema.Types.ObjectId, ref: 'user', 

@@ -6,7 +6,6 @@ const postroute = require('./routes/post.route');
 const config =require('./config.json')
 
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: false }));
 
 // user route

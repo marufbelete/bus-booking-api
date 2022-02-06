@@ -1,6 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose")
+const http=require("http");
 const app = express();
+const server=http.createServer(app)
+
 const userroute = require('./routes/user.route');
 const postroute = require('./routes/post.route');
 const config =require('./config.json')

@@ -15,17 +15,26 @@ tarif: {
     type: String,
     trim: true,
     required: true,
-}, 
-distance: {
-  type: Number,
-  trim: true,
-}, 
+},
+distance:{
+  type:Number,
+  trim:true,
+},
 estimatedHour: {
     type: String,
     trim: true,
 },
+departurePlcae: {
+  type: Array,
+  trim: true,
+},
+maximumTrip: {
+  type: Number,
+  trim: true,
+},
 createdBy:{
-  type: Schema.Types.ObjectId, ref: 'user', 
+  type: mongoose.Schema.Types.ObjectId,  
+  ref: 'user', 
   required: true,
 },
 organizationCode:{
@@ -38,6 +47,8 @@ organizationCode:{
     timestamps: true,
   },
 );
+
+RouteSchema.index( { "source": 1, "destination": 1 }, { unique: true } )
 
 const Route = mongoose.model("route", RouteSchema);
 

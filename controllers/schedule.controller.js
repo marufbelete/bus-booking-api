@@ -275,6 +275,7 @@ exports.myPassangerList = async (req, res, next) => {
   //selecte the field in all api
   // for departure date lethan now
    const username=req.user.phone_number
+   const timenow = Date.now()
    const my_booking=await Schedule.findOne({driverUserName:username}).sort({datefield:-1})
    res.json(my_booking)
   }

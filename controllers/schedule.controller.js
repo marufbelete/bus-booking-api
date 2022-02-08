@@ -283,5 +283,75 @@ exports.myPassangerList = async (req, res, next) => {
     next(error)
   }
 };
+//transfer schedule request will send request notification to other org nothing more
+exports.scheduleTransferRequest = async (req, res, next) => {
+  try {
+   const schedule_id=req.body.scheduleid
+   //find unique socket of organization that we want to send request notification
+   const socket_id=req.body.scoketid
+  io.getIo().emit({action:"transfer request",value:schedule_id})
+   res.json("request sent successfully")
+  }
+  catch(error) {
+    next(error)
+  }
+};
+// accept transfer schedule
+exports.acceptScheduleTransferRequest = async (req, res, next) => {
+  try {
+   const schedule_id=req.body.scheduleid
+   const transfer_info=await Schedule.aggregate([
+     {$match:{_id:schedule_id}},
+     {$project:{source:1,destination:1,tarif:1,passangerInfo:1,numberOfPassanger:{$size:"$occupiedSitNo"}},
+     }
+   ])
+   //find and insert to shedule which can accomodate thos passanger in given date
+  const for_schedule_accepting =await Schedule.findOneAndUpdate(
+     {source:transfer_info.source,distination:transfer_info.destination,$expr:{$gte:[{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},transfer_info.numberOfPassanger]}},
+     {
+       passangerInfo:{$push:{$each:transfer_info.passangerInfo}}
+     }
+     )
+   //make istransferd true
+   await Schedule.findByIdAndUpdate(schedule_id,{
+     $set:{
+      isTransfered:true,
+     }
+   })
+   //find unique socket of organization that we want to send request notification
+   const socket_id=req.body.scoketid
 
+  io.getIo().emit({action:"RequestAccepted",value:"your request is accepted by Name of the company"})
+   res.json("request sent successfully")
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//transfer schedule request rejected
+exports.rejectScheduleTransferRequest = async (req, res, next) => {
+  try {
+io.getIo().emit({action:"RequestRejected",value:"your request isnot accepted by Name of the company"})
+ return 
+  }
+  catch(error) {
+    next(error)
+  }
+}
+//postpone trip for specific user
+exports.postponeTrip = async (req, res, next) => {
+  try {
+    const schedule_id=req.body.id
+    const source=req.body.source
+    const destination=req.body.destination
+    const new_departure_date=req.body.newdeparturedate
+    const passanger_unique_id=req.body.passangerid
+    const total_sit=
+    await Schedule.findOneAndUpdate({})
+ return 
+  }
+  catch(error) {
+    next(error)
+  }
+}
 

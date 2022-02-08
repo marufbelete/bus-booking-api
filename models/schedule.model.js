@@ -92,6 +92,10 @@ isTripCanceled:{
 type:Boolean,
 default:false,
 },
+isTransfered:{
+  type:Boolean,
+  default:false,
+  },
 canceledBy:{
   type: mongoose.Schema.Types.ObjectId, 
   ref: 'user', 

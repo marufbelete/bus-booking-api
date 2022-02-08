@@ -299,15 +299,16 @@ exports.scheduleTransferRequest = async (req, res, next) => {
 // accept transfer schedule
 exports.acceptScheduleTransferRequest = async (req, res, next) => {
   try {
-   const schedule_id=req.body.scheduleid
+   const schedule_id=req.query.scheduleid
    const transfer_info=await Schedule.aggregate([
      {$match:{_id:schedule_id}},
      {$project:{source:1,destination:1,tarif:1,passangerInfo:1,numberOfPassanger:{$size:"$occupiedSitNo"}},
      }
    ])
-   //find and insert to shedule which can accomodate thos passanger in given date
+   //find and insert to shedule which can accomodate those passanger in given date
   const for_schedule_accepting =await Schedule.findOneAndUpdate(
-     {source:transfer_info.source,distination:transfer_info.destination,$expr:{$gte:[{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},transfer_info.numberOfPassanger]}},
+     {source:transfer_info.source,distination:transfer_info.destination,departureDateAndTime:transfer_info.departureDateAndTime,
+      $expr:{$gte:[{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},transfer_info.numberOfPassanger]}},
      {
        passangerInfo:{$push:{$each:transfer_info.passangerInfo}}
      }

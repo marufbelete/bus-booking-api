@@ -297,8 +297,13 @@ exports.scheduleTransferRequest = async (req, res, next) => {
   }
 };
 // accept transfer schedule
+
+
 exports.acceptScheduleTransferRequest = async (req, res, next) => {
+  const session=await Schedule.startSession()
   try {
+    session.startTransaction();
+
    const schedule_id=req.query.scheduleid
    const transfer_info=await Schedule.aggregate([
      {$match:{_id:schedule_id}},
@@ -306,26 +311,33 @@ exports.acceptScheduleTransferRequest = async (req, res, next) => {
      }
    ])
    //find and insert to shedule which can accomodate those passanger in given date
+   //solve the sit number issue
   const for_schedule_accepting =await Schedule.findOneAndUpdate(
      {source:transfer_info.source,distination:transfer_info.destination,departureDateAndTime:transfer_info.departureDateAndTime,
       $expr:{$gte:[{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},transfer_info.numberOfPassanger]}},
      {
        passangerInfo:{$push:{$each:transfer_info.passangerInfo}}
-     }
+     },
+     {session,new:true}
      )
    //make istransferd true
    await Schedule.findByIdAndUpdate(schedule_id,{
      $set:{
       isTransfered:true,
      }
-   })
+   },{session,new:true})
    //find unique socket of organization that we want to send request notification
    const socket_id=req.body.scoketid
 
+  await session.commitTransaction();
+
   io.getIo().emit({action:"RequestAccepted",value:"your request is accepted by Name of the company"})
-   res.json("request sent successfully")
+  res.json("request sent successfully")
+
+  
   }
   catch(error) {
+    await session.abortTransaction();
     next(error)
   }
 };
@@ -346,9 +358,24 @@ exports.postponeTrip = async (req, res, next) => {
     const source=req.body.source
     const destination=req.body.destination
     const new_departure_date=req.body.newdeparturedate
+    const orgcode=req.user.organization_code
+    const pass_phone_number=req.body.passphone
+    const passange_name=req.body.passname
     const passanger_unique_id=req.body.passangerid
-    const total_sit=
-    await Schedule.findOneAndUpdate({})
+    const booked_by=req.body.bookedby
+    const total_sit=req.body.reservedsit
+    //solve the sit issue
+    await Schedule.findOneAndUpdate({source:source,destination:destination,departureDateAndTime:new_departure_date,organizationCode:orgcode},
+      {
+        $set:{
+          $push:{passangerInfo:{passangerName:passange_name,
+           passangerPhone:pass_phone_number,
+           uniqueId:passanger_unique_id,
+           PassangerOccupiedSitNo:psss_ocupied_sit_no,
+           bookedBy:booked_by}},
+           $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
+          }
+      })
  return 
   }
   catch(error) {

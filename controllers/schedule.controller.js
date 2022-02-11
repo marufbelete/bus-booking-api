@@ -391,6 +391,7 @@ io.getIo().emit({action:"RequestRejected",value:"your request isnot accepted by 
 }
 //postpone trip for specific user
 exports.postponeTrip = async (req, res, next) => {
+  const session=await Schedule.startSession()
   try {
     const schedule_id=req.body.id
     const source=req.body.source
@@ -401,22 +402,62 @@ exports.postponeTrip = async (req, res, next) => {
     const passange_name=req.body.passname
     const passanger_unique_id=req.body.passangerid
     const booked_by=req.body.bookedby
-    const total_sit=req.body.reservedsit
+    const total_sit_arr=req.body.reservedsit
+    const postpone_to=await Schedule.findOne({source:source,destination:destination,departureDateAndTime:new_departure_date,organizationCode:orgcode})
+    const occup_sit=postpone_to.occupiedSitNo
+    //sit not allowed
+    const sit_not_allowed=total_sit_arr.filter((elem)=>{
+      return occup_sit.includes(elem)
+    })
+    let generated_sit
+//sit allowed
+    const sit_allowed=total_sit_arr.filter((elem)=>{
+      return !occup_sit.includes(elem)
+    })
+    //change sit not allowed to random allowed sit
+    function between(min, max) {  
+      let random= Math.floor(Math.random() * (max - min + 1) + min)
+      while(occupied2.includes(random)){
+        random= Math.floor(Math.random() * (max - min + 1) + min)
+        continue
+      }
+        return random
+    }
+    if(intersection.length>0)
+    {
+    
+    for (let i=0;i<sit_not_allowed.length; i++)
+    {
+      let sit=between(1, 49)
+      generated_sit.push(sit)
+    }
+  }
+  const new_allowed_sit=sit_not_allowed.map((ele)=>{
+     return generated_sit.splice(-1)[0]
+  })
+  const submit_sit=[...sit_allowed,...new_allowed_sit]
     //solve the sit issue
-    await Schedule.findOneAndUpdate({source:source,destination:destination,departureDateAndTime:new_departure_date,organizationCode:orgcode},
+    session.startTransaction()
+    await Schedule.findOneAndUpdate({_id:postpone_to._id},
       {
         $set:{
           $push:{passangerInfo:{passangerName:passange_name,
            passangerPhone:pass_phone_number,
            uniqueId:passanger_unique_id,
-           PassangerOccupiedSitNo:psss_ocupied_sit_no,
+           PassangerOccupiedSitNo:submit_sit,
            bookedBy:booked_by}},
-           $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
+           $addToSet:{occupiedSitNo:{$each:submit_sit}},
           }
-      })
- return 
+      },{session,new:true})
+      const change_preivious_schedule=await Schedule.findOneAndUpdate({_id:schedule_id},
+        {$set:{"passangerInfo.$[el].isPassangerPostponed":true}},
+        {arrayFilters:[{"el.uniqueId":passanger_unique_id}],session,new:true})
+      session.commitTransaction()
+
+ return res.json()
   }
   catch(error) {
+    await session.abortTransaction();
     next(error)
   }
 }

@@ -70,6 +70,14 @@ passangerInfo:[{
       type: Boolean,  
       default:false,
       },
+      isPassangerTransfered: {
+        type: Boolean,  
+        default:false,
+        },
+      isPassangerPostponed: {
+        type: Boolean,  
+        default:false,
+        },
   uniqueId: {
     type: String, 
     trim:true,
@@ -99,7 +107,12 @@ isTransfered:{
 canceledBy:{
   type: mongoose.Schema.Types.ObjectId, 
   ref: 'user', 
-  }
+  },
+  transfredBy:{
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'user', 
+    }
+    
   
 },
   {

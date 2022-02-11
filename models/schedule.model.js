@@ -58,7 +58,7 @@ passangerInfo:[{
       type: String,
       trim: true,
       },
-  PassangerOccupiedSitNo:{
+  passangerOccupiedSitNo:{
     type: Array,
     trim: true,
   },

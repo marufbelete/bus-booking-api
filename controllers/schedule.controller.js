@@ -297,26 +297,66 @@ exports.scheduleTransferRequest = async (req, res, next) => {
   }
 };
 // accept transfer schedule
-
-
 exports.acceptScheduleTransferRequest = async (req, res, next) => {
   const session=await Schedule.startSession()
   try {
     session.startTransaction();
-
    const schedule_id=req.query.scheduleid
    const transfer_info=await Schedule.aggregate([
      {$match:{_id:schedule_id}},
-     {$project:{source:1,destination:1,tarif:1,passangerInfo:1,numberOfPassanger:{$size:"$occupiedSitNo"}},
+     {$project:{source:1,destination:1,tarif:1,passangerInfo:1,departureDateAndTime:1,numberOfPassanger:{$size:"$occupiedSitNo"},occupiedSit1:"$occupiedSitNo"},
      }
    ])
+   //find the intersection of the two occupied sit
+   const for_schedule_accepting =await Schedule.findOne(
+    {source:transfer_info.source,distination:transfer_info.destination,departureDateAndTime:transfer_info.departureDateAndTime,
+     $expr:{$gte:[{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},transfer_info.numberOfPassanger]}})
+let occupied1 = transfer_info.occupiedSit1;
+let occupied2 = for_schedule_accepting.occupiedSitNo;
+const intersection = occupied1.filter(element => occupied2.includes(element));
+let only_in_occupied1=occupied1.filter((elem=>!occupied2.includes(elem)))
+//generate unique number which is not in occpied2 if there is an intersection
+let sit_pool=[]
+const generated_sit=[]
+const final_transfer_sit
+function between(min, max) {  
+  let random= Math.floor(Math.random() * (max - min + 1) + min)
+  while(occupied2.includes(random)){
+    random= Math.floor(Math.random() * (max - min + 1) + min)
+    continue
+  }
+    return random
+}
+if(intersection.length>0)
+{
+
+for (let i=0;i<intersection.length; i++)
+{
+  let sit=between(1, 49)
+  generated_sit.push(sit)
+}
+ final_transfer_sit=[...only_in_occupied1,...generated_sit]
+}
+  //transfer maping for user info
+  const add_passanger_info=transfer_info.passangerInfo.map((elem)=>{
+    const each_intersection = elem.passangerOccupiedSitNo.filter(eachelem => occupied2.includes(eachelem));
+    let each_pass_sit=elem.passangerOccupiedSitNo.map((esit)=>
+    {
+       if(each_intersection.includes(esit))
+       {
+         return generated_sit.splice(-1)[0]
+        }
+        else {return esit}
+    })
+    return {...elem,passangerOccupiedSitNo:each_pass_sit}
+  })
+
    //find and insert to shedule which can accomodate those passanger in given date
    //solve the sit number issue
-  const for_schedule_accepting =await Schedule.findOneAndUpdate(
-     {source:transfer_info.source,distination:transfer_info.destination,departureDateAndTime:transfer_info.departureDateAndTime,
-      $expr:{$gte:[{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},transfer_info.numberOfPassanger]}},
+   const accpting_schedule_id=for_schedule_accepting._id
+   await Schedule.findOneAndUpdate({_id:accpting_schedule_id},
      {
-       passangerInfo:{$push:{$each:transfer_info.passangerInfo}}
+     $set:{ passangerInfo:{$addToSet:{$each:add_passanger_info}},occupiedSitNo:[...final_transfer_sit,...occupied2]}
      },
      {session,new:true}
      )
@@ -328,9 +368,7 @@ exports.acceptScheduleTransferRequest = async (req, res, next) => {
    },{session,new:true})
    //find unique socket of organization that we want to send request notification
    const socket_id=req.body.scoketid
-
   await session.commitTransaction();
-
   io.getIo().emit({action:"RequestAccepted",value:"your request is accepted by Name of the company"})
   res.json("request sent successfully")
 

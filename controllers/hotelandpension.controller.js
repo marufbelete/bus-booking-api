@@ -30,7 +30,6 @@ catch(error) {
 next(error);
   }
 };
-
 exports.getGetAllHotelOrPension = async (req, res, next) => {
   try {
   const all_hotel_Or_pension= await HotelAndPension.find()
@@ -51,7 +50,6 @@ exports.getGetAllHotelOrPensionByCity = async (req, res, next) => {
     next(error)
   }
 };
-//get organization by id
 exports.updateHotelOrPensionInfo = async (req, res, next) => {
   try {
     const cityname = req.body.cityname;
@@ -82,7 +80,6 @@ exports.updateHotelOrPensionInfo = async (req, res, next) => {
     next(error)
   }
 };
-//delete role
 exports.deleteHotelOrPension = async (req, res, next) => {
   try {
    const deleteid=req.params.id

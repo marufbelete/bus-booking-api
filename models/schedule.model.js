@@ -54,34 +54,34 @@ passangerInfo:[{
       type: Array,
       trim: true,
         },
-  passangerPhone: {
-      type: String,
+    passangerPhone: {
+        type: String,
+        trim: true,
+        },
+    passangerOccupiedSitNo:{
+      type: Array,
       trim: true,
-      },
-  passangerOccupiedSitNo:{
-    type: Array,
-    trim: true,
-  },
-  bookedBy: {
-    type: mongoose.Schema.Types.ObjectId,  
-    ref: 'user', 
     },
+    bookedBy: {
+      type: mongoose.Schema.Types.ObjectId,  
+      ref: 'user', 
+      },
     isTiacketCanceled: {
       type: Boolean,  
       default:false,
       },
-      isPassangerTransfered: {
-        type: Boolean,  
-        default:false,
-        },
-      isPassangerPostponed: {
-        type: Boolean,  
-        default:false,
-        },
-  uniqueId: {
-    type: String, 
-    trim:true,
-    },
+    isPassangerTransfered: {
+      type: Boolean,  
+      default:false,
+      },
+    isPassangerPostponed: {
+      type: Boolean,  
+      default:false,
+      },
+    uniqueId: {
+      type: String, 
+      trim:true,
+      },
   }],
   occupiedSitNo:{
     type: Array,

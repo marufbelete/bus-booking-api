@@ -1,5 +1,5 @@
 const Schedule = require("../models/schedule.model");
-
+const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 exports.addSchedule = async (req, res, next) => {
   try {
@@ -158,11 +158,13 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    const psss_ocupied_sit_no= req.body.passoccupiedsit;
    //some unique id
    const booked_by = req.user.sub;
+   const uid = new ShortUniqueId({ length: 10 });
    const bus= await Schedule.findAndUpdateById(id,{
     $set:{
       $push:{passangerInfo:{passangerName:passange_name,
        passangerPhone:pass_phone_number,
        PassangerOccupiedSitNo:psss_ocupied_sit_no,
+       uniqueId:uid,
        bookedBy:booked_by}},
        $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
       }
@@ -173,32 +175,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     next(error)
   }
 };
-//book ticket use io
-exports.bookTicketFromSchedule = async (req, res, next) => {
-  try {
-   const id=req.params.id
-   //name can be an array
-   const passange_name = req.body.passname;
-   const pass_phone_number = req.body.passphone;
-   //booked sit number
-   const psss_ocupied_sit_no= req.body.passoccupiedsit;
-   //some unique id
-   const booked_by = req.user.sub;
-   const bus= await Schedule.findAndUpdateById(id,{
-    $set:{
-      $push:{passangerInfo:{passangerName:passange_name,
-       passangerPhone:pass_phone_number,
-       PassangerOccupiedSitNo:psss_ocupied_sit_no,
-       bookedBy:booked_by}},
-       $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
-      }
-   })
-   res.json(bus)
-  }
-  catch(error) {
-    next(error)
-  }
-};
+
 //assign bus iopost
 exports.assignBusToSchedule = async (req, res, next) => {
   try {
@@ -316,7 +293,6 @@ let occupied2 = for_schedule_accepting.occupiedSitNo;
 const intersection = occupied1.filter(element => occupied2.includes(element));
 let only_in_occupied1=occupied1.filter((elem=>!occupied2.includes(elem)))
 //generate unique number which is not in occpied2 if there is an intersection
-let sit_pool=[]
 const generated_sit=[]
 const final_transfer_sit
 function between(min, max) {  
@@ -329,7 +305,6 @@ function between(min, max) {
 }
 if(intersection.length>0)
 {
-
 for (let i=0;i<intersection.length; i++)
 {
   let sit=between(1, 49)
@@ -350,7 +325,6 @@ for (let i=0;i<intersection.length; i++)
     })
     return {...elem,passangerOccupiedSitNo:each_pass_sit}
   })
-
    //find and insert to shedule which can accomodate those passanger in given date
    //solve the sit number issue
    const accpting_schedule_id=for_schedule_accepting._id
@@ -371,8 +345,6 @@ for (let i=0;i<intersection.length; i++)
   await session.commitTransaction();
   io.getIo().emit({action:"RequestAccepted",value:"your request is accepted by Name of the company"})
   res.json("request sent successfully")
-
-  
   }
   catch(error) {
     await session.abortTransaction();
@@ -409,7 +381,7 @@ exports.postponeTrip = async (req, res, next) => {
     const sit_not_allowed=total_sit_arr.filter((elem)=>{
       return occup_sit.includes(elem)
     })
-    let generated_sit
+    const generated_sit=[]
 //sit allowed
     const sit_allowed=total_sit_arr.filter((elem)=>{
       return !occup_sit.includes(elem)

@@ -23,7 +23,7 @@ mongoose.connection.on("error", err => {
   console.log("err please try again")
 })
 mongoose.connection.on("connected", (err, res) => {
-  const PORT = config.PORT
+  const PORT = process.env.PORT||config.PORT
   app.listen(PORT, () => {
     console.log(`app is listening to PORT ${PORT}`)
   })

@@ -1,12 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose")
-const http=require("http");
 const app = express();
-const server=http.createServer(app)
-
 const userroute = require('./routes/user.route');
-const postroute = require('./routes/post.route');
+const manageroute = require('./routes/manage.route');
 const config =require('./config.json')
+const socketio=require("./socketio")
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -14,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 // user route
 app.use(userroute)
 //post related route
-app.use(postroute)
+app.use(manageroute)
 
 mongoose.connect("mongodb://localhost:27017/mela", {
   useNewUrlParser: true
@@ -27,7 +25,10 @@ mongoose.connection.on("connected", (err, res) => {
   app.listen(PORT, () => {
     console.log(`app is listening to PORT ${PORT}`)
   })
-
+  const io=socketio.init(httpServer)
+  io.on("connection",(socket)=>{
+console.log("socket connection created")
+  })
 })
 
 

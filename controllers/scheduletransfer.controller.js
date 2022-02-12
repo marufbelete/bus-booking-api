@@ -1,5 +1,6 @@
 const Schedule = require("../models/schedule.model");
 const ShortUniqueId = require('short-unique-id');
+const sit_gene=require("../reusable_logic/sit_generator")
 //transfer schedule request will send request notification to other org nothing more
 exports.scheduleTransferRequest = async (req, res, next) => {
   try {
@@ -35,19 +36,12 @@ let only_in_occupied1=occupied1.filter((elem=>!occupied2.includes(elem)))
 //generate unique number which is not in occpied2 if there is an intersection
 const generated_sit=[]
 const final_transfer_sit
-function between(min, max) {  
-  let random= Math.floor(Math.random() * (max - min + 1) + min)
-  while(occupied2.includes(random)){
-    random= Math.floor(Math.random() * (max - min + 1) + min)
-    continue
-  }
-    return random
-}
+
 if(intersection.length>0)
 {
 for (let i=0;i<intersection.length; i++)
 {
-  let sit=between(1, 49)
+  let sit=sit_gene.between(1, 49)
   generated_sit.push(sit)
 }
  final_transfer_sit=[...only_in_occupied1,...generated_sit]
@@ -126,21 +120,11 @@ exports.postPoneTrip = async (req, res, next) => {
     const sit_allowed=total_sit_arr.filter((elem)=>{
       return !occup_sit.includes(elem)
     })
-    //change sit not allowed to random allowed sit
-    function between(min, max) {  
-      let random= Math.floor(Math.random() * (max - min + 1) + min)
-      while(occupied2.includes(random)){
-        random= Math.floor(Math.random() * (max - min + 1) + min)
-        continue
-      }
-        return random
-    }
     if(intersection.length>0)
     {
-    
     for (let i=0;i<sit_not_allowed.length; i++)
     {
-      let sit=between(1, 49)
+      let sit=sit_gene.between(1, 49)
       generated_sit.push(sit)
     }
   }

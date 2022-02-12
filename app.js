@@ -4,7 +4,7 @@ const app = express();
 const userroute = require('./routes/user.route');
 const manageroute = require('./routes/manage.route');
 const config =require('./config.json')
-const socketio=require("./socketio")
+const socketio=require("./socket/socketio")
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

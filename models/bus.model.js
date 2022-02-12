@@ -22,7 +22,7 @@ totalNoOfSit: {
     required: true,
 },
 createdBy:{
-  type: Schema.Types.ObjectId, ref: 'user', 
+  type: mongoose.Schema.Types.ObjectId, ref: 'user', 
   required: true,
 },
 isActive:{

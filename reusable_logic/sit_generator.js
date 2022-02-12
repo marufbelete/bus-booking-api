@@ -8,9 +8,9 @@ function between(min, max) {
     return random
 }
 
-function callname(name){
+// function callname(name){
 
-}
+// }
 exports.between = between
-exports.far = far
+
 

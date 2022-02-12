@@ -6,7 +6,7 @@ exports.scheduleTransferRequest = async (req, res, next) => {
   try {
    const schedule_id=req.body.scheduleid
    //find unique socket of organization that we want to send request notification
-   const socket_id=req.body.scoketid
+  //  const socket_id=req.body.scoketid
   io.getIo().emit({action:"transfer request",value:schedule_id})
    res.json("request sent successfully")
   }
@@ -35,7 +35,7 @@ const intersection = occupied1.filter(element => occupied2.includes(element));
 let only_in_occupied1=occupied1.filter((elem=>!occupied2.includes(elem)))
 //generate unique number which is not in occpied2 if there is an intersection
 const generated_sit=[]
-const final_transfer_sit
+const final_transfer_sit=[]
 
 if(intersection.length>0)
 {

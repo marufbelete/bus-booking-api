@@ -41,7 +41,23 @@ exports.getOrganizationById = async (req, res, next) => {
 exports.getOrganizationByCode = async (req, res, next) => {
   try {
    const code=req.body.organizationcode
-   const organization= await Organization.findById(code)
+   const organization= await Organization.findOne({organizationCode:code})
+   res.json(organization)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//update organization
+exports.updateOrganization = async (req, res, next) => {
+  try {
+   const id=req.params.id
+   const org_name=req.body.organizationname
+   const organization= await Organization.findByIdAndUpdate(id,
+    { 
+      $set:{
+        organizaitonName:org_name}
+    },{new:true})
    res.json(organization)
   }
   catch(error) {

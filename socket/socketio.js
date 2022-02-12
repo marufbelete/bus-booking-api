@@ -1,5 +1,5 @@
 let io;
-modeule.exports={
+module.exports={
 init:(server)=>{
 require("socketio")(server)
 },

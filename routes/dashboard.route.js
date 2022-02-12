@@ -3,7 +3,7 @@ const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
 const {getAllSchedule,getAllCanceledSchedule,getAllActiveSchedule,getAllActiveScheduleInRoute,myBookedTicketList,myPassangerList}= require("../controllers/dashboard.controller")
 const {errorHandler} = require('../middleware/errohandling.middleware')
-
+const router = express.Router();
 //schedule
 router.get('/getallschedule',userauth,authAdmin,getAllSchedule,errorHandler)
 router.get('/getallactiveschedule',userauth,getAllActiveSchedule,errorHandler)

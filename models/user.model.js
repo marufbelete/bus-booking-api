@@ -38,8 +38,8 @@ password: {
 );
 //solve this
 UserSchema.index({userRole: 1},{unique: true, partialFilterExpression: { "userRole" : "owner" }});
-UserSchema.index({organizationCode: 1},{unique: true, partialFilterExpression: { "userRole" : "superadmin" }});
-
+// this make for one org only one use with superadmin
+UserSchema.index({organizationCode: 1,userRole: 1},{unique: true, partialFilterExpression: { "userRole" : "superadmin" }});
 const User = mongoose.model("user", UserSchema);
 
 module.exports = User;

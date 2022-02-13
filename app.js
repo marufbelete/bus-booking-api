@@ -16,7 +16,7 @@ app.use(manageroute)
 app.use(dashboard)
 app.use(transfer)
 
-mongoose.connect("mongodb://localhost:27017/mela", {
+mongoose.connect("mongodb+srv://maruf:maruf@cluster0.seiba.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
   useNewUrlParser: true
 })
 mongoose.connection.on("error", err => {

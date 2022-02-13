@@ -6,7 +6,7 @@ const manageroute = require('./routes/manage.route');
 const dashboard = require('./routes/dashboard.route');
 const transfer = require('./routes/scheduletransfer.route');
 const config =require('./config.json')
-const socketio=require("./socket/socketio")
+// const socketio=require("./socket/socketio")
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

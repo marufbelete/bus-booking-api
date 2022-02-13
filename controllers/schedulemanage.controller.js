@@ -56,7 +56,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    const psss_ocupied_sit_no= req.body.passoccupiedsit;
    //some unique id
    const booked_by = req.user.sub;
-   const uid = new ShortUniqueId({ length: 10 });
+   const uid = new ShortUniqueId({ length: 12 });
    const bus= await Schedule.findAndUpdateById(id,{
     $set:{
       $push:{passangerInfo:{passangerName:passange_name,

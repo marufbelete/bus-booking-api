@@ -1,5 +1,4 @@
 const Schedule = require("../models/schedule.model");
-const ShortUniqueId = require('short-unique-id');
 
 //all schedules not used much
 exports.getAllSchedule = async (req, res, next) => {
@@ -26,7 +25,9 @@ exports.getAllMySale = async (req, res, next) => {
   const saler_id =req.user.sub;
   const role_type=req.user.user_role;
   const allSchedule= await Schedule.find({organizationCode:orgcode,userRole:role_type,"passangerInfo.bookedBy":saler_id}).limit(pagesize).skip(skip).sort({datefield:-1})
-  const all_my_sale=allSchedule.map(eachdoc=> {return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDateAndTime:eachdoc.departureDateAndTime,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
+  const all_my_sale=allSchedule.map(eachdoc=> 
+    {
+      return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDateAndTime:eachdoc.departureDateAndTime,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
   return res.json(all_my_sale)
   }
   catch(error) {

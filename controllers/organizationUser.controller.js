@@ -1,5 +1,5 @@
 const User = require("../models/User.model");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
 const config = require('../config.json');
 const Role=require("../accesscontoller.json")
@@ -86,7 +86,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
       throw error;
     }
     const user_role=user.userRole
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, "marufsecret");
+    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, config.SECRET);
     res.json({
       token
     });

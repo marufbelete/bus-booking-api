@@ -1,5 +1,4 @@
 const Schedule = require("../models/schedule.model");
-const ShortUniqueId = require('short-unique-id');
 const sit_gene=require("../reusable_logic/sit_generator")
 //transfer schedule request will send request notification to other org nothing more
 exports.scheduleTransferRequest = async (req, res, next) => {

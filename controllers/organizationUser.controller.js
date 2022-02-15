@@ -59,7 +59,7 @@ exports.saveOwner = async (req, res, next) => {
         throw error;
       }
      const user = await User.find({
-        phone_number: phone_number,
+        phoneNumber: phone_number,
       });
       if (user.length===0) {
         const error = new Error("No account with this Phone exist" )
@@ -195,7 +195,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
       throw error;
     }
    const user = await User.find({
-      phone_number: phone_number,
+      phoneNumber: phone_number,
       organizationCode:organization_code
     });
     if (user.length===0) {

@@ -9,7 +9,7 @@ exports.saveOwner = async (req, res, next) => {
   try {
     const name = req.body.name;
     const phone_number = req.body.phonenumber;
-    const add_role=req.body.userRole; 
+    const add_role=req.body.userrole; 
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
     if (anyphone_number.length>0) {
@@ -49,7 +49,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
     const phone_number = req.body.phoneumber;
-    const add_role=req.body.userRole; 
+    const add_role=req.body.userrole; 
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
     const organization_code=req.userinfo.organization_code;
@@ -148,7 +148,7 @@ exports.updateOrganizationUser = async (req, res, next) => {
     const phone_number = req.body.phonenumber;
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
-    const change_role=req.body.userRole;
+    const change_role=req.body.userrole;
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.organization_code;
     const user_id=req.userinfo.sub;

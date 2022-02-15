@@ -35,12 +35,12 @@ exports.saveMobileUser = async (req, res, next) => {
     }
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
-    const user = new User({
+    const newuser = new User({
       phone_number: phone_number,
       password: passwordHash,
       isMobileUser:true,    
     })
-    await user.save()
+    const user=await newuser.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, config.SECRET);
     res.json({
       token

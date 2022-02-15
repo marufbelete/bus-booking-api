@@ -38,14 +38,95 @@ exports.saveOwner = async (req, res, next) => {
       userRole:add_role,
       password: passwordHash,
     })
-    const theowner=await owner.save()
-    return res.json(theowner)
+    const user=await owner.save()
+    const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:false }, config.SECRET);
+    return res.json(token);
+
   }
   catch(error)
   {
     next(error)
   }
   }
+  //log in owner
+  exports.loginOnwer = async (req, res, next) => {
+    try {
+      const phone_number  = req.body.phonenumber;
+      const password=req.body.password
+      if (!!!phone_number || !!!password) {
+        const error = new Error("Please fill all field." )
+        error.statusCode = 400
+        throw error;
+      }
+     const user = await User.find({
+        phone_number: phone_number,
+      });
+      if (user.length===0) {
+        const error = new Error("No account with this Phone exist" )
+        error.statusCode = 400
+        throw error;
+      }
+      const isMatch = await bcrypt.compare(password, user.password)
+      if (!isMatch) {
+        const error = new Error("Invalid credential.")
+        error.statusCode = 400
+        throw error;
+      }
+      const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:user.isMobileUser }, config.SECRET);
+    res.json({
+      token
+    });
+    return res.json(token)
+    }
+    catch(error) {
+      next(error)
+       }
+  };
+  exports.saveSuperadmin = async (req, res, next) => {
+    try {
+      const name = req.body.name;
+      const phone_number = req.body.phonenumber;
+      const add_role=req.body.userrole; 
+      const password=req.body.password;
+      const confirm_password=req.body.confirmpassword;
+      const organization_code=req.body.organizationcode;
+      const anyphone_number = await User.find({
+        phoneNumber: phone_number,
+        organizationCode:organization_code
+      });
+      if (anyphone_number.length>0) {
+        const error = new Error("User with this phone number already exist!!!")
+        error.statusCode = 400
+        throw error;
+      }
+      if (password.length < 5) {
+        const error = new Error("the password need to be atleast 5 charcter long.")
+        error.statusCode = 400
+        throw error;
+      }
+      if (password != confirm_password) {
+        const error = new Error("password doesn't match. please try again." )
+        error.statusCode = 400
+        throw error;
+      }
+      const salt = await bcrypt.genSalt();
+      const passwordHash = await bcrypt.hash(password, salt);
+      const superadmin=new User({
+        name:name,
+        phoneNumber: phone_number,
+        isMobileUser:false,
+        userRole:add_role,
+        password: passwordHash,
+        organizationCode:organization_code
+      })
+      const thesuperadmin=await superadmin.save()
+      return res.json(thesuperadmin)
+    }
+    catch(error)
+    {
+      next(error)
+    }
+    }
 exports.saveOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
@@ -54,14 +135,11 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
     const organization_code=req.userinfo.organization_code;
-    const user_role=req.userinfo.user_role;
-if(add_role===Role.SUPERADMIN)
+if(add_role===Role.SUPERADMIN || add_role===Role.OWNER)
 { 
-    if(user_role!==Role.OWNER)
-    { const error = new Error("You don't have access to add super admin, please contact your provider" )
-    error.statusCode = 400
-    throw error;
-    }
+ const error = new Error("You don't have access to add super admin or owner, please contact your provider" )
+  error.statusCode = 400
+  throw error;
 }
 if (!!!name || !!!phone_number || !!!password || !!!add_role) {
   const error = new Error("Please fill all field." )

@@ -1,6 +1,6 @@
 const express = require('express');
 const { saveMobileUser,loginMobileUser,updateMobileUser } = require('../controllers/mobileUser.controller');
-const {saveOwner,loginOnwe,saveSuperadmin,saveOrganizationUser,loginOrganizationUser,updateOrganizationUser,deleteOrganizationUser } = require('../controllers/organizationUser.controller');
+const {saveOwner,loginOnwer,saveSuperadmin,saveOrganizationUser,loginOrganizationUser,updateOrganizationUser,deleteOrganizationUser } = require('../controllers/organizationUser.controller');
 const {createRole,getRole,deleteRole}=require('../controllers/manageRole.controller')
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
@@ -9,7 +9,7 @@ const router = express.Router();
 
 // owner
 router.post('/registerowner',saveOwner,errorHandler)
-router.post('/loginowner',loginOnwe,errorHandler)
+router.post('/loginowner',loginOnwer,errorHandler)
 
 // superadmin
 router.post('/registersuperadmin',authOwner,saveSuperadmin,errorHandler)

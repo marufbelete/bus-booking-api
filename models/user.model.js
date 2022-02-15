@@ -21,7 +21,7 @@ password: {
   },
   userRole:{
     type: String,
-    enum: ['ownwer','superadmin','admin','casher','driver','agent'],
+    enum: ['owner','superadmin','admin','casher','driver','agent'],
     trim: true,
     toLowerCase:true,
   },

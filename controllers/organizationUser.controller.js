@@ -13,9 +13,7 @@ exports.saveOwner = async (req, res, next) => {
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
     const anyphone_number = await User.find({
-      phoneNumber: phone_number,
-      organizationCode:organization_code
-    });
+      phoneNumber: phone_number });
     if (anyphone_number.length>0) {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400

@@ -8,10 +8,10 @@ const Role=require("../accesscontoller.json")
 exports.saveOwner = async (req, res, next) => {
   try {
     const name = req.body.name;
-    const phone_number = req.body.phoneNumber;
+    const phone_number = req.body.phonenumber;
     const add_role=req.body.userRole; 
     const password=req.body.password;
-    const confirm_password=req.body.confirmPassword;
+    const confirm_password=req.body.confirmpassword;
     if (anyphone_number.length>0) {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
@@ -31,7 +31,7 @@ exports.saveOwner = async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, salt);
     const owner=newUser({
       name:name,
-      phone_number: phone_number,
+      phoneNumber: phone_number,
       isMobileUser:false,
       userRole:add_role,
       organizationCode:organization_code,
@@ -48,10 +48,10 @@ exports.saveOwner = async (req, res, next) => {
 exports.saveOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
-    const phone_number = req.body.phoneNumber;
+    const phone_number = req.body.phoneumber;
     const add_role=req.body.userRole; 
     const password=req.body.password;
-    const confirm_password=req.body.confirmPassword;
+    const confirm_password=req.body.confirmpassword;
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.user_role;
 if(add_role===Role.SUPERADMIN)
@@ -90,7 +90,7 @@ if (!!!name || !!!phone_number || !!!password || !!!add_role) {
     const passwordHash = await bcrypt.hash(password, salt);
     const user = new User({
       name:name,
-      phone_number: phone_number,
+      phoneNumber: phone_number,
       isMobileUser:false,
       userRole:add_role,
       organizationCode:organization_code,
@@ -145,9 +145,9 @@ exports.updateOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
     const updateduserid=req.params.id
-    const phone_number = req.body.phoneNumber;
+    const phone_number = req.body.phonenumber;
     const password=req.body.password;
-    const confirm_password=req.body.confirmPassword;
+    const confirm_password=req.body.confirmpassword;
     const change_role=req.body.userRole;
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.organization_code;

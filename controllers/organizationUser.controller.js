@@ -5,6 +5,46 @@ const config = require('../config.json');
 const Role=require("../accesscontoller.json")
 
 //register organization user
+exports.saveOwner = async (req, res, next) => {
+  try {
+    const name = req.body.name;
+    const phone_number = req.body.phoneNumber;
+    const add_role=req.body.userRole; 
+    const password=req.body.password;
+    const confirm_password=req.body.confirmPassword;
+    if (anyphone_number.length>0) {
+      const error = new Error("User with this phone number already exist!!!")
+      error.statusCode = 400
+      throw error;
+    }
+    if (password.length < 5) {
+      const error = new Error("the password need to be atleast 5 charcter long.")
+      error.statusCode = 400
+      throw error;
+    }
+    if (password != confirm_password) {
+      const error = new Error("password doesn't match. please try again." )
+      error.statusCode = 400
+      throw error;
+    }
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
+    const owner=newUser({
+      name:name,
+      phone_number: phone_number,
+      isMobileUser:false,
+      userRole:add_role,
+      organizationCode:organization_code,
+      password: passwordHash,
+    })
+    const owner=await owner.save()
+    return res.json(owner)
+  }
+  catch(error)
+  {
+    next(error)
+  }
+  }
 exports.saveOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
@@ -13,12 +53,20 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const password=req.body.password;
     const confirm_password=req.body.confirmPassword;
     const organization_code=req.userinfo.organization_code;
-    const user_role=req.userinfo.organization_code;
-    if (!!!name || !!!phone_number || !!!password || !!!add_role) {
-      const error = new Error("Please fill all field." )
-      error.statusCode = 400
-      throw error;
+    const user_role=req.userinfo.user_role;
+if(add_role===Role.SUPERADMIN)
+{ 
+    if(user_role!==Role.OWNER)
+    { const error = new Error("You don't have access to add super admin, please contact your provider" )
+    error.statusCode = 400
+    throw error;
     }
+}
+if (!!!name || !!!phone_number || !!!password || !!!add_role) {
+  const error = new Error("Please fill all field." )
+  error.statusCode = 400
+  throw error;
+}
     const anyphone_number = await User.find({
       phoneNumber: phone_number,
       organizationCode:organization_code
@@ -44,15 +92,12 @@ exports.saveOrganizationUser = async (req, res, next) => {
       name:name,
       phone_number: phone_number,
       isMobileUser:false,
-      userRole:user_role,
+      userRole:add_role,
       organizationCode:organization_code,
       password: passwordHash,
     })
     await user.save()
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,user_role:user_role,organization_code:organization_code }, config.SECRET);
-    res.json({
-      token
-    });
+   return res.json("saved successfully")
   }
   catch(error) {
     next(error)

@@ -31,7 +31,7 @@ exports.saveOwner = async (req, res, next) => {
     }
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
-    const owner=newUser({
+    const owner=new User({
       name:name,
       phoneNumber: phone_number,
       isMobileUser:false,

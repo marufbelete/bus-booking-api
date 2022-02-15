@@ -38,7 +38,6 @@ exports.saveOwner = async (req, res, next) => {
       phoneNumber: phone_number,
       isMobileUser:false,
       userRole:add_role,
-      organizationCode:organization_code,
       password: passwordHash,
     })
     const theowner=await owner.save()

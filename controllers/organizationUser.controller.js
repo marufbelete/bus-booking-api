@@ -37,8 +37,8 @@ exports.saveOwner = async (req, res, next) => {
       organizationCode:organization_code,
       password: passwordHash,
     })
-    const owner=await owner.save()
-    return res.json(owner)
+    const theowner=await owner.save()
+    return res.json(theowner)
   }
   catch(error)
   {

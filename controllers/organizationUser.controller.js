@@ -12,9 +12,9 @@ exports.saveOwner = async (req, res, next) => {
     const add_role=req.body.userrole; 
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
-    const anyphone_number = await User.find({
+    const anyphone_number = await User.findOne({
       phoneNumber: phone_number });
-    if (anyphone_number.length>0) {
+      if(Object.keys(anyphone_number).length !== 0 && anyphone_number.constructor === Object)  {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
       throw error;
@@ -58,20 +58,23 @@ exports.saveOwner = async (req, res, next) => {
         error.statusCode = 400
         throw error;
       }
-     const user = await User.find({
+     const user = await User.findOne({
         phoneNumber: phone_number,
       });
-      if (user.length===0) {
+      if(Object.keys(user).length !== 0 && user.constructor === Object) {
         const error = new Error("No account with this Phone exist" )
         error.statusCode = 400
         throw error;
       }
+      
       const isMatch = await bcrypt.compare(password, user.password)
+      console.log(user)
       if (!isMatch) {
         const error = new Error("Invalid credential.")
         error.statusCode = 400
         throw error;
       }
+     
       const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:user.isMobileUser }, config.SECRET);
     res.json({
       token
@@ -90,11 +93,11 @@ exports.saveOwner = async (req, res, next) => {
       const password=req.body.password;
       const confirm_password=req.body.confirmpassword;
       const organization_code=req.body.organizationcode;
-      const anyphone_number = await User.find({
+      const anyphone_number = await User.findOne({
         phoneNumber: phone_number,
         organizationCode:organization_code
       });
-      if (anyphone_number.length>0) {
+      if(Object.keys(anyphone_number).length !== 0 && anyphone_number.constructor === Object) {
         const error = new Error("User with this phone number already exist!!!")
         error.statusCode = 400
         throw error;
@@ -146,11 +149,11 @@ if (!!!name || !!!phone_number || !!!password || !!!add_role) {
   error.statusCode = 400
   throw error;
 }
-    const anyphone_number = await User.find({
+    const anyphone_number = await User.findOne({
       phoneNumber: phone_number,
       organizationCode:organization_code
     });
-    if (anyphone_number.length>0) {
+    if(Object.keys(anyphone_number).length !== 0 && anyphone_number.constructor === Object)  {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
       throw error;
@@ -194,11 +197,11 @@ exports.loginOrganizationUser = async (req, res, next) => {
       error.statusCode = 400
       throw error;
     }
-   const user = await User.find({
+   const user = await User.findOne({
       phoneNumber: phone_number,
       organizationCode:organization_code
     });
-    if (user.length===0) {
+    if(Object.keys(anyphone_number).length === 0 && anyphone_number.constructor === Object) {
       const error = new Error("No account with this Phone exist" )
       error.statusCode = 400
       throw error;

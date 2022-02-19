@@ -10,6 +10,7 @@ exports.authOwner = (req, res, next) => {
 };
 
 exports.authSuperAdmin = (req, res, next) => {
+  console.log(req.userinfo)
   const userrole=req.userinfo.user_role;
   if (userrole===Role.SUPERADMIN) {
     next()

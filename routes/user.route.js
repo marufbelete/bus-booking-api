@@ -12,7 +12,7 @@ router.post('/registerowner',saveOwner,errorHandler)
 router.post('/loginowner',loginOnwer,errorHandler)
 
 // superadmin
-router.post('/registersuperadmin',authOwner,saveSuperadmin,errorHandler)
+router.post('/registersuperadmin',userauth,authOwner,saveSuperadmin,errorHandler)
 
 //mobile user 
 router.post('/registermobileuser', saveMobileUser,errorHandler)

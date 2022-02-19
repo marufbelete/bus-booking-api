@@ -61,7 +61,7 @@ exports.saveOwner = async (req, res, next) => {
      const user = await User.findOne({
         phoneNumber: phone_number,
       });
-      if(user) {
+      if(!user) {
         const error = new Error("No account with this Phone exist" )
         error.statusCode = 400
         throw error;

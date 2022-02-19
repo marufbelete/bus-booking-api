@@ -9,6 +9,7 @@ phoneNumber:{
     type: String,
     trim: true,
     required: true,
+    unique: [true,"phone number must be unique"]
 },
 password: {
     type: String,
@@ -25,7 +26,7 @@ password: {
     trim: true,
     toLowerCase:true,
   },
-  createdBy:[this],
+  createdBy:this,
   //only for organization user
   organizationCode:{
     type: String,

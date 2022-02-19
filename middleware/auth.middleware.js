@@ -12,7 +12,9 @@ const authenticateJWT = (req, res, next) => {
         return res.status(403).json({msg:"you don't have permission please login first",status:false });
       }
       req.userinfo = user;
+      console.log(user)
       next();
+      return;
     });
   }
   else {

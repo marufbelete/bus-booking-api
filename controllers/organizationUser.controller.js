@@ -14,7 +14,7 @@ exports.saveOwner = async (req, res, next) => {
     const confirm_password=req.body.confirmpassword;
     const anyphone_number = await User.findOne({
       phoneNumber: phone_number });
-      if(Object.keys(anyphone_number).length !== 0 && anyphone_number.constructor === Object)  {
+      if(anyphone_number)  {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
       throw error;
@@ -53,7 +53,7 @@ exports.saveOwner = async (req, res, next) => {
     try {
       const phone_number  = req.body.phonenumber;
       const password=req.body.password
-      if (!!!phone_number || !!!password) {
+      if (!phone_number || !password) {
         const error = new Error("Please fill all field." )
         error.statusCode = 400
         throw error;
@@ -61,7 +61,7 @@ exports.saveOwner = async (req, res, next) => {
      const user = await User.findOne({
         phoneNumber: phone_number,
       });
-      if(Object.keys(user).length !== 0 && user.constructor === Object) {
+      if(user) {
         const error = new Error("No account with this Phone exist" )
         error.statusCode = 400
         throw error;
@@ -93,11 +93,12 @@ exports.saveOwner = async (req, res, next) => {
       const password=req.body.password;
       const confirm_password=req.body.confirmpassword;
       const organization_code=req.body.organizationcode;
+      const saved_by=req.userinfo.sub
       const anyphone_number = await User.findOne({
         phoneNumber: phone_number,
-        organizationCode:organization_code
       });
-      if(Object.keys(anyphone_number).length !== 0 && anyphone_number.constructor === Object) {
+      console.log(anyphone_number)
+      if(anyphone_number) {
         const error = new Error("User with this phone number already exist!!!")
         error.statusCode = 400
         throw error;
@@ -120,7 +121,8 @@ exports.saveOwner = async (req, res, next) => {
         isMobileUser:false,
         userRole:add_role,
         password: passwordHash,
-        organizationCode:organization_code
+        organizationCode:organization_code,
+        createdBy:saved_by
       })
       const thesuperadmin=await superadmin.save()
       return res.json(thesuperadmin)
@@ -129,31 +131,34 @@ exports.saveOwner = async (req, res, next) => {
     {
       next(error)
     }
-    }
+  }
 exports.saveOrganizationUser = async (req, res, next) => {
   try {
     const name = req.body.name;
-    const phone_number = req.body.phoneumber;
+    const phone_number = req.body.phonenumber;
     const add_role=req.body.userrole; 
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
     const organization_code=req.userinfo.organization_code;
+    const saved_by=req.userinfo.sub
+    console.log(organization_code)
 if(add_role===Role.SUPERADMIN || add_role===Role.OWNER)
 { 
  const error = new Error("You don't have access to add super admin or owner, please contact your provider" )
   error.statusCode = 400
   throw error;
 }
-if (!!!name || !!!phone_number || !!!password || !!!add_role) {
+console.log(req.body)
+if (!name || !phone_number || !password || !add_role) {
   const error = new Error("Please fill all field." )
   error.statusCode = 400
   throw error;
 }
     const anyphone_number = await User.findOne({
       phoneNumber: phone_number,
-      organizationCode:organization_code
     });
-    if(Object.keys(anyphone_number).length !== 0 && anyphone_number.constructor === Object)  {
+    console.log(anyphone_number)
+    if(anyphone_number)  {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
       throw error;
@@ -177,14 +182,16 @@ if (!!!name || !!!phone_number || !!!password || !!!add_role) {
       userRole:add_role,
       organizationCode:organization_code,
       password: passwordHash,
+      createdBy:saved_by
     })
-    await user.save()
-   return res.json("saved successfully")
+  const neworguser=await user.save()
+   return res.json(neworguser)
   }
   catch(error) {
     next(error)
      }
 };
+
 
 //log in organization user
 exports.loginOrganizationUser = async (req, res, next) => {
@@ -192,16 +199,17 @@ exports.loginOrganizationUser = async (req, res, next) => {
     const phone_number  = req.body.phonenumber;
     const password=req.body.password
     const organization_code=req.body.organizationcode;
-    if (!!!phone_number || !!!password) {
+   
+    if (!phone_number || !password || !organization_code) {
       const error = new Error("Please fill all field." )
       error.statusCode = 400
       throw error;
     }
    const user = await User.findOne({
       phoneNumber: phone_number,
-      organizationCode:organization_code
+      organizationCode:organization_code,
     });
-    if(Object.keys(anyphone_number).length === 0 && anyphone_number.constructor === Object) {
+    if(!user) {
       const error = new Error("No account with this Phone exist" )
       error.statusCode = 400
       throw error;
@@ -234,7 +242,7 @@ exports.updateOrganizationUser = async (req, res, next) => {
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.organization_code;
     const user_id=req.userinfo.sub;
-    if (!!!name || !!!phone_number || !!!password || !!!user_role) {
+    if (!name || !phone_number || !password || !user_role) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
@@ -332,7 +340,7 @@ if(deleteduserid==superadminuser._id){
   throw error;
 }
 await User.findByIdAndDelete(id)
-return res.json("user deleted successfully")
+  return res.json("user deleted successfully")
 }
 else{
   if(deleteduserid==id)

@@ -9,8 +9,8 @@ exports.addRoute = async (req, res, next) => {
     const estimated_hour = req.body.estimatedhour;
     const departure_place=req.body.departureplace;
     const max_trip=req.body.maxtrip
-    const createdby =req.user.sub;
-    const orgcode =req.user.organization_code;
+    const createdby =req.userinfo.sub;
+    const orgcode =req.userinfo.organization_code;
     const newbus= new Route({
       source:source,
       destination:destination,
@@ -52,7 +52,7 @@ exports.updateRouteInfo = async (req, res, next) => {
    const estimated_hour = req.body.estimatedhour;
    const max_trip=req.body.maxtrip
    const dep_plcae=req.body.departureplace
-   const createdby =req.user.sub;
+   const createdby =req.userinfo.sub;
 
    const bus= await Route.findAndUpdateById(id,{
      $set:{

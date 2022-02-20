@@ -40,7 +40,7 @@ exports.getOrganizationById = async (req, res, next) => {
 //get organization by id include org access
 exports.getOrganizationByCode = async (req, res, next) => {
   try {
-   const code=req.params.organizationcode
+   const code=req.params.id
    const organization= await Organization.findOne({organizationCode:code})
    res.json(organization)
   }

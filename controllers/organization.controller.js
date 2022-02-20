@@ -6,7 +6,7 @@ exports.createOrganization = async (req, res, next) => {
     const orgname = req.body.organizationname;
     const orgcode= req.body.organizationcode;
     const organization = new Organization({
-      organizaitonName:orgname,
+      organizationName:orgname,
       organizationCode:orgcode  
     })
     const savedorg=await organization.save()

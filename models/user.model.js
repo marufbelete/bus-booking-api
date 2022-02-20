@@ -26,6 +26,10 @@ password: {
     trim: true,
     toLowerCase:true,
   },
+  isActive:{
+    type:Boolean,
+    required: true,  
+  },
   createdBy:this,
   //only for organization user
   organizationCode:{

@@ -346,34 +346,62 @@ return res.json(updateduser)
      }
 };
 //delete organization user
-exports.deleteOrganizationUser = async (req, res, next) => {
+exports.deactivateOrganizationUser = async (req, res, next) => {
 try {
-    const deleteduserid=req.params.id
+    const updateduserid=req.params.id
     const organization_code=req.userinfo.organization_code;
     const id=req.userinfo._id;
     const user_role=req.userinfo.organization_code;
     const superadminuser=await User.findOne({userRole:Role.SUPERADMIN,organizationCode:organization_code})
-if(user_role===Role.SUPERADMIN)
+if(user_role===Role.SUPERADMIN || user_role===Role.ADMIN)
 { 
-if(deleteduserid==superadminuser._id){ 
-  const error = new Error("you can't delete super admin.")
+if(updateduserid==superadminuser._id){ 
+  const error = new Error("you can't change status of superadmin user.")
   error.statusCode = 400
   throw error;
 }
-await User.findByIdAndDelete(id)
+  await User.findByIdAndUpdate(id,{
+    isActive:false
+  })
   return res.json("user deleted successfully")
 }
-else{
-  if(deleteduserid==id)
-  { 
-    await User.findByIdAndDelete(id)
-    return res.json("user deleted successfully")
-  }
-}
+const error = new Error("you can't delete superadmin.")
+error.statusCode = 400
+throw error;
+  
   }
   catch(error) {
     next(error)
      }
 };
+
+exports.activateOrganizationUser = async (req, res, next) => {
+  try {
+      const updateduserid=req.params.id
+      const organization_code=req.userinfo.organization_code;
+      const id=req.userinfo._id;
+      const user_role=req.userinfo.organization_code;
+      const superadminuser=await User.findOne({userRole:Role.SUPERADMIN,organizationCode:organization_code})
+  if(user_role===Role.SUPERADMIN || user_role===Role.ADMIN)
+  { 
+  if(updateduserid==superadminuser._id){ 
+    const error = new Error("you can't change status of superadmin user.")
+    error.statusCode = 400
+    throw error;
+  }
+    await User.findByIdAndUpdate(id,{
+      isActive:true
+    })
+    return res.json("user deleted successfully")
+  }
+  const error = new Error("you can't delete superadmin.")
+  error.statusCode = 400
+  throw error;
+    
+    }
+    catch(error) {
+      next(error)
+       }
+  };
 
 

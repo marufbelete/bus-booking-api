@@ -1,6 +1,6 @@
 const express = require('express');
 const { saveMobileUser,loginMobileUser,updateMobileUser } = require('../controllers/mobileUser.controller');
-const {saveOwner,loginOnwer,saveSuperadmin,saveOrganizationUser,loginOrganizationUser,updateOrganizationUser,deleteOrganizationUser } = require('../controllers/organizationUser.controller');
+const {saveOwner,loginOnwer,saveSuperadmin,saveOrganizationUser,loginOrganizationUser,updateOrganizationUser,deactivateOrganizationUser,activateOrganizationUser} = require('../controllers/organizationUser.controller');
 const {createRole,getRole,deleteRole}=require('../controllers/manageRole.controller')
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
@@ -23,7 +23,9 @@ router.put('/updatemobileuser/:id',userauth, updateMobileUser,errorHandler)
 router.post('/registerorganizationuser',userauth,authAdmin,saveOrganizationUser,errorHandler)
 router.post('/loginorganizationuser', loginOrganizationUser,errorHandler)
 router.put('/updateorganizationuser/:id',userauth ,authaAdminCasherAgent,updateOrganizationUser,errorHandler)
-router.delete('/deleteorganizationuser/:id',userauth,authAdmin ,deleteOrganizationUser,errorHandler)
+router.put('/deactivateorganizationuser/:id',userauth,authAdmin,deactivateOrganizationUser,errorHandler)
+router.put('/activateorganizationuser/:id',userauth,authAdmin,activateOrganizationUser,errorHandler)
+
 //role
 router.post('/createrole',userauth,authAdmin, createRole,errorHandler)
 router.post('/getroles',userauth,authaAdminCasherAgent,getRole,errorHandler)

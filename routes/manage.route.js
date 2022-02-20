@@ -33,7 +33,7 @@ const filefilter = (req, file, cb) => {
 const upload=multer({ storage: fileStorage, fileFilter: filefilter })
 
 //route
-router.post('/addroute',addRoute,errorHandler)
+router.post('/addroute',userauth,authaAdminCasher,addRoute,errorHandler)
 router.get('/getorganizationroute',getOrganizationRoute,errorHandler)
 router.put('/updaterouteinfo',updateRouteInfo,errorHandler)
 router.delete('/deleteroute',deleteRoute,errorHandler)

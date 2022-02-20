@@ -257,13 +257,24 @@ exports.updateOrganizationUser = async (req, res, next) => {
       error.statusCode = 400
       throw error;
     }
-    const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(password, salt);
+
+const salt = await bcrypt.genSalt();
+const passwordHash = await bcrypt.hash(password, salt);
+//owner
+
+if(user_role===Role.OWNER)
+{
+  const error = new Error( "you can't change owner info please contact you provider.")
+  error.statusCode = 400
+  throw error;
+ }
+
+//super admin
 if(user_role===Role.SUPERADMIN)
 { 
   //for other
-  if(updateduserid!=user_id){
-  const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organizationCode:organization_code},{
+  if(updateduserid!==user_id){
+  const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
   $set:{
   name:name,
   password:passwordHash,
@@ -274,7 +285,7 @@ if(user_role===Role.SUPERADMIN)
 }
 // for itself
 else{
-  const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organizationCode:organization_code},{
+  const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
     $set:{
     name:name,
     password:passwordHash,
@@ -283,12 +294,15 @@ else{
     return res.json(updateduser)
 }
 }
+console.log("in")
+const editeduser=await User.findById(updateduserid)
+//admin
 if(user_role===Role.ADMIN ){
   //for itself
-  const editeduser=await User.findOneById(updateduserid)
-  if(updateduserid==user_id)
+
+  if(updateduserid===user_id)
   { 
-    const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organizationCode:organization_code},{
+    const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
       name:name,
       password:passwordHash,
@@ -296,9 +310,9 @@ if(user_role===Role.ADMIN ){
       })
       return res.json(updateduser)
   }
-// for other than admin
+// for other than like casher
   else if(editeduser.userRole!==Role.SUPERADMIN && editeduser.userRole!==Role.ADMIN ){
-    const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organizationCode:organization_code},{
+    const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
       name:name,
       password:passwordHash,
@@ -307,12 +321,15 @@ if(user_role===Role.ADMIN ){
       })
       return res.json(updateduser)
   }
-  const error = new Error( "you can't edit other admin info.")
+  const error = new Error( "you can't edit other admin or superadmin info.")
   error.statusCode = 400
   throw error;
 
 }
-const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organizationCode:organization_code},{
+
+if(user_id===updateduserid)
+{
+const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
   $set:{
   name:name,
   password:passwordHash,
@@ -320,6 +337,10 @@ const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number,organiza
   })
 return res.json(updateduser)  
   }
+  const error = new Error( "you can't edit others info.")
+  error.statusCode = 400
+  throw error;
+}
   catch(error) {
     next(error)
      }

@@ -67,7 +67,7 @@ exports.updateOrganization = async (req, res, next) => {
 //delete role
 exports.deleteOrganization = async (req, res, next) => {
   try {
-   const deleteid=req.params.userid
+   const deleteid=req.params.id
    await Organization.findByIdAndDelete(deleteid)
   }
   catch(error) {

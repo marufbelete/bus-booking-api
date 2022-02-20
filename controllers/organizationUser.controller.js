@@ -240,7 +240,7 @@ exports.updateOrganizationUser = async (req, res, next) => {
     const confirm_password=req.body.confirmpassword;
     const change_role=req.body.userrole;
     const organization_code=req.userinfo.organization_code;
-    const user_role=req.userinfo.organization_code;
+    const user_role=req.userinfo.user_role;
     const user_id=req.userinfo.sub;
     if (!name || !phone_number || !password || !user_role) {
       const error = new Error("Please fill all field.")
@@ -280,7 +280,7 @@ if(user_role===Role.SUPERADMIN)
   password:passwordHash,
   userRole:change_role,
 }
-  })
+  },{useFindAndModify:false})
   return res.json(updateduser)
 }
 // for itself
@@ -290,16 +290,15 @@ else{
     name:name,
     password:passwordHash,
   }
-    })
+    },{useFindAndModify:false,new:true})
     return res.json(updateduser)
 }
 }
-console.log("in")
+
 const editeduser=await User.findById(updateduserid)
 //admin
 if(user_role===Role.ADMIN ){
   //for itself
-
   if(updateduserid===user_id)
   { 
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
@@ -307,18 +306,19 @@ if(user_role===Role.ADMIN ){
       name:name,
       password:passwordHash,
     }
-      })
+      },{useFindAndModify:false,new:true})
       return res.json(updateduser)
   }
 // for other than like casher
   else if(editeduser.userRole!==Role.SUPERADMIN && editeduser.userRole!==Role.ADMIN ){
+    console.log("in")
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
       name:name,
       password:passwordHash,
       userRole:change_role,
     }
-      })
+      },{useFindAndModify:false,new:true})
       return res.json(updateduser)
   }
   const error = new Error( "you can't edit other admin or superadmin info.")
@@ -334,7 +334,7 @@ const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCod
   name:name,
   password:passwordHash,
 }
-  })
+  },{useFindAndModify:false,new:true})
 return res.json(updateduser)  
   }
   const error = new Error( "you can't edit others info.")

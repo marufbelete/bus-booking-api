@@ -17,17 +17,17 @@ router.post('/registersuperadmin',userauth,authOwner,saveSuperadmin,errorHandler
 //mobile user 
 router.post('/registermobileuser', saveMobileUser,errorHandler)
 router.post('/loginmobileuser',loginMobileUser,errorHandler)
-router.put('/updatemobileuser',userauth, updateMobileUser,errorHandler)
+router.put('/updatemobileuser/:id',userauth, updateMobileUser,errorHandler)
 
 //organization user 
 router.post('/registerorganizationuser',userauth,authAdmin,saveOrganizationUser,errorHandler)
 router.post('/loginorganizationuser', loginOrganizationUser,errorHandler)
-router.put('/updateorganizationuser',userauth ,authaAdminCasherAgent,updateOrganizationUser,errorHandler)
+router.put('/updateorganizationuser/:id',userauth ,authaAdminCasherAgent,updateOrganizationUser,errorHandler)
 router.delete('/deleteorganizationuser',userauth,authAdmin ,deleteOrganizationUser,errorHandler)
 //role
 router.post('/createrole',userauth,authAdmin, createRole,errorHandler)
 router.post('/getroles',userauth,authaAdminCasherAgent,getRole,errorHandler)
-router.put('/deleterole',userauth, authAdmin,deleteRole,errorHandler)
+router.put('/deleterole/:id',userauth, authAdmin,deleteRole,errorHandler)
 
 
 

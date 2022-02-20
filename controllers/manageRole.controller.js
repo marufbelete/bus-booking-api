@@ -27,7 +27,7 @@ exports.getRole = async (req, res, next) => {
 //delete role
 exports.deleteRole = async (req, res, next) => {
   try {
-   const deleteid=req.params.userid
+   const deleteid=req.params.id
    await Role.findByIdAndDelete(deleteid)
   }
   catch(error) {

@@ -42,7 +42,7 @@ exports.getGetAllHotelOrPension = async (req, res, next) => {
 
 exports.getGetAllHotelOrPensionByCity = async (req, res, next) => {
   try {
-  const city_name=req.params.cityname
+  const city_name=req.params.id
   const all_hotel_Or_pension_in_city= await HotelAndPension.find({cityName:city_name})
   return res.json(all_hotel_Or_pension_in_city)
   }

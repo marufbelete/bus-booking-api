@@ -69,6 +69,7 @@ exports.deleteOrganization = async (req, res, next) => {
   try {
    const deleteid=req.params.id
    await Organization.findByIdAndDelete(deleteid)
+   res.json("deleted successfully")
   }
   catch(error) {
     next(error)

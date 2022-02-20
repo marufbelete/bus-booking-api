@@ -23,7 +23,7 @@ router.put('/updatemobileuser/:id',userauth, updateMobileUser,errorHandler)
 router.post('/registerorganizationuser',userauth,authAdmin,saveOrganizationUser,errorHandler)
 router.post('/loginorganizationuser', loginOrganizationUser,errorHandler)
 router.put('/updateorganizationuser/:id',userauth ,authaAdminCasherAgent,updateOrganizationUser,errorHandler)
-router.delete('/deleteorganizationuser',userauth,authAdmin ,deleteOrganizationUser,errorHandler)
+router.delete('/deleteorganizationuser/:id',userauth,authAdmin ,deleteOrganizationUser,errorHandler)
 //role
 router.post('/createrole',userauth,authAdmin, createRole,errorHandler)
 router.post('/getroles',userauth,authaAdminCasherAgent,getRole,errorHandler)

@@ -33,6 +33,7 @@ next(error);
 exports.getOrganizationRoute = async (req, res, next) => {
   try {
   const orgcode =req.user.organization_code;
+  console.log(orgcode)
   const allroute= await Route.find({organizationCode:orgcode})
   return res.json(allroute)
   }

@@ -22,7 +22,6 @@ exports.authSuperAdmin = (req, res, next) => {
   res.status(403).json({message:"you do not have privillage",status:false})
 
 };
-
 exports.authAdmin = (req, res, next) => {
   console.log(req.userinfo)
   const userrole=req.userinfo.user_role;

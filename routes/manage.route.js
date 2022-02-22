@@ -39,7 +39,7 @@ router.put('/updaterouteinfo/:id',userauth,authaAdminCasher,updateRouteInfo,erro
 router.delete('/deleteroute/:id',userauth,authaAdminCasher,deleteRoute,errorHandler)
 //schedule
 router.post('/addschedule',userauth,authaAdminCasher,addSchedule,errorHandler)
-router.post('/bookticketfromschedule',userauth,bookTicketFromSchedule,errorHandler)
+router.put('/bookticketfromschedule/:id',userauth,bookTicketFromSchedule,errorHandler)
 router.put('/cancelschedule/:id',userauth,cancelSchedule,errorHandler)
 router.put('/assignbustoschedule/:id',userauth,assignBusToSchedule,errorHandler)
 router.put('/undocanceledschedule/:id',userauth,undoCanceldSchedule,errorHandler)

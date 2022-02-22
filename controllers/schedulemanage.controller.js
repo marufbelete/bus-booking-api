@@ -11,8 +11,8 @@ exports.addSchedule = async (req, res, next) => {
     const departure_date_and_time= req.body.depdateandtime;
     const departure_place = req.body.depplace;
     const number_of_schedule = req.body.numberofschedule;
-    const created_by =req.user.sub;
-    const orgcode =req.user.organization_code;
+    const created_by =req.userinfo.sub;
+    const orgcode =req.userinfo.organization_code;
 
     if(!!source && !!destination && !! tarif && !!departure_date_and_time)
    {
@@ -55,18 +55,16 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    //booked sit number
    const psss_ocupied_sit_no= req.body.passoccupiedsit;
    //some unique id
-   const booked_by = req.user.sub;
+   const booked_by = req.userinfo.sub;
    const uid = new ShortUniqueId({ length: 12 });
-   const bus= await Schedule.findAndUpdateById(id,{
-    $set:{
+   const bus= await Schedule.findByIdAndUpdate(id,{
       $push:{passangerInfo:{passangerName:passange_name,
        passangerPhone:pass_phone_number,
        PassangerOccupiedSitNo:psss_ocupied_sit_no,
        uniqueId:uid,
        bookedBy:booked_by}},
        $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
-      }
-   })
+   },{new:true})
    res.json(bus)
   }
   catch(error) {
@@ -96,7 +94,7 @@ exports.cancelSchedule= async (req, res, next) => {
   try {
   //find and copmare the date if pass dont cancel
    const id=req.params.id
-   const canceler_id=req.user.sub
+   const canceler_id=req.userinfo.sub
    const timenow=Date.now()
    await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isCanceled:true,
@@ -114,7 +112,7 @@ exports.undoCanceldSchedule= async (req, res, next) => {
     // delete cancel_by
   //find and copmare the date if pass dont cancel
    const id=req.params.id
-   const canceler_id=req.user.sub
+   const canceler_id=req.userinfo.sub
    const timenow=Date.now()
    await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isCanceled:false,

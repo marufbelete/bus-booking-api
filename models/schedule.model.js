@@ -25,7 +25,7 @@ estimatedHour:{
   trim: true,
 },
 departureDateAndTime:{
-  type:Number,
+  type:Date,
   trim: true,
   required: true,
 },
@@ -59,7 +59,7 @@ passangerInfo:[{
         trim: true,
         },
     passangerOccupiedSitNo:{
-      type: Array,
+      type: [Number],
       trim: true,
     },
     bookedBy: {
@@ -84,7 +84,7 @@ passangerInfo:[{
       },
   }],
   occupiedSitNo:{
-    type: Array,
+    type: [Number],
     trim: true,
   },
 //change during assignment

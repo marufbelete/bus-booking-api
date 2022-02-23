@@ -53,14 +53,16 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    const passange_name = req.body.passname;
    const pass_phone_number = req.body.passphone;
    //booked sit number
-   const psss_ocupied_sit_no= req.body.passoccupiedsit;
+   const psss_ocupied_sit_no= [13,14]
+  //req.body.passoccupiedsit;
    //some unique id
    const booked_by = req.userinfo.sub;
    const uid = new ShortUniqueId({ length: 12 });
+   console.log(uid)
    const bus= await Schedule.findByIdAndUpdate(id,{
       $push:{passangerInfo:{passangerName:passange_name,
        passangerPhone:pass_phone_number,
-       PassangerOccupiedSitNo:psss_ocupied_sit_no,
+       passangerOccupiedSitNo:psss_ocupied_sit_no,
        uniqueId:uid,
        bookedBy:booked_by}},
        $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},

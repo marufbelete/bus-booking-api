@@ -8,7 +8,7 @@ const OrganizationSchema = new mongoose.Schema({
     unique: [true,"this organization name already exist"]
   },
   organizationCode:{
-    type: String,
+    type: Number,
     trim: true,
     required: true,
     unique: [true,"this organization code already exist"]

@@ -1,6 +1,7 @@
 const Schedule = require("../models/schedule.model");
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
+let sitTimer
 exports.addSchedule = async (req, res, next) => {
   try {
     const source = req.body.source;
@@ -44,10 +45,37 @@ catch(error) {
 next(error);
   }
 };
+//lock sit 
+exports.lockSit = async (req, res, next) => {
+  try {
+   const id=req.params.id
+   const sit = req.body.sitnumbers;
+   const bus= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
+     $addToSet:{
+      occupiedSitNo:{$each:sit}
+     }
+   })
+   const unlockSit=()=>{ 
+    await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
+      $pullAll:{
+        occupiedSitNo:sit
+       }
+   })
+}
+   //socket io 
+   sitTimer=setTimeout(unlockSit,300000)
+   req.sitlock=sitTimer
+   res.json(bus)
+  }
+  catch(error) {
+    next(error)
+  }
+}
 
 //book ticket use io
 exports.bookTicketFromSchedule = async (req, res, next) => {
   try {
+    clearTimeout(sitTimer)
    const id=req.params.id
    //name can be an array
    const passange_name = req.body.passname;

@@ -1,7 +1,7 @@
 const express = require('express');
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
-const {addSchedule,bookTicketFromSchedule,assignBusToSchedule,cancelSchedule,undoCanceldSchedule}= require("../controllers/schedulemanage.controller")
+const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,cancelSchedule,undoCanceldSchedule}= require("../controllers/schedulemanage.controller")
 const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/route.controller")
 const {createRole,getRole,deleteRole}=require("../controllers/manageRole.controller")
 const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controllers/policy.controller")
@@ -39,6 +39,7 @@ router.put('/updaterouteinfo/:id',userauth,authaAdminCasher,updateRouteInfo,erro
 router.delete('/deleteroute/:id',userauth,authaAdminCasher,deleteRoute,errorHandler)
 //schedule
 router.post('/addschedule',userauth,authaAdminCasher,addSchedule,errorHandler)
+router.put('/locksit/:id',userauth,lockSit,errorHandler)
 router.put('/bookticketfromschedule/:id',userauth,bookTicketFromSchedule,errorHandler)
 router.put('/cancelschedule/:id',userauth,cancelSchedule,errorHandler)
 router.put('/assignbustoschedule/:id',userauth,assignBusToSchedule,errorHandler)

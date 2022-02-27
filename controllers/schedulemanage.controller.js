@@ -55,7 +55,7 @@ exports.lockSit = async (req, res, next) => {
       occupiedSitNo:{$each:sit}
      }
    })
-   const unlockSit=()=>{ 
+   const unlockSit=async()=>{ 
     await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
       $pullAll:{
         occupiedSitNo:sit

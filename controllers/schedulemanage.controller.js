@@ -49,21 +49,23 @@ next(error);
 exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
-   const sit = req.body.sitnumbers;
-   const bus= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
+   const timenow=Date.now()
+   const sit =[20,21]
+    // req.body.sitnumber;
+   const bus= await Schedule.findOneAndUpdate({_id:id},{
      $addToSet:{
       occupiedSitNo:{$each:sit}
      }
-   })
+   },{new:true})
    const unlockSit=async()=>{ 
-    await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
+    await Schedule.findOneAndUpdate({_id:id},{
       $pullAll:{
         occupiedSitNo:sit
        }
-   })
+   },{new:true})
 }
    //socket io 
-   sitTimer=setTimeout(unlockSit,300000)
+   sitTimer=setTimeout(unlockSit,30000)
    req.sitlock=sitTimer
    res.json(bus)
   }
@@ -86,12 +88,12 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    //some unique id
    const booked_by = req.userinfo.sub;
    const uid = new ShortUniqueId({ length: 12 });
-   console.log(uid)
+   console.log(uid())
    const bus= await Schedule.findByIdAndUpdate(id,{
       $push:{passangerInfo:{passangerName:passange_name,
        passangerPhone:pass_phone_number,
        passangerOccupiedSitNo:psss_ocupied_sit_no,
-       uniqueId:uid,
+       uniqueId:uid(),
        bookedBy:booked_by}},
        $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
    },{new:true})

@@ -101,13 +101,14 @@ exports.postPoneTrip = async (req, res, next) => {
     const schedule_id=req.body.id
     const source=req.body.source
     const destination=req.body.destination
-    const new_departure_date=req.body.newdeparturedate
-    const orgcode=req.user.organization_code
-    const pass_phone_number=req.body.passphone
     const passange_name=req.body.passname
+    const pass_phone_number=req.body.passphone
     const passanger_unique_id=req.body.passangerid
     const booked_by=req.body.bookedby
     const total_sit_arr=req.body.reservedsit
+    const new_departure_date=req.body.newdeparturedate
+    const orgcode=req.user.organization_code
+  
     const postpone_to=await Schedule.findOne({source:source,destination:destination,departureDateAndTime:new_departure_date,organizationCode:orgcode})
     const occup_sit=postpone_to.occupiedSitNo
     //sit not allowed
@@ -147,7 +148,7 @@ exports.postPoneTrip = async (req, res, next) => {
       const change_preivious_schedule=await Schedule.findOneAndUpdate({_id:schedule_id},
         {$set:{"passangerInfo.$[el].isPassangerPostponed":true}},
         {arrayFilters:[{"el.uniqueId":passanger_unique_id}],session,new:true})
-      session.commitTransaction()
+       session.commitTransaction()
 
  return res.json()
   }

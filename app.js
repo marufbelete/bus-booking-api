@@ -1,13 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose")
 const app = express();
+const cors=require("cors")
 const userroute = require('./routes/user.route');
 const manageroute = require('./routes/manage.route');
 const dashboard = require('./routes/dashboard.route');
 const transfer = require('./routes/scheduletransfer.route');
 const config =require('./config.json')
 // const socketio=require("./socket/socketio")
-
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //routes

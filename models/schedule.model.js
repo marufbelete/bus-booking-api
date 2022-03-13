@@ -25,7 +25,7 @@ estimatedHour:{
   trim: true,
 },
 departureDateAndTime:{
-  type:Date,
+  type:Number,
   trim: true,
   required: true,
 },

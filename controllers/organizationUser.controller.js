@@ -230,6 +230,33 @@ exports.loginOrganizationUser = async (req, res, next) => {
     next(error)
      }
 };
+//get all casher user
+exports.getAllCasher= async(req,res,next) =>{
+try{
+  const organization_code=req.body.organizationcode;
+  const allcasher=await User.find({userRole:"casher",
+    organizationCode:organization_code,})
+    res.json(allcasher)
+
+}
+catch(error) {
+  next(error)
+}
+
+}
+//get all organization user 
+exports.getAllOrganizationUser= async(req,res,next) =>{
+  try{
+    const organization_code=req.body.organizationcode;
+    const allcasher=await User.find({userRole:{$in:["casher","admin","driver","agent"]},
+      organizationCode:organization_code,})
+      res.json(allcasher)
+  
+  }
+  catch(error) {
+    next(error)
+  }
+}
 //update organization user info
 exports.updateOrganizationUser = async (req, res, next) => {
   try {

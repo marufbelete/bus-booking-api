@@ -136,15 +136,14 @@ exports.postPoneTrip = async (req, res, next) => {
     session.startTransaction()
     await Schedule.findOneAndUpdate({_id:postpone_to._id},
       {
-        $set:{
           $push:{passangerInfo:{passangerName:passange_name,
            passangerPhone:pass_phone_number,
            uniqueId:passanger_unique_id,
            PassangerOccupiedSitNo:submit_sit,
            bookedBy:booked_by}},
            $addToSet:{occupiedSitNo:{$each:submit_sit}},
-          }
-      },{session,new:true})
+           }
+      ,{session,new:true})
       const change_preivious_schedule=await Schedule.findOneAndUpdate({_id:schedule_id},
         {$set:{"passangerInfo.$[el].isPassangerPostponed":true}},
         {arrayFilters:[{"el.uniqueId":passanger_unique_id}],session,new:true})
@@ -157,4 +156,32 @@ exports.postPoneTrip = async (req, res, next) => {
     next(error)
   }
 }
+//refund
+exports.refundRequest = async (req, res, next) => {
+  const session=await Schedule.startSession()
+  try {
+    const schedule_id=req.params.id
+    const pass_id=req.body.uniqueid
+    const pass_sit=req.body.passsit//[]
+    const timenow = new Date.now()
+    const schedule=await Schedule.findOne({_id:schedule_id})
+    session.startTransaction()
+    if(schedule.departureDateAndTime>timenow)
+    { 
+      await Schedule.findOneAndUpdate({_id:schedule_id},{$set:{"passangerInfo.$[el].isTiacketCanceled":true,$pull: { occupiedSitNo: { $in: pass_sit }}}},
+      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true})
+      
+    }
+    else{
+      await Schedule.findOneAndUpdate({_id:schedule_id},{$set:{"passangerInfo.$[el].isTiacketCanceled":true}},
+      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true})
+    }
+    session.commitTransaction()
+ return res.json("refund done")
 
+  }
+  catch(error) {
+    await session.abortTransaction();
+    next(error)
+  }
+}

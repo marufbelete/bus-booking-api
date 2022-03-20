@@ -45,7 +45,7 @@ for (let i=0;i<intersection.length; i++)
 }
  final_transfer_sit=[...only_in_occupied1,...generated_sit]
 }
-  //transfer maping for user info
+  //transfer maping for userinfo info
   const add_passanger_info=transfer_info.passangerInfo.map((elem)=>{
     const each_intersection = elem.passangerOccupiedSitNo.filter(eachelem => occupied2.includes(eachelem));
     let each_pass_sit=elem.passangerOccupiedSitNo.map((esit)=>
@@ -94,7 +94,7 @@ io.getIo().emit({action:"RequestRejected",value:"your request isnot accepted by 
     next(error)
   }
 }
-//postpone trip for specific user
+//postpone trip for specific userinfo
 exports.postPoneTrip = async (req, res, next) => {
   const session=await Schedule.startSession()
   try {
@@ -107,7 +107,7 @@ exports.postPoneTrip = async (req, res, next) => {
     const booked_by=req.body.bookedby
     const total_sit_arr=req.body.reservedsit
     const new_departure_date=req.body.newdeparturedate
-    const orgcode=req.user.organization_code
+    const orgcode=req.userinfo.organization_code
   
     const postpone_to=await Schedule.findOne({source:source,destination:destination,departureDateAndTime:new_departure_date,organizationCode:orgcode})
     const occup_sit=postpone_to.occupiedSitNo

@@ -6,7 +6,7 @@ exports.scheduleTransferRequest = async (req, res, next) => {
    const schedule_id=req.body.scheduleid
    //find unique socket of organization that we want to send request notification
   //  const socket_id=req.body.scoketid
-  io.getIo().emit({action:"transfer request",value:schedule_id})
+  // io.getIo().emit({action:"transfer request",value:schedule_id})
    res.json("request sent successfully")
   }
   catch(error) {

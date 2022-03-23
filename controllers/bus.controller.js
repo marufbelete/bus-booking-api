@@ -2,8 +2,8 @@ const Bus = require("../models/bus.model");
 
 exports.registerBus = async (req, res, next) => {
   try {
-    const busplateno = req.body.organizationname;
-    const bussideno= req.body.organizationcode;
+    const busplateno = req.body.busplateno;
+    const bussideno= req.body.bussideno;
     const driverusername =req.body.driversuername;
     const totalsit =req.body.totalsit;
     const createdby =req.userinfo.sub;
@@ -68,8 +68,8 @@ exports.getAllOrganizationNonActiveBus = async (req, res, next) => {
 exports.updateBusInfo = async (req, res, next) => {
   try {
    const id=req.params.id
-   const busplateno = req.body.organizationname;
-   const bussideno= req.body.organizationcode;
+   const busplateno = req.body.busplateno;
+   const bussideno= req.body.bussideno;
    const driverusername =req.body.driversuername;
    const totalsit =req.body.totalsit;
    const createdby =req.userinfo.sub;

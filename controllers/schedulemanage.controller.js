@@ -82,7 +82,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    const passange_name = req.body.passname;
    const pass_phone_number = req.body.passphone;
    //booked sit number
-   const psss_ocupied_sit_no= [13,14]
+   const psss_ocupied_sit_no= req.body.sits
   //req.body.passoccupiedsit;
    //some unique id
    const booked_by = req.userinfo.sub;

@@ -1,7 +1,8 @@
 const Schedule = require("../models/schedule.model");
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
-let sitTimer
+let sitTimer;
+let unlockSit;
 exports.addSchedule = async (req, res, next) => {
   try {
     const source = req.body.source;
@@ -55,8 +56,9 @@ exports.lockSit = async (req, res, next) => {
      $addToSet:{
       occupiedSitNo:{$each:sit}
      }
-   },{new:true})
-   const unlockSit=async()=>{ 
+   }
+   ,{new:true})
+   unlockSit=async()=>{ 
     await Schedule.findOneAndUpdate({_id:id},{
       $pullAll:{
         occupiedSitNo:sit
@@ -77,6 +79,7 @@ exports.lockSit = async (req, res, next) => {
 exports.bookTicketFromSchedule = async (req, res, next) => {
   try {
     clearTimeout(sitTimer)
+    unlockSit()
    const id=req.params.id
    //name can be an array
    const passange_name = req.body.passname;

@@ -2,12 +2,12 @@ const Bus = require("../models/bus.model");
 
 exports.registerBus = async (req, res, next) => {
   try {
-    const busplateno = req.body.organizationname;
-    const bussideno= req.body.organizationcode;
+    const busplateno = req.body.busplateno;
+    const bussideno= req.body.bussideno;
     const driverusername =req.body.driversuername;
     const totalsit =req.body.totalsit;
-    const createdby =req.user.sub;
-    const orgcode =req.user.organization_code;
+    const createdby =req.userinfo.sub;
+    const orgcode =req.userinfo.organization_code;
 if(!!busplateno && !!bussideno && !!driverusername && !!totalsit)
 { 
     const newbus= new Bus({
@@ -32,7 +32,9 @@ next(error);
 //get all organizaton bus organization
 exports.getAllOrganizationBus = async (req, res, next) => {
   try {
-  const orgcode =req.user.organization_code;
+    console.log(req.userinfo)
+  const orgcode =req.userinfo.organization_code;
+  console.log(orgcode)
   const allbus= await Bus.find({organizationCode:orgcode})
   res.json(allbus)
   }
@@ -43,7 +45,7 @@ exports.getAllOrganizationBus = async (req, res, next) => {
 //only active bus this is for assigning bus to some schedule
 exports.getAllOrganizationActiveBus = async (req, res, next) => {
   try {
-  const orgcode =req.user.organization_code;
+  const orgcode =req.userinfo.organization_code;
   const allbus= await Bus.find({organizationCode:orgcode,isActive:true})
   res.json(allbus)
   }
@@ -54,7 +56,7 @@ exports.getAllOrganizationActiveBus = async (req, res, next) => {
 //only non-active bus this is for assigning bus to some schedule
 exports.getAllOrganizationNonActiveBus = async (req, res, next) => {
   try {
-  const orgcode =req.user.organization_code;
+  const orgcode =req.userinfo.organization_code;
   const allbus= await Bus.find({organizationCode:orgcode,isActive:false})
   res.json(allbus)
   }
@@ -66,11 +68,11 @@ exports.getAllOrganizationNonActiveBus = async (req, res, next) => {
 exports.updateBusInfo = async (req, res, next) => {
   try {
    const id=req.params.id
-   const busplateno = req.body.organizationname;
-   const bussideno= req.body.organizationcode;
+   const busplateno = req.body.busplateno;
+   const bussideno= req.body.bussideno;
    const driverusername =req.body.driversuername;
    const totalsit =req.body.totalsit;
-   const createdby =req.user.sub;
+   const createdby =req.userinfo.sub;
    const bus= await Bus.findAndUpdateById(id,{
      $set:{
       busPlateNo:busplateno ,

@@ -54,7 +54,7 @@ exports.updateRouteInfo = async (req, res, next) => {
    const dep_plcae=req.body.departureplace
    const createdby =req.userinfo.sub;
 
-   const bus= await Route.findAndUpdateById(id,{
+   const bus= await Route.findByIdAndUpdate(id,{
      $set:{
       source:source,
       destination:destination,

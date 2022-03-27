@@ -4,8 +4,8 @@ exports.addPolicy = async (req, res, next) => {
   try {
     const title = req.body.title;
     const description= req.body.description;
-    const created_by =req.user.sub;
-    const orgcode =req.user.organization_code;
+    const created_by =req.userinfo.sub;
+    const orgcode =req.userinfo.organization_code;
 if(!!title && !!description)
 { 
     const newbus= new Policy({
@@ -28,7 +28,7 @@ next(error);
 //get policy
 exports.getPolicy= async (req, res, next) => {
   try {
-  const orgcode =req.user.organization_code;
+  const orgcode =req.userinfo.organization_code;
   const allpolicy= await Policy.find({organizationCode:orgcode})
   res.json(allpolicy)
   }
@@ -42,7 +42,7 @@ exports.updatePolicyInfo = async (req, res, next) => {
     const id=req.params.id
     const title = req.body.title;
     const description= req.body.description;
-    const created_by =req.user.sub;
+    const created_by =req.userinfo.sub;
    
     const bus= await Policy.findAndUpdateById(id,{
      $set:{

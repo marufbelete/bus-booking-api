@@ -113,7 +113,6 @@ canceledBy:{
     ref: 'user', 
     }
     
-  
 },
   {
     timestamps: true,

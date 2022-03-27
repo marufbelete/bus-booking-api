@@ -6,7 +6,7 @@ exports.getAllSchedule = async (req, res, next) => {
     let page = !!req.query.pageno ? req.query.pageno : 0
     let pagesize = 40
     let skip = pagesize * page
-  const orgcode =req.user.organization_code;
+  const orgcode =req.userinfo.organization_code;
   const allSchedule= await Schedule.find({organizationCode:orgcode}).limit(pagesize).skip(skip).sort({datefield:-1})
   return res.json(allSchedule)
   }
@@ -21,9 +21,9 @@ exports.getAllMySale = async (req, res, next) => {
     let page = !!req.query.pageno ? req.query.pageno : 0
     let pagesize = 20
     let skip = pagesize * page
-  const orgcode =req.user.organization_code;
-  const saler_id =req.user.sub;
-  const role_type=req.user.user_role;
+  const orgcode =req.userinfo.organization_code;
+  const saler_id =req.userinfo.sub;
+  const role_type=req.userinfo.user_role;
   const allSchedule= await Schedule.find({organizationCode:orgcode,userRole:role_type,"passangerInfo.bookedBy":saler_id}).limit(pagesize).skip(skip).sort({datefield:-1})
   const all_my_sale=allSchedule.map(eachdoc=> 
     {
@@ -40,7 +40,7 @@ exports.getAllCanceledSchedule = async (req, res, next) => {
     let page = !!req.query.pageno ? req.query.pageno : 0
     let pagesize = 20
     let skip = pagesize * page
-  const orgcode =req.user.organization_code;
+  const orgcode =req.userinfo.organization_code;
   const allCanceledSchedule= await Schedule.find({organizationCode:orgcode,isCanceled:true}).limit(pagesize).skip(skip).sort({datefield:-1})
   return res.json(allCanceledSchedule)
   }
@@ -75,7 +75,7 @@ exports.getAllActiveScheduleInRoute = async (req, res, next) => {
   next(error)
   }
 };
-//for mobile user only
+//for mobile userinfo only
 exports.getAllActiveScheduleInRouteForMobileUser = async (req, res, next) => {
   try {
     let page = !!req.query.pageno ? req.query.pageno : 0
@@ -116,7 +116,7 @@ exports.myBookedTicketList = async (req, res, next) => {
   let skip = pagesize * page
 
    const id=req.params.id
-   const user_id=req.user.sub
+   const user_id=req.userinfo.sub
    const my_booking=await Schedule.find({"passangerInfo.bookedBy":user_id}).limit(pagesize).skip(skip).sort({datefield:-1})
    res.json(my_booking)
   }
@@ -130,7 +130,7 @@ exports.myPassangerList = async (req, res, next) => {
   try {
   //selecte the field in all api
   // for departure date lethan now
-   const username=req.user.phone_number
+   const username=req.userinfo.phone_number
    const timenow = Date.now()
    const my_booking=await Schedule.findOne({driverUserName:username}).sort({datefield:-1})
    res.json(my_booking)

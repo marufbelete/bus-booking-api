@@ -49,8 +49,7 @@ next(error);
 exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
-   const timenow=Date.now()
-   const sit =[20,21]
+   const sit =req.body.sits
     // req.body.sitnumber;
    const bus= await Schedule.findOneAndUpdate({_id:id},{
      $addToSet:{

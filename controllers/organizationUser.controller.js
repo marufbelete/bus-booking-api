@@ -1,7 +1,6 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
-const config = require('../config.json');
 const Role=require("../accesscontoller.json")
 
 //register organization user
@@ -39,7 +38,7 @@ exports.saveOwner = async (req, res, next) => {
       password: passwordHash,
     })
     const user=await owner.save()
-    const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:false }, config.SECRET);
+    const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:false }, process.env.SECRET);
     return res.json(token);
 
   }
@@ -75,7 +74,7 @@ exports.saveOwner = async (req, res, next) => {
         throw error;
       }
      
-      const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:user.isMobileUser }, config.SECRET);
+      const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:user.isMobileUser }, process.env.SECRET);
     res.json({
       token
     });
@@ -221,7 +220,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
       throw error;
     }
     const user_role=user.userRole
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, config.SECRET);
+    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, process.env.SECRET);
     res.json({
       token
     });

@@ -1,7 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
-const config = require('../config.json');
+
 
 //signup for mobile user
 exports.saveMobileUser = async (req, res, next) => {
@@ -41,7 +41,7 @@ exports.saveMobileUser = async (req, res, next) => {
       isMobileUser:true,    
     })
     const user=await newuser.save()
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, config.SECRET);
+    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, process.env.SECRET);
     res.json({
       token
     });
@@ -75,7 +75,7 @@ exports.loginMobileUser = async (req, res, next) => {
       error.statusCode = 400
       throw error;
     }
-    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number},config.SECRET);
+    const token = jwt.sign({ sub: user._id, phone_number: user.phone_number},process.env.SECRET);
     res.json({
       token
     });

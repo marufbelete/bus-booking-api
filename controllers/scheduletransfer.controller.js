@@ -1,5 +1,5 @@
 const Schedule = require("../models/schedule.model");
-const sit_gene=require("../reusable_logic/sit_generator")
+const {sit_gene}=require("../reusable_logic/sit_generator")
 //transfer schedule request will send request notification to other org nothing more
 exports.scheduleTransferRequest = async (req, res, next) => {
   try {
@@ -40,7 +40,7 @@ if(intersection.length>0)
 {
 for (let i=0;i<intersection.length; i++)
 {
-  let sit=sit_gene.between(1, 49)
+  let sit=sit_gene(1, 49)
   generated_sit.push(sit)
 }
  final_transfer_sit=[...only_in_occupied1,...generated_sit]
@@ -124,7 +124,7 @@ exports.postPoneTrip = async (req, res, next) => {
     {
     for (let i=0;i<sit_not_allowed.length; i++)
     {
-      let sit=sit_gene.between(1, 49)
+      let sit=sit_gene(1, 49)
       generated_sit.push(sit)
     }
   }

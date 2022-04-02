@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "REST API",
   "main": "app.js",
+
   "scripts": {
     "start": "nodemon app.js"
   },
@@ -31,4 +32,5 @@
     "socket.io": "^4.4.1"
   },
   "devDependencies": {}
+  
 }

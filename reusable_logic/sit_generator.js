@@ -1,5 +1,5 @@
 
-function between(min, max) {  
+export const between=(min, max)=> {  
   let random= Math.floor(Math.random() * (max - min + 1) + min)
   while(occupied2.includes(random)){
     random= Math.floor(Math.random() * (max - min + 1) + min)
@@ -8,9 +8,9 @@ function between(min, max) {
     return random
 }
 
-// function callname(name){
+export const milliSecond=(hours)=>{
+   return hours * 60 * 60 *1000;
+}
 
-// }
-exports.between = between
 
 

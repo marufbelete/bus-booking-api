@@ -1,5 +1,5 @@
 const Schedule = require("../models/schedule.model");
-
+const {milliSecond}=require("../reusable_logic/sit_generator")
 //all schedules not used much
 exports.getAllSchedule = async (req, res, next) => {
   try {
@@ -130,10 +130,32 @@ exports.myPassangerList = async (req, res, next) => {
   try {
   //selecte the field in all api
   // for departure date lethan now
-   const username=req.userinfo.phone_number
-   const timenow = Date.now()
-   const my_booking=await Schedule.findOne({driverUserName:username}).sort({datefield:-1})
+   const username=req.userinfo.phone_number;
+   const addHour=2;
+   const addMilisecond=milliSecond(addHour);
+   const timenow = Date.now()+addMilisecond
+   const my_booking=await Schedule.findOne({driverUserName:username,departureDateAndTime:{$lte:timenow}}).sort({datefield:-1})
    res.json(my_booking)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+// get postponed passanger
+exports.getPostponedPassangerList= async (req, res, next) => {
+  try {
+   const pass=await Schedule.find({isPassangerPostponed:true}).sort({datefield:-1})
+   res.json(pass)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+// get postponed passanger
+exports.getTransferdPassangerList= async (req, res, next) => {
+  try {
+   const pass=await Schedule.find({isPassangerTransfered:true}).sort({datefield:-1})
+   res.json(pass)
   }
   catch(error) {
     next(error)

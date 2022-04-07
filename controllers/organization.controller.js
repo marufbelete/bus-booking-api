@@ -40,11 +40,16 @@ exports.getOrganizationById = async (req, res, next) => {
 //get organization by id include org access
 exports.getOrganizationByCode = async (req, res, next) => {
   try {
-   const code=req.params.id
+   const code=req.params.code
    console.log(code)
    const organization= await Organization.findOne({organizationCode:code})
-   console.log(organization)
-   res.json(organization)
+   if(organization)
+   {
+    return res.json(organization)
+   }
+   const error = new Error("This organization code does not exist.")
+   error.statusCode = 400
+   throw error;
   }
   catch(error) {
     next(error)

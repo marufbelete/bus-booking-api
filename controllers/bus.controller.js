@@ -53,24 +53,44 @@ exports.getAllOrganizationBus = async (req, res, next) => {
 exports.getAllOrganizationActiveBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,isActive:true})
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"})
   res.json(allbus)
   }
   catch(error) {
     next(error)
   }
 };
-//only non-active bus this is for assigning bus to some schedule
-exports.getAllOrganizationNonActiveBus = async (req, res, next) => {
+exports.getAllOrganizationInactiveBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,isActive:false})
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Inactive"})
   res.json(allbus)
   }
   catch(error) {
     next(error)
   }
 };
+exports.getAllOrganizationOnRepairBus = async (req, res, next) => {
+  try {
+  const orgcode =req.userinfo.organization_code;
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"On-Repair"})
+  res.json(allbus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+exports.getAllOrganizationDamagedBus = async (req, res, next) => {
+  try {
+  const orgcode =req.userinfo.organization_code;
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Damaged"})
+  res.json(allbus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+
 //get organization by id
 exports.updateBusInfo = async (req, res, next) => {
   try {

@@ -9,7 +9,7 @@ const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganiz
 const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
 const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity}=require("../controllers/city.controller")
-const {registerBus,getAllOrganizationBus,updateBusInfo,deleteBus}=require("../controllers/bus.controller")
+const {registerBus,getAllOrganizationBus,getAllOrganizationActiveBus,getAllOrganizationInactiveBus,getAllOrganizationOnRepairBus,getAllOrganizationDamagedBus,updateBusStatus,updateBusInfo,deleteBus}=require("../controllers/bus.controller")
 
 const {errorHandler} = require('../middleware/errohandling.middleware')
 
@@ -76,6 +76,11 @@ router.delete('/deletecity/:id',userauth,authaAdminCasher,deleteCity,errorHandle
 router.post('/registerbus',userauth,authaAdminCasher,registerBus,errorHandler)
 router.get('/getallorganizationbus',userauth,authaAdminCasher,getAllOrganizationBus,errorHandler)
 router.put('/updatebusinfo/:id',userauth,authaAdminCasher,updateBusInfo,errorHandler)
+router.get('/getallorganizationactivebus',userauth,authaAdminCasher,getAllOrganizationActiveBus,errorHandler)
+router.get('/getallorganizationinactivebus',userauth,authaAdminCasher,getAllOrganizationInactiveBus,errorHandler)
+router.get('/getallorganizationonrepairbus',userauth,authaAdminCasher,getAllOrganizationOnRepairBus,errorHandler)
+router.get('/getallorganizationdamagedbus',userauth,authaAdminCasher,getAllOrganizationDamagedBus,errorHandler)
+router.put('/updatebusstatus/:id',userauth,authaAdminCasher,updateBusStatus,errorHandler)
 router.delete('/deletebus/:id',userauth,authaAdminCasher,deleteBus,errorHandler)
 
 

@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-name:{
+firstName:{
     type: String,
     trim: true,
+},
+lastName:{
+  type: String,
+  trim: true,
 },
 phoneNumber:{
     type: String,
@@ -22,7 +26,7 @@ password: {
   },
   userRole:{
     type: String,
-    enum: ['owner','superadmin','admin','casher','driver','agent'],
+    enum: ['owner','superadmin','admin','casher','driver','agent','redat'],
     trim: true,
     toLowerCase:true,
   },

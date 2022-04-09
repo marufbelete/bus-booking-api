@@ -11,10 +11,20 @@ busSideNo: {
     trim: true,
     required: true,
 },
-driverUserName: {
-   type:String, 
+redatId: {
+  type: Schema.Types.ObjectId, ref: 'user', 
+  trim: true,
+  required: true,
+},
+driverId: {
+   type: Schema.Types.ObjectId, ref: 'user', 
    trim: true,
    required: true,
+},
+serviceYear: {
+  type:Number, 
+  trim: true,
+  required: true,
 },
 totalNoOfSit: {
     type: Number,
@@ -25,8 +35,9 @@ createdBy:{
   type: mongoose.Schema.Types.ObjectId, ref: 'user', 
   required: true,
 },
-isActive:{
-  type:Boolean,
+busState:{
+  type:String,
+  enum:["Active","Inactive","On-Repair","Damaged"],
   default: true,
   required: true,
 },

@@ -4,19 +4,24 @@ exports.registerBus = async (req, res, next) => {
   try {
     const busplateno = req.body.busplateno;
     const bussideno= req.body.bussideno;
-    const driverusername =req.body.driversuername;
+    const bus_state=req.body.bus_state;
+    const driver_id =req.body.driverid;
+    const service_year=req.body.serviceyear;
     const totalsit =req.body.totalsit;
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
+    
 if(!!busplateno && !!bussideno && !!driverusername && !!totalsit)
 { 
     const newbus= new Bus({
       busPlateNo:busplateno ,
       busSideNo:bussideno,
-      driverUserName:driverusername,
+      driverId:driver_id,
+      serviceYear:service_year,
       totalNoOfSit:totalsit,
       createdBy:createdby,
       organizationCode:orgcode,
+      busState:bus_state
     })
     const savedbus=await newbus.save()
     return res.json(savedbus)

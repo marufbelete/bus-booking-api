@@ -6,7 +6,8 @@ const Role=require("../accesscontoller.json")
 //register organization user
 exports.saveOwner = async (req, res, next) => {
   try {
-    const name = req.body.name;
+    const first_name = req.body.firstname;
+    const last_name = req.body.lastname;
     const phone_number = req.body.phonenumber;
     const add_role=req.body.userrole; 
     const password=req.body.password;
@@ -31,7 +32,8 @@ exports.saveOwner = async (req, res, next) => {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
     const owner=new User({
-      name:name,
+      firstName:first_name,
+      lastName:last_name,
       phoneNumber: phone_number,
       isMobileUser:false,
       userRole:add_role,
@@ -86,7 +88,8 @@ exports.saveOwner = async (req, res, next) => {
   };
   exports.saveSuperadmin = async (req, res, next) => {
     try {
-      const name = req.body.name;
+      const first_name = req.body.firstname;
+      const last_name = req.body.lastname;
       const phone_number = req.body.phonenumber;
       const add_role=req.body.userrole; 
       const password=req.body.password;
@@ -115,7 +118,8 @@ exports.saveOwner = async (req, res, next) => {
       const salt = await bcrypt.genSalt();
       const passwordHash = await bcrypt.hash(password, salt);
       const superadmin=new User({
-        name:name,
+        firstName:first_name,
+        lastName:last_name,
         phoneNumber: phone_number,
         isMobileUser:false,
         userRole:add_role,
@@ -133,7 +137,8 @@ exports.saveOwner = async (req, res, next) => {
   }
 exports.saveOrganizationUser = async (req, res, next) => {
   try {
-    const name = req.body.name;
+    const first_name = req.body.firstname;
+    const last_name = req.body.lastname;
     const phone_number = req.body.phonenumber;
     const add_role=req.body.userrole; 
     const password=req.body.password;
@@ -148,7 +153,7 @@ if(add_role===Role.SUPERADMIN || add_role===Role.OWNER)
   throw error;
 }
 console.log(req.body)
-if (!name || !phone_number || !password || !add_role) {
+if (!first_name||!last_name || !phone_number || !password || !add_role) {
   const error = new Error("Please fill all field." )
   error.statusCode = 400
   throw error;
@@ -175,7 +180,8 @@ if (!name || !phone_number || !password || !add_role) {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
     const user = new User({
-      name:name,
+      firstName:first_name,
+      lastName:last_name,
       phoneNumber: phone_number,
       isMobileUser:false,
       userRole:add_role,
@@ -259,7 +265,8 @@ exports.getAllOrganizationUser= async(req,res,next) =>{
 //update organization user info
 exports.updateOrganizationUser = async (req, res, next) => {
   try {
-    const name = req.body.name;
+    const first_name = req.body.firstname;
+    const last_name = req.body.lastname;
     const updateduserid=req.params.id
     const phone_number = req.body.phonenumber;
     const password=req.body.password;
@@ -268,7 +275,7 @@ exports.updateOrganizationUser = async (req, res, next) => {
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.user_role;
     const user_id=req.userinfo.sub;
-    if (!name || !phone_number || !password || !user_role) {
+    if (!first_name||!last_name || !phone_number || !password || !user_role) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
@@ -302,7 +309,8 @@ if(user_role===Role.SUPERADMIN)
   if(updateduserid!==user_id){
   const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
   $set:{
-  name:name,
+  firstName:first_name,
+  lastName:last_name,
   password:passwordHash,
   userRole:change_role,
 }
@@ -313,7 +321,8 @@ if(user_role===Role.SUPERADMIN)
 else{
   const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
     $set:{
-    name:name,
+    firstName:first_name,
+    lastName:last_name,
     password:passwordHash,
   }
     },{useFindAndModify:false,new:true})
@@ -329,7 +338,8 @@ if(user_role===Role.ADMIN ){
   { 
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
-      name:name,
+      firstName:first_name,
+      lastName:last_name,
       password:passwordHash,
     }
       },{useFindAndModify:false,new:true})
@@ -340,7 +350,8 @@ if(user_role===Role.ADMIN ){
     console.log("in")
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
-      name:name,
+      firstName:first_name,
+      lastName:last_name,
       password:passwordHash,
       userRole:change_role,
     }
@@ -357,7 +368,8 @@ if(user_id===updateduserid)
 {
 const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
   $set:{
-  name:name,
+  firstName:first_name,
+  lastName:last_name,
   password:passwordHash,
 }
   },{useFindAndModify:false,new:true})

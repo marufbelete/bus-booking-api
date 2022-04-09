@@ -5,6 +5,7 @@ exports.registerBus = async (req, res, next) => {
     const busplateno = req.body.busplateno;
     const bussideno= req.body.bussideno;
     const bus_state=req.body.bus_state;
+    const redat_id =req.body.redatid;
     const driver_id =req.body.driverid;
     const service_year=req.body.serviceyear;
     const totalsit =req.body.totalsit;
@@ -17,6 +18,7 @@ if(!!busplateno && !!bussideno && !!driverusername && !!totalsit)
       busPlateNo:busplateno ,
       busSideNo:bussideno,
       driverId:driver_id,
+      readtId:redat_id,
       serviceYear:service_year,
       totalNoOfSit:totalsit,
       createdBy:createdby,
@@ -75,16 +77,20 @@ exports.updateBusInfo = async (req, res, next) => {
    const id=req.params.id
    const busplateno = req.body.busplateno;
    const bussideno= req.body.bussideno;
-   const driverusername =req.body.driversuername;
+   const driver_id =req.body.driverid;
+   const redat_id =req.body.redatid;
+   const bus_state=req.body.bus_state;
    const totalsit =req.body.totalsit;
    const createdby =req.userinfo.sub;
    const bus= await Bus.findAndUpdateById(id,{
      $set:{
       busPlateNo:busplateno ,
       busSideNo:bussideno,
-      driverUserName:driverusername,
+      driverId:driver_id,
+      readtId:redat_id,
       totalNoOfSit:totalsit,
       createdBy:createdby,
+      busState:bus_state
      }
    })
    res.json(bus)
@@ -97,10 +103,10 @@ exports.updateBusInfo = async (req, res, next) => {
 exports.updateBusStatus = async (req, res, next) => {
   try {
    const id=req.params.id
-   const is_active = req.body.isactive;
+   const bus_status = req.body.busstatus;
    const bus= await Bus.findAndUpdateById(id,{
      $set:{
-     isActive:is_active
+      busState:bus_status
      }
    })
    res.json(bus)

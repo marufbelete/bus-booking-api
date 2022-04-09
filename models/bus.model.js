@@ -12,14 +12,12 @@ busSideNo: {
     required: true,
 },
 redatId: {
-  type: Schema.Types.ObjectId, ref: 'user', 
-  trim: true,
-  required: true,
+  type: mongoose.Schema.Types.ObjectId,  
+  ref: 'user', 
 },
 driverId: {
-   type: Schema.Types.ObjectId, ref: 'user', 
-   trim: true,
-   required: true,
+  type: mongoose.Schema.Types.ObjectId,  
+  ref: 'user', 
 },
 serviceYear: {
   type:Number, 

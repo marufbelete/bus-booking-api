@@ -14,6 +14,25 @@ exports.getAllSchedule = async (req, res, next) => {
   next(error)
   }
 };
+//agg
+const all_criteria={}
+if(req.params.source)
+{
+  all_criteria.source=req.params.source
+}
+all_criteria.destination=req.params.destination
+all_criteria.destination=req.params.userid
+all_criteria.destination=req.params.startdate
+all_criteria.destination=req.params.enddate
+await Schedule.aggregate( [
+  {
+     $match: {$and:{organizationCode:orgcode}}
+  },
+  // Stage 2: Group remaining documents by pizza name and calculate total quantity
+  {
+     $group: { _id: "$name", totalQuantity: { $sum: "$quantity" } }
+  }
+] )
 
 //all schedules for that casher or agent
 exports.getAllMySale = async (req, res, next) => {
@@ -25,6 +44,34 @@ exports.getAllMySale = async (req, res, next) => {
   const saler_id =req.userinfo.sub;
   const role_type=req.userinfo.user_role;
   const allSchedule= await Schedule.find({organizationCode:orgcode,userRole:role_type,"passangerInfo.bookedBy":saler_id}).limit(pagesize).skip(skip).sort({datefield:-1})
+  const all_my_sale=allSchedule.map(eachdoc=> 
+    {
+      return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDateAndTime:eachdoc.departureDateAndTime,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
+  return res.json(all_my_sale)
+  }
+  catch(error) {
+  next(error)
+  }
+};
+await Schedule.aggregate( [
+  {
+     $match: {$and:{organizationCode:orgcode}}
+  },
+  // Stage 2: Group remaining documents by pizza name and calculate total quantity
+  {
+     $group: { _id: "$passangerInfo.bookedBy", totalSale: { $sum: "$tarif" } }
+  }
+] )
+//between dates
+exports.getAllMySaleBetween = async (req, res, next) => {
+  try {
+    const start = req.params.start
+    const end=!!req.params.end ? req.params.end : ''
+    let skip = pagesize * page
+  const orgcode =req.userinfo.organization_code;
+  const saler_id =req.userinfo.sub;
+  const role_type=req.userinfo.user_role;
+  const allSchedule= await Schedule.find({organizationCode:orgcode,userRole:role_type,"passangerInfo.bookedBy":saler_id})
   const all_my_sale=allSchedule.map(eachdoc=> 
     {
       return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDateAndTime:eachdoc.departureDateAndTime,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})

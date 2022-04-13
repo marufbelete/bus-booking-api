@@ -5,11 +5,13 @@ busPlateNo: {
     type: String,
     trim: true,
     required: true,
+    unique:true
   },
 busSideNo: {
     type: String,
     trim: true,
     required: true,
+    unique:true
 },
 redatId: {
   type: mongoose.Schema.Types.ObjectId,  

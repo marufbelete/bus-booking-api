@@ -1,38 +1,181 @@
 const Schedule = require("../models/schedule.model");
 const {milliSecond}=require("../reusable_logic/sit_generator")
-//all schedules not used much
-exports.getAllSchedule = async (req, res, next) => {
-  try {
-    let page = !!req.query.pageno ? req.query.pageno : 0
-    let pagesize = 40
-    let skip = pagesize * page
-  const orgcode =req.userinfo.organization_code;
-  const allSchedule= await Schedule.find({organizationCode:orgcode}).limit(pagesize).skip(skip).sort({datefield:-1})
+//gorup schedule by sou and dest and filter bydate and return number of trip
+exports.getScheduleByCriteria = async (req, res, next) => {
+  try{
+const orgcode =req.userinfo.organization_code;
+const today=new Date()
+let matc={organizationCode:orgcode,departureDateAndTime:{$lte:today}};
+
+//like start ?startdate=2022-4-12
+if(req.query.startdate)
+{
+  let date=new Date(req.query.startdate)
+  console.log(req.query.startdate)
+  const matcone={departureDateAndTime:{$gte:date}}
+  matc={...matcone}
+}
+if(req.query.enddate)
+{
+  let date=new Date(req.query.enddate)
+  console.log(date)
+  const matcone={departureDateAndTime:{$lte:date}}
+  matc={...matcone}
+}
+  const allSchedule= await Schedule.aggregate( [
+    {
+       $match:matc
+    },
+    {
+       $group: { _id: {"source":"$source","destination":"$destination"},"total": {$sum: 1 }}
+    },
+    {
+      $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$total"}
+    },
+   
+    
+  ] )
   return res.json(allSchedule)
-  }
-  catch(error) {
+}
+catch(error) {
   next(error)
   }
 };
-//agg
-const all_criteria={}
-if(req.params.source)
-{
-  all_criteria.source=req.params.source
+
+//booked sit of each trip return sour,dest,totalsir,reservedsit
+exports.getAllScheduleWithSit = async (req, res, next) => {
+  try{
+  const today=new Date()
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+    {
+       $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
+    },
+     {
+      $project:{"source":"$source","destination":"$destination","totalSit":"$totalNoOfSit","totalReservedSit":{$size:"$occupiedSitNo"}}
+    },
+    {
+      $sort:{"totalReservedSit":-1}
+    }
+  ] )
+  return res.json(allSchedule)
 }
-all_criteria.destination=req.params.destination
-all_criteria.destination=req.params.userid
-all_criteria.destination=req.params.startdate
-all_criteria.destination=req.params.enddate
-await Schedule.aggregate( [
-  {
-     $match: {$and:{organizationCode:orgcode}}
-  },
-  // Stage 2: Group remaining documents by pizza name and calculate total quantity
-  {
-     $group: { _id: "$name", totalQuantity: { $sum: "$quantity" } }
+catch(error) {
+  next(error)
   }
-] )
+};
+
+//get all my sale
+exports.getAllSaleAmountByUser = async (req, res, next) => {
+  try{
+  const today=new Date()
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+    {
+       $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
+    },
+    {
+      $unwind:"$passangerInfo"
+    },
+    {
+    $match:{"user.isMobileUser":false}
+    },
+  {
+  $group:{_id:{"bookedBy":"$passangerInfo.bookedBy","source":"$source","destination":"$destination"},"total":{$sum:1}}
+  },
+  {
+    $lookup:{
+     from:'users',
+     foreignField:"_id",
+     localField:"_id.bookedBy",
+     as:"user"
+   }
+ },
+{
+  $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":1,"salesFirstName":{$arrayElemAt:["$user.firstName",0]},"salesLastName":{$arrayElemAt:["$user.lastName",0]},"salesRole":{$arrayElemAt:["$user.userRole",0]},"salesPhone":{$arrayElemAt:["$user.phoneNumber",0]}}
+},
+{
+  $sort:{
+    "total":-1
+  }
+},
+  ] )
+  return res.json(allSchedule)
+}
+catch(error) {
+  next(error)
+  }
+};
+
+//get trip history
+exports.getTripHistory = async (req, res, next) => {
+  try{
+  const today=new Date()
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+  {
+      $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
+  },
+    {
+  $group:{
+  _id:{"source":"$source","destination":"$destination"},"count":{$sum:1}
+}
+},
+{
+ $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$count"}
+},
+{
+  $sort:{
+    "total":-1
+  }
+}
+  ] )
+  return res.json(allSchedule)
+}
+catch(error) {
+  next(error)
+  }
+};
+//bus history
+exports.getBusRouteHistory = async (req, res, next) => {
+  try{
+  const today=new Date()
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+  {
+      $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
+  },
+    {
+ $group:{
+  _id:{"busid":"$assignedBus","source":"$source","destination":"$destination"},"count":{$sum:1}}
+    },
+    {
+    $lookup:{
+     from:'buses',
+     foreignField:"_id",
+     localField:"_id.busid",
+     as:"businfo"
+      }
+    },
+     {
+      $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$count","busplate":{$arrayElemAt:["$businfo.busPlateNo",0]},"busSideno":{$arrayElemAt:["$businfo.busSideNo",0]},"serviceyear":{$arrayElemAt:["$businfo.serviceYear",0]},"currentbusstate":{$arrayElemAt:["$businfo.busState",0]}}
+    },
+  ] )
+  return res.json(allSchedule)
+}
+catch(error) {
+  next(error)
+  }
+};
+//saled ticket by mobile
+//saled in birr by mobile
+//total sale in birr by person
+//total sale of all person in birr
+//total ticket of all user and route
+//totl ticket in given route all user
+//cancled by so and dest
+//cancled ticket all
+//transd...
 
 //all schedules for that casher or agent
 exports.getAllMySale = async (req, res, next) => {
@@ -46,22 +189,14 @@ exports.getAllMySale = async (req, res, next) => {
   const allSchedule= await Schedule.find({organizationCode:orgcode,userRole:role_type,"passangerInfo.bookedBy":saler_id}).limit(pagesize).skip(skip).sort({datefield:-1})
   const all_my_sale=allSchedule.map(eachdoc=> 
     {
-      return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDateAndTime:eachdoc.departureDateAndTime,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
+      return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDate:eachdoc.departureDate,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
   return res.json(all_my_sale)
   }
   catch(error) {
   next(error)
   }
 };
-await Schedule.aggregate( [
-  {
-     $match: {$and:{organizationCode:orgcode}}
-  },
-  // Stage 2: Group remaining documents by pizza name and calculate total quantity
-  {
-     $group: { _id: "$passangerInfo.bookedBy", totalSale: { $sum: "$tarif" } }
-  }
-] )
+
 //between dates
 exports.getAllMySaleBetween = async (req, res, next) => {
   try {
@@ -74,7 +209,7 @@ exports.getAllMySaleBetween = async (req, res, next) => {
   const allSchedule= await Schedule.find({organizationCode:orgcode,userRole:role_type,"passangerInfo.bookedBy":saler_id})
   const all_my_sale=allSchedule.map(eachdoc=> 
     {
-      return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDateAndTime:eachdoc.departureDateAndTime,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
+      return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDate:eachdoc.departureDate,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
   return res.json(all_my_sale)
   }
   catch(error) {
@@ -115,7 +250,7 @@ exports.getAllActiveScheduleInRoute = async (req, res, next) => {
   const timenow=Date.now();
   const source=req.query.source;
   const destination=req.query.destination;
-  const allSchedule= await Schedule.find({organizationCode:orgcode,source:source,destination:destination,isCanceled:false,departureDateAndTime:{$gte:timenow}})
+  const allSchedule= await Schedule.find({organizationCode:orgcode,source:source,destination:destination,isCanceled:false,departureDate:{$gte:timenow}})
   return res.json(allSchedule)
   }
   catch(error) {
@@ -143,7 +278,7 @@ exports.getAllActiveScheduleInRouteForMobileUser = async (req, res, next) => {
       conditions.push({ organizationCode:orgcode});
   }
   const timenow=Date.now();
-  conditions.push({source:source,destination:destination,isCanceled:false,departureDateAndTime:{$gte:timenow}})
+  conditions.push({source:source,destination:destination,isCanceled:false,departureDate:{$gte:timenow}})
   const final_condtion={$and:conditions}
  
   const allSchedule= await Schedule.find(final_condtion).limit(pagesize).skip(skip).sort({datefield:-1})
@@ -181,7 +316,7 @@ exports.myPassangerList = async (req, res, next) => {
    const addHour=2;
    const addMilisecond=milliSecond(addHour);
    const timenow = Date.now()+addMilisecond
-   const my_booking=await Schedule.findOne({driverUserName:username,departureDateAndTime:{$lte:timenow}}).sort({datefield:-1})
+   const my_booking=await Schedule.findOne({driverUserName:username,departureDate:{$lte:timenow}}).sort({datefield:-1})
    res.json(my_booking)
   }
   catch(error) {

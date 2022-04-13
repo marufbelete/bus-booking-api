@@ -25,10 +25,15 @@ estimatedHour:{
   trim: true,
 },
 departureDateAndTime:{
-  type:Number,
+  type:Date,
   trim: true,
   required: true,
 },
+// departureTime:{
+//   type:String,
+//   trim: true,
+//   required: true,
+// },
 departurePlace:{
   type: String,
   trim: true,
@@ -44,9 +49,8 @@ totalNoOfSit: {
   required: true,
 },
 createdBy:{
-  type: String,
-  trim: true,
-  required: true,
+  type: mongoose.Schema.Types.ObjectId,  
+  ref: 'user',
 },
 //changes during ticket creation
 passangerInfo:[{

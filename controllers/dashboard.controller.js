@@ -1,48 +1,6 @@
 const Schedule = require("../models/schedule.model");
 const {milliSecond}=require("../reusable_logic/sit_generator")
-//gorup schedule by sou and dest and filter bydate and return number of trip
-exports.getScheduleByCriteria = async (req, res, next) => {
-  try{
-const orgcode =req.userinfo.organization_code;
-const today=new Date()
-let matc={organizationCode:orgcode,departureDateAndTime:{$lte:today}};
-
-//like start ?startdate=2022-4-12
-if(req.query.startdate)
-{
-  let date=new Date(req.query.startdate)
-  console.log(req.query.startdate)
-  const matcone={departureDateAndTime:{$gte:date}}
-  matc={...matcone}
-}
-if(req.query.enddate)
-{
-  let date=new Date(req.query.enddate)
-  console.log(date)
-  const matcone={departureDateAndTime:{$lte:date}}
-  matc={...matcone}
-}
-  const allSchedule= await Schedule.aggregate( [
-    {
-       $match:matc
-    },
-    {
-       $group: { _id: {"source":"$source","destination":"$destination"},"total": {$sum: 1 }}
-    },
-    {
-      $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$total"}
-    },
-   
-    
-  ] )
-  return res.json(allSchedule)
-}
-catch(error) {
-  next(error)
-  }
-};
-
-//booked sit of each trip return sour,dest,totalsir,reservedsit
+//booked sit of each trip return sour,dest,totalsit,reservedsit we can time interval
 exports.getAllScheduleWithSit = async (req, res, next) => {
   try{
   const today=new Date()
@@ -65,7 +23,7 @@ catch(error) {
   }
 };
 
-//get all my sale
+//get all group sale on user
 exports.getAllSaleAmountByUser = async (req, res, next) => {
   try{
   const today=new Date()
@@ -81,7 +39,7 @@ exports.getAllSaleAmountByUser = async (req, res, next) => {
     $match:{"user.isMobileUser":false}
     },
   {
-  $group:{_id:{"bookedBy":"$passangerInfo.bookedBy","source":"$source","destination":"$destination"},"total":{$sum:1}}
+  $group:{_id:{"bookedBy":"$passangerInfo.bookedBy","source":"$source","destination":"$destination"},"totaltrip":{$sum:1},"saleinbirr":{$sum:{$multiply:["$tarif",{$size:"$occupiedSitNo"}]}}}
   },
   {
     $lookup:{
@@ -92,7 +50,7 @@ exports.getAllSaleAmountByUser = async (req, res, next) => {
    }
  },
 {
-  $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":1,"salesFirstName":{$arrayElemAt:["$user.firstName",0]},"salesLastName":{$arrayElemAt:["$user.lastName",0]},"salesRole":{$arrayElemAt:["$user.userRole",0]},"salesPhone":{$arrayElemAt:["$user.phoneNumber",0]}}
+  $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","totaltrip":1,"totalsale":"$saleinbirr","salesFirstName":{$arrayElemAt:["$user.firstName",0]},"salesLastName":{$arrayElemAt:["$user.lastName",0]},"salesRole":{$arrayElemAt:["$user.userRole",0]},"salesPhone":{$arrayElemAt:["$user.phoneNumber",0]}}
 },
 {
   $sort:{
@@ -118,11 +76,11 @@ exports.getTripHistory = async (req, res, next) => {
   },
     {
   $group:{
-  _id:{"source":"$source","destination":"$destination"},"count":{$sum:1}
+  _id:{"source":"$source","destination":"$destination"},"count":{$sum:1},"totalsitcount":{$sum:{$size:"$occupiedSitNo"}},"saleinbirr":{$sum:{$multiply:["$tarif",{$size:"$occupiedSitNo"}]}}
 }
 },
 {
- $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$count"}
+ $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$count","salesbirr":"$saleinbirr","totalreservedsit":"$totalsitcount"}
 },
 {
   $sort:{
@@ -136,7 +94,7 @@ catch(error) {
   next(error)
   }
 };
-//bus history
+//bus history info avg sit and other
 exports.getBusRouteHistory = async (req, res, next) => {
   try{
   const today=new Date()
@@ -147,7 +105,7 @@ exports.getBusRouteHistory = async (req, res, next) => {
   },
     {
  $group:{
-  _id:{"busid":"$assignedBus","source":"$source","destination":"$destination"},"count":{$sum:1}}
+  _id:{"busid":"$assignedBus","source":"$source","destination":"$destination"},"count":{$sum:1},"averagSit":{$avg:{$size:"$occupiedSitNo"}}}
     },
     {
     $lookup:{
@@ -158,7 +116,7 @@ exports.getBusRouteHistory = async (req, res, next) => {
       }
     },
      {
-      $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$count","busplate":{$arrayElemAt:["$businfo.busPlateNo",0]},"busSideno":{$arrayElemAt:["$businfo.busSideNo",0]},"serviceyear":{$arrayElemAt:["$businfo.serviceYear",0]},"currentbusstate":{$arrayElemAt:["$businfo.busState",0]}}
+      $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$count","avgsit":"$averagSit","busplate":{$arrayElemAt:["$businfo.busPlateNo",0]},"busSideno":{$arrayElemAt:["$businfo.busSideNo",0]},"serviceyear":{$arrayElemAt:["$businfo.serviceYear",0]},"currentbusstate":{$arrayElemAt:["$businfo.busState",0]}}
     },
   ] )
   return res.json(allSchedule)
@@ -168,7 +126,60 @@ catch(error) {
   }
 };
 //saled ticket by mobile
-//saled in birr by mobile
+exports.getTicketByMobile = async (req, res, next) => {
+  try{
+  const today=new Date()
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+  {
+  $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
+  },
+  {
+  $unwind:"$passangerInfo"
+  },
+  {
+  $match:{"user.isMobileUser":true}
+  },
+  {
+$group:{
+    _id:{"source":"$source","destination":"$destination"},"count":{$sum:1},"saleinbirr":{$sum:"$tarif"}
+    }
+},
+  {
+    $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","total":"$count","totalsalebirr":"$saleinbirr"}
+  },
+  ] )
+  return res.json(allSchedule)
+}
+catch(error) {
+  next(error)
+  }
+};
+//all trip info
+exports.getAllTripinfo = async (req, res, next) => {
+  try{
+  const today=new Date()
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+  {
+      $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
+  },
+    {
+ $group:{
+     _id:null,"totalsit":{$sum:{$size:"$occupiedSitNo"}},"totaltrip":{$sum:1},"totalpassanger":{$sum:{$size:"$occupiedSitNo"}},"totalsale":{$sum:{$multiply:["$tarif",{$size:"$occupiedSitNo"}]}}}
+  },
+  {
+    $project:{"_id":0,"totalreservedsit":"$totalsit","totaltrip":"$totaltrip","totalsaleinbirr":"$totalsale","totalpassanger":"$totalpassanger"}
+  },
+  ] )
+  return res.json(allSchedule)
+}
+catch(error) {
+  next(error)
+  }
+};
+
+
 //total sale in birr by person
 //total sale of all person in birr
 //total ticket of all user and route

@@ -12,7 +12,7 @@ destination: {
     required: true,
 },
 tarif: {
-    type: String,
+    type: Number,
     trim: true,
     required: true,
 },

@@ -188,26 +188,6 @@ catch(error) {
 //cancled ticket all
 //transd...
 
-//all schedules for that casher or agent
-exports.getAllMySale = async (req, res, next) => {
-  try {
-    let page = !!req.query.pageno ? req.query.pageno : 0
-    let pagesize = 20
-    let skip = pagesize * page
-  const orgcode =req.userinfo.organization_code;
-  const saler_id =req.userinfo.sub;
-  const role_type=req.userinfo.user_role;
-  const allSchedule= await Schedule.find({organizationCode:orgcode,userRole:role_type,"passangerInfo.bookedBy":saler_id}).limit(pagesize).skip(skip).sort({datefield:-1})
-  const all_my_sale=allSchedule.map(eachdoc=> 
-    {
-      return {source:eachdoc.source,destination:eachdoc.destination,tarif:eachdoc.tarif,departureDate:eachdoc.departureDate,departurePlace:eachdoc.departurePlace,passInfo:y.passInfo.filter(filterpassanger=>{return filterpassanger.bookedby===role_type})}})
-  return res.json(all_my_sale)
-  }
-  catch(error) {
-  next(error)
-  }
-};
-
 //between dates
 exports.getAllMySaleBetween = async (req, res, next) => {
   try {

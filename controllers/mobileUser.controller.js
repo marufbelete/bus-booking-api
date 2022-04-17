@@ -42,9 +42,8 @@ exports.saveMobileUser = async (req, res, next) => {
     })
     const user=await newuser.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, process.env.SECRET);
-    res.json({
-      token
-    });
+    res.cookie('token',token,{secure:true,httpOnly:true})
+    return res.json({auth:true})
   }
 catch(error) {
  next(error)
@@ -76,9 +75,8 @@ exports.loginMobileUser = async (req, res, next) => {
       throw error;
     }
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number},process.env.SECRET);
-    res.json({
-      token
-    });
+    res.cookie('token',token,{secure:true,httpOnly:true})
+    return res.json({auth:true})
   }
   catch(error) {
     next(error)
@@ -114,7 +112,7 @@ exports.updateMobileUser = async (req, res, next) => {
   password:passwordHash,
 }
   })
-  res.json(updateduser)
+  return res.json(updateduser)
   }
   catch(error) {
    next(error)

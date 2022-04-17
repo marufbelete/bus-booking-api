@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "REST API",
   "main": "app.js",
-
   "scripts": {
     "start": "nodemon app.js"
   },
@@ -16,6 +15,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "envdot": "0.0.3",
@@ -30,7 +30,5 @@
     "sharp": "^0.29.1",
     "short-unique-id": "^4.4.4",
     "socket.io": "^4.4.1"
-  },
-  "devDependencies": {}
-  
+  }
 }

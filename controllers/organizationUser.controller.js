@@ -41,7 +41,8 @@ exports.saveOwner = async (req, res, next) => {
     })
     const user=await owner.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:false }, process.env.SECRET);
-    return res.json(token);
+    res.cookie('token',token,{secure: true,httpOnly: true});
+    return res.json({auth:true});
 
   }
   catch(error)
@@ -77,10 +78,8 @@ exports.saveOwner = async (req, res, next) => {
       }
      
       const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:user.isMobileUser }, process.env.SECRET);
-    res.json({
-      token
-    });
-    return res.json(token)
+    res.cookie('token',token,{secure:true,httpOnly:true})
+    return res.json({auth:true})
     }
     catch(error) {
       next(error)
@@ -227,9 +226,8 @@ exports.loginOrganizationUser = async (req, res, next) => {
     }
     const user_role=user.userRole
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, process.env.SECRET);
-    res.json({
-      token
-    });
+    res.cookie('token',token,{secure:true,httpOnly:true})
+    return res.json({auth:true})
   }
   catch(error) {
     next(error)
@@ -241,7 +239,7 @@ try{
   const organization_code=req.body.organizationcode;
   const allcasher=await User.find({userRole:"casher",
     organizationCode:organization_code,})
-    res.json(allcasher)
+   return res.json(allcasher)
 
 }
 catch(error) {
@@ -255,7 +253,7 @@ exports.getAllOrganizationUser= async(req,res,next) =>{
     const organization_code=req.body.organizationcode;
     const allcasher=await User.find({userRole:{$in:["casher","admin","driver","agent"]},
       organizationCode:organization_code,})
-      res.json(allcasher)
+     return res.json(allcasher)
   
   }
   catch(error) {

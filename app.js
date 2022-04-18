@@ -10,7 +10,7 @@ const dashboard = require('./routes/dashboard.route');
 const transfer = require('./routes/scheduletransfer.route');
 
 // const socketio=require("./socket/socketio")
-app.use(cors())
+app.use(cors({ origin: true, credentials: true }))
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())

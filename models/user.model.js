@@ -32,7 +32,8 @@ password: {
   },
   isActive:{
     type:Boolean,
-    required: true,  
+    required: true, 
+    default:true 
   },
   createdBy:this,
   //only for organization user

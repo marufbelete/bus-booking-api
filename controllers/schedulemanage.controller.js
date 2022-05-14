@@ -1,10 +1,13 @@
 const Schedule = require("../models/schedule.model");
+const Bus = require("../models/bus.model");
+
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;
 let unlockSit;
 exports.addSchedule = async (req, res, next) => {
   try {
+    const description=req.body.description;
     const source = req.body.source;
     const destination = req.body.destination;
     const tarif= req.body.tarif;
@@ -12,6 +15,7 @@ exports.addSchedule = async (req, res, next) => {
     const estimated_hour = req.body.estimatedhour;
     const departure_date_and_time= req.body.depdateandtime;
     const departure_place = req.body.depplace;
+    const busid=req.body.assignedbus
     const number_of_schedule = req.body.numberofschedule;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
@@ -20,6 +24,7 @@ exports.addSchedule = async (req, res, next) => {
    {
     const schedules=[]
     const newschedule= {
+      description:description,
       source:source,
       destination:destination,
       tarif:tarif,
@@ -29,6 +34,7 @@ exports.addSchedule = async (req, res, next) => {
       departurePlace:departure_place,
       createdBy:created_by,
       organizationCode:orgcode,
+      assignedBus:busid
     }
     for(let i=0;i<number_of_schedule;i++)
     {
@@ -38,6 +44,13 @@ exports.addSchedule = async (req, res, next) => {
     console.log(schedules)
     return res.json(savedSchedule)
   }
+  ///make transaction
+   await Bus.findOneAndUpdate({_id:busid},{
+    $set:{
+     onduty:true
+    }
+  }
+  ,{new:true})
   const error=new Error("please fill all required field")
   error.statusCode=401
   throw error

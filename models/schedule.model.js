@@ -20,6 +20,12 @@ distance:{
   type: Number,
   trim: true,
 },
+description:{
+  type: String,
+  trim: true,
+  required:true
+},
+
 estimatedHour:{
   type: Number,
   trim: true,

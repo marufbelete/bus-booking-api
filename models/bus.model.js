@@ -35,6 +35,11 @@ createdBy:{
   type: mongoose.Schema.Types.ObjectId, ref: 'user', 
   required: true,
 },
+onDuty:{
+  type:Boolean,
+  default:false,
+  required:true
+},
 busState:{
   type:String,
   enum:["Active","Inactive","On-Repair","Damaged"],

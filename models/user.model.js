@@ -35,6 +35,12 @@ password: {
     required: true, 
     default:true 
   },
+  gender:{
+    type: String,
+    enum: ['male','female'],
+    trim: true,
+    toLowerCase:true,
+  },
   createdBy:this,
   //only for organization user
   organizationCode:{

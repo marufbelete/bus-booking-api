@@ -11,7 +11,8 @@ exports.addRoute = async (req, res, next) => {
     const max_trip=req.body.maxtrip
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
-    const newbus= new Route({
+    const assignedbus=req.body.bus
+    const newroute= new Route({
       source:source,
       destination:destination,
       tarif:tarif,
@@ -21,8 +22,9 @@ exports.addRoute = async (req, res, next) => {
       maximumTrip:max_trip,
       createdBy:createdby,
       organizationCode:orgcode,
+      bus:assignedbus
     })
-    const savedroute=await newbus.save()
+    const savedroute=await newroute.save()
     return res.json(savedroute)
   }
 catch(error) {
@@ -44,13 +46,14 @@ exports.getOrganizationRoute = async (req, res, next) => {
 //update route info
 exports.updateRouteInfo = async (req, res, next) => {
   try {
+    const assignedbus=req.body.bus
    const id=req.params.id
    const source = req.body.source;
    const destination = req.body.destination;
    const tarif= req.body.tarif;
    const distance = req.body.distance;
    const estimated_hour = req.body.estimatedhour;
-   const max_trip=req.body.maxtrip
+   const max_trip=req.body.maxtrip//array of bus
    const dep_plcae=req.body.departureplace
    const createdby =req.userinfo.sub;
 
@@ -65,6 +68,8 @@ exports.updateRouteInfo = async (req, res, next) => {
       createdBy:createdby,
       departurePlace:dep_plcae,
       createdBy:createdby,
+      bus:assignedbus
+
      }
    })
    res.json(bus)

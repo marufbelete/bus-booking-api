@@ -32,6 +32,11 @@ maximumTrip: {
   type: Number,
   trim: true,
 },
+bus: {
+  type: [mongoose.Schema.Types.ObjectId],
+  ref:'bus',
+  required:true
+},
 createdBy:{
   type: mongoose.Schema.Types.ObjectId,  
   ref: 'user', 

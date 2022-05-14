@@ -6,6 +6,7 @@ const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.cookie;
   if (authHeader) {
     const token = authHeader.split('=')[1];
+    console.log(authHeader.split('=')[1])
     // const token = authHeader
     jwt.verify(token,process.env.SECRET, (err, user) => {
       if (err) {

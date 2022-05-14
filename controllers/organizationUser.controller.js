@@ -41,9 +41,9 @@ exports.saveOwner = async (req, res, next) => {
     })
     const user=await owner.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:false }, process.env.SECRET);
-    res.cookie('token',token,{httpOnly:true, sameSite:'strict'});
+    // res.cookie('token',token,{httpOnly:true, sameSite:'strict'});
     console.log(res)
-    return res.json({auth:true});
+    return res.json({auth:true,token});
 
   }
   catch(error)
@@ -81,7 +81,7 @@ exports.saveOwner = async (req, res, next) => {
       const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:user.isMobileUser }, process.env.SECRET);
     res.cookie('token',token,{httpOnly:true, sameSite:'strict'})
     console.log(res)
-    return res.json({auth:true})
+    return res.json({auth:true,token})
     }
     catch(error) {
       next(error)
@@ -230,7 +230,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, process.env.SECRET);
     res.cookie('token',token,{httpOnly:true, sameSite:'strict'})
     console.log(res)
-    return res.json({auth:true})
+    return res.json({auth:true,token})
   }
   catch(error) {
     next(error)

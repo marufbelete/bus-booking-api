@@ -11,7 +11,6 @@ exports.registerBus = async (req, res, next) => {
     const totalsit =req.body.totalsit;
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
-    
 if(!!busplateno && !!bussideno && !!driverusername && !!totalsit)
 { 
     const newbus= new Bus({

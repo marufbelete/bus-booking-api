@@ -144,6 +144,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const add_role=req.body.userrole; 
     const password=req.body.password;
     const confirm_password=req.body.confirmpassword;
+    console.log(req.userinfo)
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
     console.log(organization_code)

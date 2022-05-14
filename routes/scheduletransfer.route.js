@@ -5,15 +5,10 @@ const {scheduleTransferRequest,acceptScheduleTransferRequest,rejectScheduleTrans
 const {errorHandler} = require('../middleware/errohandling.middleware')
 const router = express.Router();
 //schedule
-// router.post('/scheduletransferrequest',userauth,authaAdminCasher,scheduleTransferRequest,errorHandler)
-// router.put('/acceptscheduletransferrequest',userauth,authAdmin,acceptScheduleTransferRequest,errorHandler)
-// router.put('/rejectscheduletransferrequest',userauth,rejectScheduleTransferRequest,errorHandler)
-// router.put('/postponetrip',userauth,postPoneTrip,errorHandler)
-//teset
-router.post('/scheduletransferrequest',scheduleTransferRequest,errorHandler)
-router.put('/acceptscheduletransferrequest',acceptScheduleTransferRequest,errorHandler)
-router.put('/rejectscheduletransferrequest',rejectScheduleTransferRequest,errorHandler)
-router.put('/postponetrip',postPoneTrip,errorHandler)
+router.post('/scheduletransferrequest',userauth,authaAdminCasher,scheduleTransferRequest,errorHandler)
+router.put('/acceptscheduletransferrequest',userauth,authAdmin,acceptScheduleTransferRequest,errorHandler)
+router.put('/rejectscheduletransferrequest',userauth,rejectScheduleTransferRequest,errorHandler)
+router.put('/postponetrip',userauth,postPoneTrip,errorHandler)
 
 module.exports = router
 

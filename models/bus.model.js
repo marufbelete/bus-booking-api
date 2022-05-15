@@ -43,7 +43,7 @@ onDuty:{
 busState:{
   type:String,
   enum:["Active","Inactive","On-Repair","Damaged"],
-  default: true,
+  default:"A ctive",
   required: true,
 },
 organizationCode:{

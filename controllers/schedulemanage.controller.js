@@ -16,7 +16,7 @@ exports.addSchedule = async (req, res, next) => {
     const departure_date_and_time= req.body.depdateandtime;
     const departure_place = req.body.depplace;
     const busid=req.body.assignedbus
-    const number_of_schedule = req.body.numberofschedule;
+    const number_of_schedule = req.body.numberofschedule?req.body.numberofschedule:1;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
 
@@ -38,6 +38,7 @@ exports.addSchedule = async (req, res, next) => {
     }
     for(let i=0;i<number_of_schedule;i++)
     {
+      console.log("once")
       schedules.push(newschedule)
     }   
     const savedSchedule=await Schedule.insertMany(schedules)

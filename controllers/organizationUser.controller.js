@@ -143,8 +143,8 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const phone_number = req.body.phonenumber;
     const add_role=req.body.userrole; 
     const password=req.body.password;
+    const gender=req.body.gender;
     const confirm_password=req.body.confirmpassword;
-    console.log(req.userinfo)
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
     console.log(organization_code)
@@ -189,7 +189,8 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
       userRole:add_role,
       organizationCode:organization_code,
       password: passwordHash,
-      createdBy:saved_by
+      createdBy:saved_by,
+      gender:gender
     })
   const neworguser=await user.save()
    return res.json(neworguser)
@@ -268,6 +269,7 @@ exports.getAllOrganizationUser= async(req,res,next) =>{
 exports.updateOrganizationUser = async (req, res, next) => {
   try {
     const first_name = req.body.firstname;
+    const gender=req.body.gender;
     const last_name = req.body.lastname;
     const updateduserid=req.params.id
     const phone_number = req.body.phonenumber;

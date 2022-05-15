@@ -24,8 +24,8 @@ estimatedHour: {
     type: String,
     trim: true,
 },
-departurePlcae: {
-  type: Array,
+departurePlace: {
+  type: [String],
   trim: true,
 },
 maximumTrip: {

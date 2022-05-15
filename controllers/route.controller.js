@@ -12,6 +12,8 @@ exports.addRoute = async (req, res, next) => {
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
     const assignedbus=req.body.bus
+    console.log(departure_place)
+    console.log(assignedbus)
     const newroute= new Route({
       source:source,
       destination:destination,

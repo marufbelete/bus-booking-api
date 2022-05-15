@@ -91,6 +91,7 @@ exports.lockSit = async (req, res, next) => {
 //book ticket use io
 exports.bookTicketFromSchedule = async (req, res, next) => {
   try {
+    console.log("in")
     clearTimeout(sitTimer)
     unlockSit()
    const id=req.params.id

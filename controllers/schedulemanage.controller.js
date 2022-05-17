@@ -82,11 +82,17 @@ exports.lockSit = async (req, res, next) => {
    //socket io 
    sitTimer=setTimeout(unlockSit,30000)
    req.sitlock=sitTimer
-   res.json(bus)
+   return res.json(bus)
   }
   catch(error) {
     next(error)
   }
+}
+
+//get all schedule
+exports.getAllSchgedule=async(req,res,next)=>{
+const schedule=await Schedule.find()
+return res.json(schedule)
 }
 
 //book ticket use io
@@ -114,7 +120,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
        bookedBy:booked_by}},
        $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
    },{new:true})
-   res.json(schedule)
+   return res.json(schedule)
   }
   catch(error) {
     next(error)
@@ -127,7 +133,7 @@ exports.getRiservedSit = async (req, res, next) => {
    const bus= await Schedule.findById(id,{
     occupiedSitNo:1
    })
-   res.json(bus)
+   return res.json(bus)
   }
   catch(error) {
     next(error)
@@ -145,7 +151,7 @@ exports.assignBusToSchedule = async (req, res, next) => {
       assignedBus:bus_id
      }
    })
-   res.json(bus)
+   return res.json(bus)
   }
   catch(error) {
     next(error)
@@ -162,7 +168,7 @@ exports.cancelSchedule= async (req, res, next) => {
   isCanceled:true,
   canceledBy:canceler_id
    }})
-   res.json("deleted successfully")
+  return res.json("deleted successfully")
   }
   catch(error) {
     next(error)
@@ -180,7 +186,7 @@ exports.undoCanceldSchedule= async (req, res, next) => {
   isCanceled:false,
   canceledBy:canceler_id
    }})
-   res.json("deleted successfully")
+   return res.json("deleted successfully")
   }
   catch(error) {
     next(error)

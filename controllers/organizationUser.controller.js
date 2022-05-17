@@ -416,6 +416,12 @@ throw error;
     next(error)
      }
 };
+exports.getUserByRole=async(req,res,next)=>{
+  const role=req.query.role
+  const organization_code=req.userinfo.organization_code;
+  const user=await User.find({userRole:role,organizationCode:organization_code,isActive:true})
+  return res.json(user)
+}
 
 exports.activateOrganizationUser = async (req, res, next) => {
   try {

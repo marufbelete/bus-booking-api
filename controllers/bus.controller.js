@@ -48,42 +48,26 @@ exports.getAllOrganizationBus = async (req, res, next) => {
     next(error)
   }
 };
-//only active bus this is for assigning bus to some schedule
-exports.getAllOrganizationActiveBus = async (req, res, next) => {
+
+//get bus by route
+exports.getActiveBusByRoute = async (req, res, next) => {
   try {
+  const source=req.query.source
+  const destination=req.query.destination
   const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"})
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active",source:source,destination:destination})
   res.json(allbus)
   }
   catch(error) {
     next(error)
   }
 };
-exports.getAllOrganizationInactiveBus = async (req, res, next) => {
+exports.getAllOrganizationBusByState = async (req, res, next) => {
   try {
+  const state=req.query.state
   const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"Inactive"})
-  res.json(allbus)
-  }
-  catch(error) {
-    next(error)
-  }
-};
-exports.getAllOrganizationOnRepairBus = async (req, res, next) => {
-  try {
-  const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"On-Repair"})
-  res.json(allbus)
-  }
-  catch(error) {
-    next(error)
-  }
-};
-exports.getAllOrganizationDamagedBus = async (req, res, next) => {
-  try {
-  const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"Damaged"})
-  res.json(allbus)
+  const allbus= await Bus.find({organizationCode:orgcode,busState:state})
+  returnres.json(allbus)
   }
   catch(error) {
     next(error)

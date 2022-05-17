@@ -1,7 +1,7 @@
 const express = require('express');
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
-const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiservedSit,cancelSchedule,undoCanceldSchedule}= require("../controllers/schedulemanage.controller")
+const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiservedSit,cancelSchedule,undoCanceldSchedule, getAllSchgedule}= require("../controllers/schedulemanage.controller")
 const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/route.controller")
 const {createRole,getRole,deleteRole}=require("../controllers/manageRole.controller")
 const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controllers/policy.controller")
@@ -9,7 +9,7 @@ const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganiz
 const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
 const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity}=require("../controllers/city.controller")
-const {registerBus,getAllOrganizationBus,getAllOrganizationActiveBus,getAllOrganizationInactiveBus,getAllOrganizationOnRepairBus,getAllOrganizationDamagedBus,updateBusStatus,updateBusInfo,deleteBus}=require("../controllers/bus.controller")
+const {registerBus,getAllOrganizationBus,getActiveBusByRoute,updateBusStatus,updateBusInfo,deleteBus, getAllOrganizationBusByState}=require("../controllers/bus.controller")
 
 const {errorHandler} = require('../middleware/errohandling.middleware')
 
@@ -45,6 +45,7 @@ router.put('/cancelschedule/:id',userauth,cancelSchedule,errorHandler)
 router.put('/assignbustoschedule/:id',userauth,assignBusToSchedule,errorHandler)
 router.put('/undocanceledschedule/:id',userauth,undoCanceldSchedule,errorHandler)
 router.get('/getreservedsit/:id',userauth,getRiservedSit,errorHandler)
+router.get('/getallschedule',userauth,getAllSchgedule,errorHandler)
 //role
 router.post('/addrole',userauth,authaAdminCasher,createRole,errorHandler)
 router.get('/getrole',userauth,authaAdminCasher,getRole,errorHandler)
@@ -76,10 +77,8 @@ router.delete('/deletecity/:id',userauth,authaAdminCasher,deleteCity,errorHandle
 router.post('/registerbus',userauth,authaAdminCasher,registerBus,errorHandler)
 router.get('/getallorganizationbus',userauth,authaAdminCasher,getAllOrganizationBus,errorHandler)
 router.put('/updatebusinfo/:id',userauth,authaAdminCasher,updateBusInfo,errorHandler)
-router.get('/getallorganizationactivebus',userauth,authaAdminCasher,getAllOrganizationActiveBus,errorHandler)
-router.get('/getallorganizationinactivebus',userauth,authaAdminCasher,getAllOrganizationInactiveBus,errorHandler)
-router.get('/getallorganizationonrepairbus',userauth,authaAdminCasher,getAllOrganizationOnRepairBus,errorHandler)
-router.get('/getallorganizationdamagedbus',userauth,authaAdminCasher,getAllOrganizationDamagedBus,errorHandler)
+router.get('/getorganizationbusbystate',userauth,authaAdminCasher,getAllOrganizationBusByState,errorHandler)
+router.get('/getorganizationactivebusbyroute',userauth,authaAdminCasher,getActiveBusByRoute,errorHandler)
 router.put('/updatebusstatus/:id',userauth,authaAdminCasher,updateBusStatus,errorHandler)
 router.delete('/deletebus/:id',userauth,authaAdminCasher,deleteBus,errorHandler)
 

@@ -43,6 +43,7 @@ exports.getOrganizationByCode = async (req, res, next) => {
    const code=req.body.code
    console.log(code)
    const organization= await Organization.findOne({organizationCode:code})
+   console.log(organization)
    if(organization)
    {
     return res.json(organization)

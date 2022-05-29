@@ -59,7 +59,7 @@ router.delete('/deletepolicy/:id',userauth,authaAdminCasher,deletePolicy,errorHa
 router.post('/createorganization',userauth,authOwner,createOrganization,errorHandler)
 router.get('/getallorganization',userauth,authOwner,getAllOrganization,errorHandler)
 router.get('/getorganizationbyid/:id',userauth,authOwner,getOrganizationById,errorHandler)
-router.get('/getorganizationbycode/:code',userauth,authOwner,getOrganizationByCode,errorHandler)
+router.get('/getorganizationbycode',userauth,authOwner,getOrganizationByCode,errorHandler)
 router.put('/updateorganization/:id',userauth,authOwner,updateOrganization,errorHandler)
 router.delete('/deleteorganization/:id',userauth,authOwner,deleteOrganization,errorHandler)
 //hotel and pension

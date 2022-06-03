@@ -129,10 +129,11 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
 //by route
 exports.getActiveScheduleByRoute = async (req, res, next) => {
   try {
-  const source=req.query.source
-  const destination=req.query.destination
   const orgcode =req.userinfo.organization_code;
-  const allSchedule= await Bus.find({organizationCode:orgcode,source:source,destination:destination})
+  const search={organizationCode:orgcode}
+  req.query.source?search.source=req.query.source:''
+  req.query.destination?search.destination=req.query.destination:''
+  const allSchedule= await Schedule.find(search)
   res.json(allSchedule)
   }
   catch(error) {

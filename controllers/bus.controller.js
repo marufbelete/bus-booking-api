@@ -50,18 +50,6 @@ exports.getAllOrganizationBus = async (req, res, next) => {
 };
 
 //get bus by route
-exports.getActiveBusByRoute = async (req, res, next) => {
-  try {
-  const source=req.query.source
-  const destination=req.query.destination
-  const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active",source:source,destination:destination})
-  res.json(allbus)
-  }
-  catch(error) {
-    next(error)
-  }
-};
 exports.getAllOrganizationBusByState = async (req, res, next) => {
   try {
   const state=req.query.state

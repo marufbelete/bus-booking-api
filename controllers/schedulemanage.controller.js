@@ -126,6 +126,19 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     next(error)
   }
 };
+//by route
+exports.getActiveScheduleByRoute = async (req, res, next) => {
+  try {
+  const source=req.query.source
+  const destination=req.query.destination
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Bus.find({organizationCode:orgcode,source:source,destination:destination})
+  res.json(allSchedule)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 //
 exports.getRiservedSit = async (req, res, next) => {
   try {

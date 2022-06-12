@@ -7,6 +7,7 @@ let sitTimer;
 let unlockSit;
 exports.addSchedule = async (req, res, next) => {
   try {
+    console.log(req.body)
     const description=req.body.description;
     const source = req.body.source;
     const destination = req.body.destination;
@@ -72,7 +73,8 @@ exports.lockSit = async (req, res, next) => {
      }
    }
    ,{new:true})
-   unlockSit=async()=>{ 
+   
+  unlockSit=async()=>{ 
     await Schedule.findOneAndUpdate({_id:id},{
       $pullAll:{
         occupiedSitNo:sit

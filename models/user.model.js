@@ -26,7 +26,10 @@ password: {
   },
   userRole:{
     type: String,
-    enum: ['owner','superadmin','admin','casher','driver','agent','redat'],
+    enum:{
+      values:['owner','superadmin','admin','casher','driver','agent','redat'],
+      message: '{VALUE} is not supported'
+    } ,
     trim: true,
     toLowerCase:true,
   },

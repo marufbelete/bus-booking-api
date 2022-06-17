@@ -1,5 +1,6 @@
 const Schedule = require("../models/schedule.model");
 const {sit_gene}=require("../reusable_logic/sit_generator")
+const moment=require('moment')
 //transfer schedule request will send request notification to other org nothing more
 exports.scheduleTransferRequest = async (req, res, next) => {
   try {
@@ -61,18 +62,18 @@ for (let i=0;i<intersection.length; i++)
    //find and insert to shedule which can accomodate those passanger in given date
    //solve the sit number issue
    const accpting_schedule_id=for_schedule_accepting._id
-   await Schedule.findOneAndUpdate({_id:accpting_schedule_id},
+   await Schedule.findByIdAndUpdate(accpting_schedule_id,
      {
      $set:{ passangerInfo:{$addToSet:{$each:add_passanger_info}},occupiedSitNo:[...final_transfer_sit,...occupied2]}
      },
-     {session,new:true}
+     {session,new:true,useFindAndModify:false}
      )
    //make istransferd true
    await Schedule.findByIdAndUpdate(schedule_id,{
      $set:{
       isTransfered:true,
      }
-   },{session,new:true})
+   },{session,new:true,useFindAndModify:false})
    //find unique socket of organization that we want to send request notification
    const socket_id=req.body.scoketid
   await session.commitTransaction();
@@ -134,7 +135,7 @@ exports.postPoneTrip = async (req, res, next) => {
   const submit_sit=[...sit_allowed,...new_allowed_sit]
     //solve the sit issue
     session.startTransaction()
-    await Schedule.findOneAndUpdate({_id:postpone_to._id},
+    await Schedule.findByIdAndUpdate(postpone_to._id,
       {
           $push:{passangerInfo:{passangerName:passange_name,
            passangerPhone:pass_phone_number,
@@ -144,9 +145,9 @@ exports.postPoneTrip = async (req, res, next) => {
            $addToSet:{occupiedSitNo:{$each:submit_sit}},
            }
       ,{session,new:true})
-      const change_preivious_schedule=await Schedule.findOneAndUpdate({_id:schedule_id},
+      const change_preivious_schedule=await Schedule.findByIdAndUpdate(schedule_id,
         {$set:{"passangerInfo.$[el].isPassangerPostponed":true}},
-        {arrayFilters:[{"el.uniqueId":passanger_unique_id}],session,new:true})
+        {arrayFilters:[{"el.uniqueId":passanger_unique_id}],session,new:true,useFindAndModify:false})
        session.commitTransaction()
 
  return res.json()
@@ -163,21 +164,23 @@ exports.refundRequest = async (req, res, next) => {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
     const pass_sit=req.body.passsit//[]
-    const timenow = new Date.now()
-    const schedule=await Schedule.findOne({_id:schedule_id})
+    console.log(pass_sit,pass_id)
     session.startTransaction()
-    if(schedule.departureDateAndTime>timenow)
+    const timenow = new Date
+    const schedule=await Schedule.findById(schedule_id)
+    if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findOneAndUpdate({_id:schedule_id},{$set:{"passangerInfo.$[el].isTiacketCanceled":true,$pull: { occupiedSitNo: { $in: pass_sit }}}},
-      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true})
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true},$addToSet:{sitCanceled:{$each:pass_sit}},$pull: { occupiedSitNo: { $in: pass_sit }}},
+      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
       
     }
     else{
-      await Schedule.findOneAndUpdate({_id:schedule_id},{$set:{"passangerInfo.$[el].isTiacketCanceled":true}},
-      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true})
+      console.log('ohh no')
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,sitCanceled:1}},
+      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
     }
     session.commitTransaction()
- return res.json("refund done")
+    return res.json("refund done")
 
   }
   catch(error) {

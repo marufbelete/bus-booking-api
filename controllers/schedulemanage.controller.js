@@ -4,7 +4,7 @@ const Bus = require("../models/bus.model");
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;
-let unlockSit;
+let unlockSit=()=>{};
 exports.addSchedule = async (req, res, next) => {
   try {
     console.log(req.body)
@@ -47,7 +47,7 @@ exports.addSchedule = async (req, res, next) => {
     return res.json(savedSchedule)
   }
   ///make transaction
-   await Bus.findOneAndUpdate({_id:busid},{
+   await Bus.findByIdAndUpdate(busid,{
     $set:{
      onduty:true
     }
@@ -67,24 +67,32 @@ exports.lockSit = async (req, res, next) => {
    const id=req.params.id
    const sit =req.body.sits
     console.log(sit)
-   const bus= await Schedule.findOneAndUpdate({_id:id},{
-     $addToSet:{
-      occupiedSitNo:{$each:sit}
-     }
+   const isSitFree=await Schedule.findById(id)
+   if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
+   {
+    return res.json({message:"sit already reserved before, please try another sit"});
    }
-   ,{new:true})
+   else{
+    const bus= await Schedule.findByIdAndUpdate(id,{
+      $addToSet:{
+       occupiedSitNo:{$each:sit}
+      }
+    }
+    ,{new:true})
+    console.log(bus)
+   unlockSit=async()=>{ 
+     await Schedule.findByIdAndUpdate(id,{
+       $pullAll:{
+         occupiedSitNo:sit
+        }
+    },{new:true,useFindAndModify:false})
+ }
+    //socket io 
+    sitTimer=setTimeout(unlockSit,30000)
+    req.sitlock=sitTimer
+    return res.json(bus)
+   }
    
-  unlockSit=async()=>{ 
-    await Schedule.findOneAndUpdate({_id:id},{
-      $pullAll:{
-        occupiedSitNo:sit
-       }
-   },{new:true})
-}
-   //socket io 
-   sitTimer=setTimeout(unlockSit,30000)
-   req.sitlock=sitTimer
-   return res.json(bus)
   }
   catch(error) {
     next(error)
@@ -104,16 +112,17 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     clearTimeout(sitTimer)
     unlockSit()
    const id=req.params.id
-   //name can be an array
    const passange_name = req.body.passname;
    const pass_phone_number = req.body.passphone;
-   //booked sit number
    const psss_ocupied_sit_no= req.body.sits
-  //req.body.passoccupiedsit;
-   //some unique id
    const booked_by = req.userinfo.sub;
    const uid = new ShortUniqueId({ length: 12 });
    console.log(uid())
+   const isSitFree=await Schedule.findById(id)
+   if(isSitFree.occupiedSitNo.some(e=>psss_ocupied_sit_no.includes(e)))
+   {
+    return res.json({message:"sit already reserved before, please try another sit"});
+   }
    const schedule= await Schedule.findByIdAndUpdate(id,{
       $push:{passangerInfo:{passangerName:passange_name,
        passangerPhone:pass_phone_number,

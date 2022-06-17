@@ -80,6 +80,10 @@ passangerInfo:[{
       type: Boolean,  
       default:false,
       },
+    sitCanceled: {
+      type: [Number],
+      trim: true,
+      },
     isPassangerTransfered: {
       type: Boolean,  
       default:false,

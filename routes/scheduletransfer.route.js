@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/scheduletransferrequest',userauth,authaAdminCasher,scheduleTransferRequest,errorHandler)
 router.put('/acceptscheduletransferrequest',userauth,authAdmin,acceptScheduleTransferRequest,errorHandler)
 router.put('/rejectscheduletransferrequest',userauth,rejectScheduleTransferRequest,errorHandler)
-router.put('/refundrequest',userauth,refundRequest,errorHandler)
+router.put('/refundrequest/:id',userauth,refundRequest,errorHandler)
 router.put('/postponetrip',userauth,postPoneTrip,errorHandler)
 
 module.exports = router

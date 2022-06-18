@@ -133,7 +133,6 @@ exports.postPoneTrip = async (req, res, next) => {
      return generated_sit.splice(-1)[0]
   })
   const submit_sit=[...sit_allowed,...new_allowed_sit]
-    //solve the sit issue
     session.startTransaction()
     await Schedule.findByIdAndUpdate(postpone_to._id,
       {
@@ -164,24 +163,23 @@ exports.refundRequest = async (req, res, next) => {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
     const pass_sit=req.body.passsit//[]
-    console.log(pass_sit,pass_id)
+    
     session.startTransaction()
     const timenow = new Date
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true},$addToSet:{sitCanceled:{$each:pass_sit}},$pull: { occupiedSitNo: { $in: pass_sit }}},
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,$addToSet:{"passangerInfo.$[el].sitCanceled":{$each:pass_sit}},$pull:{occupiedSitNo:{ $in: pass_sit }}}},
       {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
-      
+      await Schedule.findByIdAndUpdate(schedule_id,{$pull:{occupiedSitNo:{ $in: pass_sit }}},
+      {session,new:true,useFindAndModify:false})
     }
     else{
-      console.log('ohh no')
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,sitCanceled:1}},
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true},$addToSet:{"passangerInfo.$[el].sitCanceled":{$each:pass_sit}}},
       {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
     }
     session.commitTransaction()
     return res.json("refund done")
-
   }
   catch(error) {
     await session.abortTransaction();

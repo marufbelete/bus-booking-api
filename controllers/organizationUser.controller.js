@@ -1,7 +1,6 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
-const Role=require("../accesscontoller.json")
 
 //register organization user
 exports.saveOwner = async (req, res, next) => {
@@ -42,8 +41,10 @@ exports.saveOwner = async (req, res, next) => {
     const user=await owner.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:false }, process.env.SECRET);
     // res.cookie('token',token,{httpOnly:true, sameSite:'strict'});
-    console.log(res)
-    return res.json({auth:true,token});
+    return res.cookie("access_token",token,{
+      sameSite:'none',
+      path:'/',
+      secure:true}).json({auth:true,token})
 
   }
   catch(error)
@@ -80,8 +81,10 @@ exports.saveOwner = async (req, res, next) => {
      
       const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:user.isMobileUser }, process.env.SECRET);
     // res.cookie('token',token,{httpOnly:true, sameSite:'strict'})
-    console.log(res)
-    return res.json({auth:true,token})
+    return res.cookie("access_token",token,{
+      sameSite:'none',
+      path:'/',
+      secure:true}).json({auth:true,token})
     }
     catch(error) {
       next(error)
@@ -148,7 +151,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
     console.log(organization_code)
-if(add_role===Role.SUPERADMIN || add_role===Role.OWNER)
+if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
 { 
  const error = new Error("You don't have access to add super admin or owner, please contact your provider" )
   error.statusCode = 400
@@ -230,9 +233,10 @@ exports.loginOrganizationUser = async (req, res, next) => {
     }
     const user_role=user.userRole
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, process.env.SECRET);
-    // res.cookie('token',token,{httpOnly:true, sameSite:'strict'})
-    console.log(res)
-    return res.json({auth:true,token})
+    return res.cookie("access_token",token,{
+      sameSite:'none',
+      path:'/',
+      secure:true}).json({auth:true,token})
   }
   catch(error) {
     next(error)
@@ -299,7 +303,7 @@ const salt = await bcrypt.genSalt();
 const passwordHash = await bcrypt.hash(password, salt);
 //owner
 
-if(user_role===Role.OWNER)
+if(user_role===process.env.OWNER)
 {
   const error = new Error( "you can't change owner info please contact you provider.")
   error.statusCode = 400
@@ -307,7 +311,7 @@ if(user_role===Role.OWNER)
  }
 
 //super admin
-if(user_role===Role.SUPERADMIN)
+if(user_role===process.env.SUPERADMIN)
 { 
   //for other
   if(updateduserid!==user_id){
@@ -336,7 +340,7 @@ else{
 
 const editeduser=await User.findById(updateduserid)
 //admin
-if(user_role===Role.ADMIN ){
+if(user_role===process.env.ADMIN ){
   //for itself
   if(updateduserid===user_id)
   { 
@@ -350,7 +354,7 @@ if(user_role===Role.ADMIN ){
       return res.json(updateduser)
   }
 // for other than like casher
-  else if(editeduser.userRole!==Role.SUPERADMIN && editeduser.userRole!==Role.ADMIN ){
+  else if(editeduser.userRole!==process.env.SUPERADMIN && editeduser.userRole!==process.env.ADMIN ){
     console.log("in")
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
@@ -394,8 +398,8 @@ try {
     const organization_code=req.userinfo.organization_code;
     const id=req.userinfo._id;
     const user_role=req.userinfo.organization_code;
-    const superadminuser=await User.findOne({userRole:Role.SUPERADMIN,organizationCode:organization_code})
-if(user_role===Role.SUPERADMIN || user_role===Role.ADMIN)
+    const superadminuser=await User.findOne({userRole:process.env.SUPERADMIN,organizationCode:organization_code})
+if(user_role===process.env.SUPERADMIN || user_role===process.env.ADMIN)
 { 
 if(updateduserid==superadminuser._id){ 
   const error = new Error("you can't change status of superadmin user.")
@@ -429,8 +433,8 @@ exports.activateOrganizationUser = async (req, res, next) => {
       const organization_code=req.userinfo.organization_code;
       const id=req.userinfo._id;
       const user_role=req.userinfo.organization_code;
-      const superadminuser=await User.findOne({userRole:Role.SUPERADMIN,organizationCode:organization_code})
-  if(user_role===Role.SUPERADMIN || user_role===Role.ADMIN)
+      const superadminuser=await User.findOne({userRole:process.env.SUPERADMIN,organizationCode:organization_code})
+  if(user_role===process.env.SUPERADMIN || user_role===process.env.ADMIN)
   { 
   if(updateduserid==superadminuser._id){ 
     const error = new Error("you can't change status of superadmin user.")

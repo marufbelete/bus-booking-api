@@ -1,5 +1,4 @@
 const express = require("express");
-require('dotenv').config({path:".env"});
 const mongoose = require("mongoose")
 const app = express();
 const cookieParser=require('cookie-parser')
@@ -8,18 +7,51 @@ const userroute = require('./routes/user.route');
 const manageroute = require('./routes/manage.route');
 const dashboard = require('./routes/dashboard.route');
 const transfer = require('./routes/scheduletransfer.route');
+const {ApolloServer}=require('apollo-server-express')
+const resolvers =require('./gqlShema/resolver')
+const typeDefs =require('./gqlShema/typedefs')
+const jwt = require("jsonwebtoken");
+require('dotenv').config()
 
 // const socketio=require("./socket/socketio")
-app.use(cors({ origin:'http://localhost:3000', credentials: true }))
+app.use(cors({ origin:['http://localhost:3000','https://studio.apollographql.com'], credentials: true }))
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
+
 //routes
 app.use(userroute)
 app.use(manageroute)
 app.use(dashboard)
 app.use(transfer)
-console.log(process.env.PORT)
+const StartServer=async()=>{
+  const apolloServer=new ApolloServer({
+  typeDefs, 
+  resolvers,
+  csrfPrevention: true,
+  context:async({ req, res }) => {
+    const token = req.cookies.access_token;
+    let users
+    if (!token) {
+      return {value:"no token"}
+    }
+    try {
+      jwt.verify(token, process.env.SECRET, (err, user) => {
+        if (err) {
+          return {value:"token error"}
+        }
+        users=user
+        return;
+      });
+    } 
+    catch {
+      return {value:"unkown error"};
+    }
+    return users
+  },
+})
+await apolloServer.start()
+apolloServer.applyMiddleware({app:app,cors: false })
 mongoose.connect("mongodb+srv://maruf:maruf@cluster0.zrkgb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
   useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true
 })
@@ -31,11 +63,9 @@ mongoose.connection.on("connected", (err, res) => {
   app.listen(PORT, () => {
     console.log(`app is listening to PORT ${PORT}`)
   })
-//   const io=socketio.init(httpServer)
-//   io.on("connection",(socket)=>{
-// console.log("socket connection created")
-//   })
 })
+}
+StartServer()
 
 
 

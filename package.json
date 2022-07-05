@@ -13,6 +13,7 @@
   "author": "Aristote Ngoy",
   "license": "ISC",
   "dependencies": {
+    "apollo-server-express": "^3.9.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.6",
@@ -22,13 +23,15 @@
     "express": "^4.16.4",
     "express-timeout-handler": "^2.2.2",
     "g": "^2.0.1",
+    "graphql": "^16.5.0",
+    "graphql-scalars": "^1.17.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.3",
     "mongodb": "^3.2.4",
     "mongoose": "^5.5.8",
-    "multer": "^1.4.3",
-    "nodemon": "^1.19.4",
-    "sharp": "^0.29.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^2.0.16",
+    "sharp": "^0.30.6",
     "short-unique-id": "^4.4.4",
     "socket.io": "^4.4.1"
   }

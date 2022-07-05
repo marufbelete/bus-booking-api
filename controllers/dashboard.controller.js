@@ -1,20 +1,28 @@
 const Schedule = require("../models/schedule.model");
 const {milliSecond}=require("../reusable_logic/sit_generator")
+const moment=require("moment")
 //booked sit of each trip return sour,dest,totalsit,reservedsit we can time interval
+const todays=new Date()
+
+
 exports.getAllScheduleWithSit = async (req, res, next) => {
   try{
   const today=new Date()
   const orgcode =req.userinfo.organization_code;
   const allSchedule= await Schedule.aggregate( [
-    {
-       $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
-    },
-     {
-      $project:{"source":"$source","destination":"$destination","totalSit":"$totalNoOfSit","totalReservedSit":{$size:"$occupiedSitNo"}}
-    },
-    {
-      $sort:{"totalReservedSit":-1}
-    }
+  {
+      $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
+  },
+  {
+    $project:{"year":{ $year:"$createdAt" },"source":"$source","destination":"$destination","totalSit":"$totalNoOfSit","totalReservedSit":{$size:"$occupiedSitNo"}}
+  },
+  {
+    $sort:{"totalReservedSit":-1}
+  }
+    //filter by year in future
+// {
+//   $group:{_id:{"year":"$year"}}
+//   },
   ] )
   return res.json(allSchedule)
 }
@@ -23,40 +31,64 @@ catch(error) {
   }
 };
 
+
 //get all group sale on user
-exports.getAllSaleAmountByUser = async (req, res, next) => {
+exports.getTotalLocalSale = async (req, res, next) => {
   try{
-  const today=new Date()
+  const dayY={ $dayOfYear:"$passangerInfo.bookedAt"}
+  const week={ $week:"$passangerInfo.bookedAt"}
+  const month={ $month:"$passangerInfo.bookedAt"}
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).week();
+  let today =moment(now).dayOfYear();
+  const day = moment('2022-12-02').month();
+  const sort="months"
+  let filter1
+  filter1=sort=="days"?{"day":dayY}:filter1
+  filter1=sort=="weeks"?{"week":week}:filter1
+  filter1=sort=="months"?{"month":month}:filter1
+  let filter2
+  filter2=sort=="days"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="weeks"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="months"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3
+  filter3=sort=="days"?{"year":"$year","day":"$day"}:filter3
+  filter3=sort=="weeks"?{"year":"$year","week":"$week"}:filter3
+  filter3=sort=="months"?{"year":"$year","month":"$month"}:filter3
+ 
+  console.log("ashjs",process.env.CASHER)
   const orgcode =req.userinfo.organization_code;
   const allSchedule= await Schedule.aggregate( [
-    {
-       $match:{organizationCode:orgcode,departureDateAndTime:{$lte:today}}
-    },
-    {
-      $unwind:"$passangerInfo"
-    },
-    {
-    $match:{"user.isMobileUser":false}
-    },
-  {
-  $group:{_id:{"bookedBy":"$passangerInfo.bookedBy","source":"$source","destination":"$destination"},"totaltrip":{$sum:1},"saleinbirr":{$sum:{$multiply:["$tarif",{$size:"$occupiedSitNo"}]}}}
-  },
-  {
-    $lookup:{
-     from:'users',
-     foreignField:"_id",
-     localField:"_id.bookedBy",
-     as:"user"
-   }
- },
 {
-  $project:{"_id":0,"source":"$_id.source","destination":"$_id.destination","totaltrip":1,"totalsale":"$saleinbirr","salesFirstName":{$arrayElemAt:["$user.firstName",0]},"salesLastName":{$arrayElemAt:["$user.lastName",0]},"salesRole":{$arrayElemAt:["$user.userRole",0]},"salesPhone":{$arrayElemAt:["$user.phoneNumber",0]}}
+    $match:{organizationCode:orgcode}
 },
 {
-  $sort:{
-    "total":-1
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"createdAt":1,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$occupiedSitNo"}}
+},
+{
+  $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+},
+{
+  $group:{_id:filter3,"totalTicket":{$sum:"$totalTicket"}}
+},
+{
+  $project:{
+    "_id":0,"year":"$_id.year","totalTicket":1
   }
-},
+}
   ] )
   return res.json(allSchedule)
 }
@@ -64,6 +96,133 @@ catch(error) {
   next(error)
   }
 };
+exports.getTotalAgentSale = async (req, res, next) => {
+  try{
+  const dayY={ $dayOfYear:"$passangerInfo.bookedAt"}
+  const week={ $week:"$passangerInfo.bookedAt"}
+  const month={ $month:"$passangerInfo.bookedAt"}
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).week();
+  let today =moment(now).dayOfYear();
+  const day = moment('2022-12-02').month();
+  const sort="months"
+  let filter1
+  filter1=sort=="days"?{"day":dayY}:filter1
+  filter1=sort=="weeks"?{"week":week}:filter1
+  filter1=sort=="months"?{"month":month}:filter1
+  let filter2
+  filter2=sort=="days"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="weeks"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="months"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3
+  filter3=sort=="days"?{"year":"$year","day":"$day"}:filter3
+  filter3=sort=="weeks"?{"year":"$year","week":"$week"}:filter3
+  filter3=sort=="months"?{"year":"$year","month":"$month"}:filter3
+ 
+  console.log("ashjs",process.env.CASHER)
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"createdAt":1,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$occupiedSitNo"}}
+},
+{
+  $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
+},
+{
+  $group:{_id:filter3,"totalTicket":{$sum:"$totalTicket"}}
+},
+{
+  $project:{
+    "_id":0,"year":"$_id.year","totalTicket":1
+  }
+}
+  ] )
+  return res.json(allSchedule)
+}
+catch(error) {
+  next(error)
+  }
+};
+exports.getTotalMobileSale = async (req, res, next) => {
+  try{
+  const dayY={ $dayOfYear:"$passangerInfo.bookedAt"}
+  const week={ $week:"$passangerInfo.bookedAt"}
+  const month={ $month:"$passangerInfo.bookedAt"}
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).week();
+  let today =moment(now).dayOfYear();
+  const day = moment('2022-12-02').month();
+  const sort="months"
+  let filter1
+  filter1=sort=="days"?{"day":dayY}:filter1
+  filter1=sort=="weeks"?{"week":week}:filter1
+  filter1=sort=="months"?{"month":month}:filter1
+  let filter2
+  filter2=sort=="days"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="weeks"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="months"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3
+  filter3=sort=="days"?{"year":"$year","day":"$day"}:filter3
+  filter3=sort=="weeks"?{"year":"$year","week":"$week"}:filter3
+  filter3=sort=="months"?{"year":"$year","month":"$month"}:filter3
+ 
+  console.log("ashjs",process.env.CASHER)
+  const orgcode =req.userinfo.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"createdAt":1,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$occupiedSitNo"}}
+},
+{
+  $match:{"isMobileUser":true,...filter2}
+},
+{
+  $group:{_id:filter3,"totalTicket":{$sum:"$totalTicket"}}
+},
+{
+  $project:{
+    "_id":0,"year":"$_id.year","totalTicket":1
+  }
+}
+  ] )
+  return res.json(allSchedule)
+}
+catch(error) {
+  next(error)
+  }
+};
+
 
 //get trip history
 exports.getTripHistory = async (req, res, next) => {
@@ -94,6 +253,7 @@ catch(error) {
   next(error)
   }
 };
+
 //bus history info avg sit and other
 exports.getBusRouteHistory = async (req, res, next) => {
   try{

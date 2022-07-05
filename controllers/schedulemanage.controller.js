@@ -1,6 +1,5 @@
 const Schedule = require("../models/schedule.model");
 const Bus = require("../models/bus.model");
-
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;

@@ -1,7 +1,7 @@
 const express = require('express');
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
-const {getAllTripinfo,getBusRouteHistory,getTicketByMobile,getTripHistory,getPostponedPassangerList,getAllSaleAmountByUser,getAllScheduleWithSit,getTransferdPassangerList,getAllCanceledSchedule,getAllActiveSchedule,getAllActiveScheduleInRoute,myBookedTicketList,myPassangerList}= require("../controllers/dashboard.controller")
+const {getAllTripinfo,getBusRouteHistory,getTicketByMobile,getTripHistory,getPostponedPassangerList,getTotalLocalSale,getAllScheduleWithSit,getTransferdPassangerList,getAllCanceledSchedule,getAllActiveSchedule,getAllActiveScheduleInRoute,myBookedTicketList,myPassangerList}= require("../controllers/dashboard.controller")
 const {errorHandler} = require('../middleware/errohandling.middleware')
 const router = express.Router();
 //schedule
@@ -16,7 +16,7 @@ router.get('/transferedpassangers',userauth,getTransferdPassangerList,errorHandl
 
 
 router.get('/getallschedulewithsit',userauth,getAllScheduleWithSit,errorHandler)
-router.get('/getallsalesgroup',userauth,getAllSaleAmountByUser,errorHandler)
+router.get('/getallsalesgroup',userauth,getTotalLocalSale,errorHandler)
 router.get('/getallbusroutehistory',userauth,getBusRouteHistory,errorHandler)
 router.get('/getalltriphistory',userauth,getTripHistory,errorHandler)
 router.get('/getmobilesales',userauth,getTicketByMobile,errorHandler)

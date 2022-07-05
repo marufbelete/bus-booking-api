@@ -96,6 +96,9 @@ passangerInfo:[{
       type: String, 
       trim:true,
       },
+    bookedAt: { 
+      type : Date, 
+      default: Date.now }
   }],
   occupiedSitNo:{
     type: [Number],

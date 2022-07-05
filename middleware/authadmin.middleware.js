@@ -1,10 +1,9 @@
-const Role=require("../accesscontoller.json")
 
 exports.authOwner = (req, res, next) => {
   const userrole=req.userinfo.user_role;
   console.log(userrole);
-  console.log(Role.OWNER)
-  if (userrole===Role.OWNER) {
+  console.log(process.env.OWNER)
+  if (userrole===process.env.OWNER) {
     next()
     return;
     }
@@ -15,7 +14,7 @@ exports.authOwner = (req, res, next) => {
 exports.authSuperAdmin = (req, res, next) => {
   console.log(req.userinfo)
   const userrole=req.userinfo.user_role;
-  if (userrole===Role.SUPERADMIN) {
+  if (userrole===process.env.SUPERADMIN) {
     next()
     return;
       }
@@ -25,7 +24,7 @@ exports.authSuperAdmin = (req, res, next) => {
 exports.authAdmin = (req, res, next) => {
   console.log(req.userinfo)
   const userrole=req.userinfo.user_role;
-  if (userrole===Role.ADMIN || userrole===Role.SUPERADMIN) {
+  if (userrole===process.env.ADMIN || userrole===process.env.SUPERADMIN) {
     next()
     return;
       }
@@ -35,7 +34,7 @@ exports.authAdmin = (req, res, next) => {
 
 exports.authaAdminCasher = (req, res, next) => {
   const userrole=req.userinfo.user_role;
-  if (userrole===Role.ADMIN || userrole===Role.SUPERADMIN||userrole===Role.CASHER) {
+  if (userrole===process.env.ADMIN || userrole===process.env.SUPERADMIN||userrole===process.env.CASHER) {
     next()
     return;
       }
@@ -44,7 +43,7 @@ exports.authaAdminCasher = (req, res, next) => {
 
 exports.authaAdminCasherAgent = (req, res, next) => {
   const userrole=req.userinfo.user_role;
-  if (userrole===Role.ADMIN  || userrole===Role.SUPERADMIN||userrole===Role.CASHER||userrole===Role.AGENT) {
+  if (userrole===process.env.ADMIN  || userrole===process.env.SUPERADMIN||userrole===process.env.CASHER||userrole===process.env.AGENT) {
     next()
     return;
       }

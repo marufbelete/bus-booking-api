@@ -3,10 +3,9 @@ const jwt = require("jsonwebtoken");
 const authenticateJWT = (req, res, next) => {
   console.log(req.headers)
   console.log('token')
-  const authHeader = req.headers.authorization.split(' ')[1];
+  const authHeader =req.cookies.access_token;
   if (authHeader) {
     const token = authHeader;
-    // const token = authHeader
     jwt.verify(token,process.env.SECRET, (err, user) => {
       if (err) {
         return res.status(403).json({msg:"you don't have permission please login first",status:false });

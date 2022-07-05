@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "REST API",
   "main": "app.js",
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": "^16.0.0"
+  },
   "scripts": {
     "start": "nodemon app.js"
   },
@@ -10,8 +14,8 @@
     "Nodejs",
     "Mongodb"
   ],
-  "author": "Aristote Ngoy",
-  "license": "ISC",
+  "author": "unlimited",
+  "license": "M2D",
   "dependencies": {
     "apollo-server-express": "^3.9.0",
     "bcryptjs": "^2.4.3",

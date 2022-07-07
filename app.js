@@ -31,6 +31,7 @@ const StartServer=async()=>{
   csrfPrevention: true,
   context:async({ req, res }) => {
     const token = req.cookies.access_token;
+    console.log(token)
     let users
     if (!token) {
       return {value:"no token"}

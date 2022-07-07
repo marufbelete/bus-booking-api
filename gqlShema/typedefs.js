@@ -32,8 +32,6 @@ getGroupMonthAgentTicketInbr:[Ticket]
 getGroupMonthLocalTicketInbr:[Ticket]
 getGroupMonthMobileTicketInbr:[Ticket]
 
-
-
 }
 `
 module.exports=typeDefs

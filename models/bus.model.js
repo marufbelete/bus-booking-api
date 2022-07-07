@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-
+const beautifyUnique = require('mongoose-beautiful-unique-validation');
+mongoose.plugin(beautifyUnique);
 const BusSchema = new mongoose.Schema({
 busPlateNo: {
     type: String,

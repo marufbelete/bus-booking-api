@@ -246,7 +246,7 @@ $lookup:{
 },
 {
   $project:{
-    "_id":0,"year":"$_id.year","totalTicket":1,"agentName":1
+    "_id":0,"totalTicket":1,"agentName":1
   }
 }
 

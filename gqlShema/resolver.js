@@ -219,10 +219,10 @@ getEachAgentSale:async(parent,args,context)=>{
   filter3=sort=="day"?{"year":"$year","day":"$day","agent":"$userID"}:filter3
   filter3=sort=="week"?{"year":"$year","week":"$week","agent":"$userID"}:filter3
   filter3=sort=="month"?{"year":"$year","month":"$month","agent":"$userID"}:filter3
-  // const orgcode =context.organization_code;
+  const orgcode =context.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
-    $match:{organizationCode:"001000"}
+    $match:{organizationCode:orgcode}
 },
 {
   $unwind:"$passangerInfo"

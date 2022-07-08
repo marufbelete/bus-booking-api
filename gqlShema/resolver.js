@@ -68,10 +68,8 @@ Query:{
           "_id":0,"year":"$_id.year","totalTicket":1
         }
       },
-      {
-        $sort:{"totalTicket":1}
-      }
         ] )
+        console.log(allSchedule)
         return allSchedule
 
       }

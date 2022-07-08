@@ -201,6 +201,7 @@ Query:{
 getEachAgentSale:async(parent,args,context)=>{
   try{
   const now=new Date()
+  console.log("startausdkjasbdfasjk")
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
   let currentWeek=moment(now).week();
@@ -218,10 +219,10 @@ getEachAgentSale:async(parent,args,context)=>{
   filter3=sort=="day"?{"year":"$year","day":"$day","agent":"$userID"}:filter3
   filter3=sort=="week"?{"year":"$year","week":"$week","agent":"$userID"}:filter3
   filter3=sort=="month"?{"year":"$year","month":"$month","agent":"$userID"}:filter3
-  const orgcode =context.organization_code;
+  // const orgcode =context.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
-    $match:{organizationCode:orgcode}
+    $match:{organizationCode:"001000"}
 },
 {
   $unwind:"$passangerInfo"
@@ -235,7 +236,7 @@ $lookup:{
 }
 },
 {
-  $project:{"_id":0,"agentName":{$concat: [ "$user.firstName", "  ", "$user.lastName" ]},"userID":"user._id","isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"}}
+  $project:{"_id":0,"agentName":"$user.firstName","userID":"user._id","isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"}}
 },
 {
   $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
@@ -250,11 +251,11 @@ $lookup:{
 }
 
   ] )
-  console.log(allSchedule)
   return allSchedule
 
 }
 catch(error) {
+  console.log(error)
   return []
   }
 },

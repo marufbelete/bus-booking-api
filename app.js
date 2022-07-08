@@ -29,28 +29,28 @@ const StartServer=async()=>{
   typeDefs, 
   resolvers,
   csrfPrevention: true,
-  context:async({ req, res }) => {
-    console.log(req.cookies)
-    const token = req.cookies.access_token;
-    console.log(token)
-    let users
-    if (!token) {
-      return {value:"no token"}
-    }
-    try {
-      jwt.verify(token, process.env.SECRET, (err, user) => {
-        if (err) {
-          return {value:"token error"}
-        }
-        users=user
-        return;
-      });
-    } 
-    catch {
-      return {value:"unkown error"};
-    }
-    return users
-  },
+//   context:async({ req, res }) => {
+//     console.log(req.cookies)
+//     const token = req.cookies.access_token;
+//     console.log(token)
+//     let users
+//     if (!token) {
+//       return {value:"no token"}
+//     }
+//     try {
+//       jwt.verify(token, process.env.SECRET, (err, user) => {
+//         if (err) {
+//           return {value:"token error"}
+//         }
+//         users=user
+//         return;
+//       });
+//     } 
+//     catch {
+//       return {value:"unkown error"};
+//     }
+//     return users
+//   },
 })
 await apolloServer.start()
 apolloServer.applyMiddleware({app:app,cors: false })

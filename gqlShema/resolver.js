@@ -243,7 +243,7 @@ $lookup:{
   $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
 },
 {
-  $group:{_id:filter3,"totalTicket":{$sum:"$totalTicket"},"agentName":{$first:"$agentName"}}
+  $group:{_id:filter3,"totalTicket":{$sum:"$totalTicket"},"agentName":{$first:"$$agentName"}}
 },
 {
   $project:{
@@ -327,8 +327,8 @@ getGroupAgentTicketInbr:async(parent,args,context)=>{
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
   let filter3={"year":"$year","day":"$day","agent":"$userID"}
   filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
-  let filter31={"label":{$first:"day"}}
-  filter31=sort=="year"?{"label":{$first:"month"}}:filter31
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
@@ -439,8 +439,8 @@ getGroupLocalTicketInbr:async(parent,args,context)=>{
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
   let filter3={"year":"$year","day":"$day","agent":"$userID"}
   filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
-  let filter31={"label":{$first:"day"}}
-  filter31=sort=="year"?{"label":{$first:"month"}}:filter31
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
@@ -547,8 +547,8 @@ getGroupMobileTicketInbr:async(parent,args,context)=>{
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
   let filter3={"year":"$year","day":"$day","agent":"$userID"}
   filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
-  let filter31={"label":{$first:"day"}}
-  filter31=sort=="year"?{"label":{$first:"month"}}:filter31
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
@@ -569,7 +569,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$createdAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"},"price":"$tarif"}
 },
 {
-  $match:{"isMobileUser":false,...filter2}
+  $match:{"isMobileUser":true,...filter2}
 },
 {
   $group:{_id:filter3,"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}},...filter31}
@@ -631,7 +631,7 @@ $lookup:{
   $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
 },
 {
   $project:{
@@ -686,7 +686,7 @@ $lookup:{
   $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
 },
 {
   $project:{
@@ -741,7 +741,7 @@ $lookup:{
   $match:{"isMobileUser":true,...filter2}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
 },
 {
   $project:{
@@ -780,8 +780,8 @@ getGroupAllTicketInbr:async(parent,args,context)=>{
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
   let filter3={"year":"$year","day":"$day","agent":"$userID"}
   filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
-  let filter31={"label":{$first:"day"}}
-  filter31=sort=="year"?{"label":{$first:"month"}}:filter31
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
@@ -861,7 +861,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$createdAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"},"price":"$tarif","bookedAt":"$createdAt"}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
 },
 {
   $project:{

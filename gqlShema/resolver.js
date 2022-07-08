@@ -250,7 +250,7 @@ $lookup:{
 }
 
   ] )
-  return allSchedule[0]
+  return allSchedule
 
 }
 catch(error) {

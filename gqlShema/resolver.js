@@ -70,7 +70,7 @@ Query:{
       },
         ] )
         console.log(allSchedule)
-        return allSchedule
+        return allSchedule[0]
 
       }
     

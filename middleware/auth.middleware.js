@@ -5,7 +5,6 @@ const authenticateJWT = (req, res, next) => {
   console.log('token')
   const authHeader =req.cookies.access_token;
   if (authHeader) {
-    const token = authHeader;
     jwt.verify(token,process.env.SECRET, (err, user) => {
       if (err) {
         return res.status(403).json({msg:"you don't have permission please login first",status:false });
@@ -17,7 +16,7 @@ const authenticateJWT = (req, res, next) => {
     });
   }
   else {
-    res.status(401).json({ message: "you don't have authentication permission",status:false });
+    return res.status(403).json({message:"no token"});
   }
 };
 module.exports = authenticateJWT;

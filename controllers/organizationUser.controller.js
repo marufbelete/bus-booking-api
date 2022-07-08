@@ -2,6 +2,27 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
 
+exports.checkAuth = (req, res, next) => {
+  try{
+  const token =req.cookies.access_token;
+  console.log(token)
+  if (token) {
+    jwt.verify(token,process.env.SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).json({msg:"you don't have permission please login first",status:false });
+      }
+      return res.json({message:"ok"});
+    });
+  }
+  else {
+    return res.status(403).json({message:"no token"});
+  }
+}
+catch(error)
+  {
+    next(error)
+  }
+};
 //register organization user
 exports.saveOwner = async (req, res, next) => {
   try {

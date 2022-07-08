@@ -10,7 +10,7 @@ type Ticket{
     agentName:String
     totalPrice:Int
     bookedAt:Date
-    label:String
+    label:Int
  }
 input SaleInputFilteasr {
     day:Boolean

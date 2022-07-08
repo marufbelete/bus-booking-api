@@ -356,11 +356,11 @@ $lookup:{
 },
 {
   $project:{
-    "_id":0,"lable":1,"totalPrice":1
+    "_id":0,"label":1,"totalPrice":1
   }
 },
 {
-  $sort:{"lable":1}
+  $sort:{"label":1}
 }
 
 
@@ -468,13 +468,14 @@ $lookup:{
 },
 {
   $project:{
-    "_id":0,"lable":1,"totalPrice":1
+    "_id":0,"label":1,"totalPrice":1
   }
 },
 {
-  $sort:{"lable":1}
+  $sort:{"label":1}
 }
   ] )
+  console.log(allSchedule)
   return allSchedule
 
 }
@@ -576,11 +577,11 @@ $lookup:{
 },
 {
   $project:{
-    "_id":0,"lable":1,"totalPrice":1
+    "_id":0,"label":1,"totalPrice":1
   }
 },
 {
-  $sort:{"lable":1}
+  $sort:{"label":1}
 }
 
   ] )
@@ -809,11 +810,11 @@ $lookup:{
 },
 {
   $project:{
-    "_id":0,"lable":1,"totalPrice":1
+    "_id":0,"label":1,"totalPrice":1
   }
 },
 {
-  $sort:{"lable":1}
+  $sort:{"label":1}
 }
   ] )
   return allSchedule

@@ -250,6 +250,7 @@ $lookup:{
 }
 
   ] )
+  console.log(allSchedule)
   return allSchedule
 
 }

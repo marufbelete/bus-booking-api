@@ -30,7 +30,7 @@ exports.addRoute = async (req, res, next) => {
     return res.json(savedroute)
   }
 catch(error) {
-  console.log(error)
+console.log(error)
 next(error);
   }
 };

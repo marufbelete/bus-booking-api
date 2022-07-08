@@ -9,6 +9,7 @@ type Ticket{
     totalTicket:Int
     agentName:String
     totalPrice:Int
+    bookedAt:Date
  }
 input SaleInputFilteasr {
     day:Boolean
@@ -24,14 +25,21 @@ type Query{
 getLocalTotalSale(input:SaleInputFilter):Ticket
 getAgentTotalSale(input:SaleInputFilter):Ticket
 getMobileTotalSale(input:SaleInputFilter):Ticket
+
 getEachAgentSale(input:SaleInputFilter):[Ticket]
 getGroupMonthAgentTicket:[Ticket]
 getGroupMonthLocalTicket:[Ticket]
 getGroupMonthMobileTicket:[Ticket]
-getGroupMonthAgentTicketInbr:[Ticket]
-getGroupMonthLocalTicketInbr:[Ticket]
-getGroupMonthMobileTicketInbr:[Ticket]
 
+getGroupAgentTicketInbr:[Ticket]
+getGroupLocalTicketInbr:[Ticket]
+getGroupMobileTicketInbr:[Ticket]
+getGroupAllTicketInbr:[Ticket]
+
+getDaysAgentTicketInbr(input:SaleInputFilter):[Ticket]
+getDaysLocalTicketInbr(input:SaleInputFilter):[Ticket]
+getDaysMobileTicketInbr(input:SaleInputFilter):[Ticket]
+getDaysAllTicketInbr(input:SaleInputFilter):[Ticket]
 }
 `
 module.exports=typeDefs

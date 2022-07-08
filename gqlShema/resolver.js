@@ -251,6 +251,8 @@ $lookup:{
 }
 
   ] )
+  console.log("valauejsfaksd")
+  console.log(allSchedule)
   return allSchedule
 
 }

@@ -632,7 +632,7 @@ $lookup:{
   $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
 },
 {
   $project:{
@@ -687,7 +687,7 @@ $lookup:{
   $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
 },
 {
   $project:{
@@ -696,10 +696,12 @@ $lookup:{
 }
 
   ] )
+  console.log(allSchedule)
   return allSchedule
 
 }
 catch(error) {
+  console.log(error)
   return []
   }
 },
@@ -742,7 +744,7 @@ $lookup:{
   $match:{"isMobileUser":true,...filter2}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
 },
 {
   $project:{
@@ -862,7 +864,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$createdAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"},"price":"$tarif","bookedAt":"$createdAt"}
 },
 {
-  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiple:["$totalTicket","$price"]}}}
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
 },
 {
   $project:{

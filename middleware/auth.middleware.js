@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 const authenticateJWT = (req, res, next) => {
-  console.log(req.headers)
-  console.log('token')
   const authHeader =req.cookies.access_token;
+  console.log(authHeader)
+  console.log("above header")
   if (authHeader) {
     jwt.verify(token,process.env.SECRET, (err, user) => {
       if (err) {

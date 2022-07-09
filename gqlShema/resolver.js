@@ -22,7 +22,7 @@ Query:{
         const now=new Date()
         let currentYear=now.getFullYear()
         let currentMonth=moment(now).month()+1;
-        let currentWeek=moment(now).week()+1;
+        let currentWeek=moment(now).week()-1;
         let today =moment(now).dayOfYear();
         const sort=args.input.filter
         console.log(sort)
@@ -84,7 +84,7 @@ Query:{
       const now=new Date()
       let currentYear=now.getFullYear()
       let currentMonth=moment(now).month()+1;
-      let currentWeek=moment(now).week()+1;
+      let currentWeek=moment(now).week()-1;
       let today =moment(now).dayOfYear();
       const sort=args.input.filter
       let filter1
@@ -144,7 +144,7 @@ Query:{
     const now=new Date()
     let currentYear=now.getFullYear()
     let currentMonth=moment(now).month()+1;
-    let currentWeek=moment(now).week()+1;
+    let currentWeek=moment(now).week()-1;
     let today =moment(now).dayOfYear();
     const sort=args.input.filter
     let filter1
@@ -205,7 +205,7 @@ getEachAgentSale:async(parent,args,context)=>{
   console.log("startausdkjasbdfasjk")
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
-  let currentWeek=moment(now).week()+1;
+  let currentWeek=moment(now).week()-1;
   let today =moment(now).dayOfYear();
   const sort=args.input.filter
   let filter1
@@ -312,7 +312,7 @@ getGroupAgentTicketInbr:async(parent,args,context)=>{
   const now=new Date()
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
-  let currentWeek=moment(now).week()+1;
+  let currentWeek=moment(now).week()-1;
   let today =moment(now).dayOfYear();
   const sort=args.input.filter
   let filter1
@@ -424,7 +424,7 @@ getGroupLocalTicketInbr:async(parent,args,context)=>{
   const now=new Date()
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
-  let currentWeek=moment(now).week()+1;
+  let currentWeek=moment(now).week()-1;
   let today =moment(now).dayOfYear();
   const sort=args.input.filter
   let filter1
@@ -533,7 +533,7 @@ getGroupMobileTicketInbr:async(parent,args,context)=>{
  const now=new Date()
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
-  let currentWeek=moment(now).week()+1;
+  let currentWeek=moment(now).week()-1;
   let today =moment(now).dayOfYear();
   const sort=args.input.filter
   let filter1
@@ -599,7 +599,7 @@ getDaysAgentTicketInbr:async(parent,args,context)=>{
     const now=new Date()
     let currentYear=now.getFullYear()
     let currentMonth=moment(now).month()+1;
-    let currentWeek=moment(now).week()+1;
+    let currentWeek=moment(now).week()-1;
     let today =moment(now).dayOfYear();
     const sort=args.input.filter
     let filter1
@@ -654,7 +654,7 @@ getDaysLocalTicketInbr:async(parent,args,context)=>{
     const now=new Date()
     let currentYear=now.getFullYear()
     let currentMonth=moment(now).month()+1;
-    let currentWeek=moment(now).week()+1;
+    let currentWeek=moment(now).week()-1;
     let today =moment(now).dayOfYear();
     const sort=args.input.filter
     let filter1
@@ -711,7 +711,7 @@ getDaysMobileTicketInbr:async(parent,args,context)=>{
     const now=new Date()
     let currentYear=now.getFullYear()
     let currentMonth=moment(now).month()+1;
-    let currentWeek=moment(now).week()+1;
+    let currentWeek=moment(now).week()-1;
     let today =moment(now).dayOfYear();
     const sort=args.input.filter
     let filter1
@@ -768,7 +768,7 @@ getGroupAllTicketInbr:async(parent,args,context)=>{
  const now=new Date()
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
-  let currentWeek=moment(now).week()+1;
+  let currentWeek=moment(now).week()-1;
   let today =moment(now).dayOfYear();
   const sort=args.input.filter
   let filter1
@@ -834,7 +834,7 @@ getDaysAllTicketInbr:async(parent,args,context)=>{
     const now=new Date()
     let currentYear=now.getFullYear()
     let currentMonth=moment(now).month()+1;
-    let currentWeek=moment(now).week()+1;
+    let currentWeek=moment(now).week()-1;
     let today =moment(now).dayOfYear();
     const sort=args.input.filter
     let filter1

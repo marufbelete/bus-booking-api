@@ -74,7 +74,7 @@ exports.getDetailOrganizationBus = async (req, res, next) => {
     }
   },
   {
-    $project:{"_id":0,"busState":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverName":{$arrayElemAt:["$driver.firstName",0]},"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"readtPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
+    $project:{"_id":0,"busState":1,"onDuty":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverName":{$arrayElemAt:["$driver.firstName",0]},"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"readtPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
   },
 ])
   res.json(allbus)

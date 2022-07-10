@@ -276,10 +276,11 @@ exports.getAllOrganizationUser= async(req,res,next) =>{
 try{
   const organization_code=req.body.organizationcode;
   const user_role=req.userinfo.user_role
+  console.log(user_role)
   if(user_role===process.env.SUPERADMIN)
   {
-    const allcasher=await User.find({organizationCode:organization_code,isMobileUser:false})
-   return res.json(allcasher)
+    const alluser=await User.find({organizationCode:organization_code,isMobileUser:false})
+   return res.json(alluser)
   }
   if(user_role===process.env.ADMIN)
   {

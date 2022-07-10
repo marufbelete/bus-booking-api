@@ -511,9 +511,7 @@ exports.changePassword = async (req, res, next) => {
     passwordHash = await bcrypt.hash(password, salt);
   } 
 
-   await User.update(
-    {password:passwordHash},
-    { where: { _id: id } })
+   await User.findByIdAndUpdate(id,{password:passwordHash})
     return res.json({success:true})
   }
   catch(err){

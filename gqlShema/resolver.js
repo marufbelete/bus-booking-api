@@ -325,8 +325,8 @@ getGroupAgentTicketInbr:async(parent,args,context)=>{
   filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
   filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
-  let filter3={"year":"$year","day":"$day","agent":"$userID"}
-  filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
+  let filter3={"year":"$year","day":"$day"}
+  filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
   let filter31={"label":{$first:"$day"}}
   filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;
@@ -438,8 +438,8 @@ getGroupLocalTicketInbr:async(parent,args,context)=>{
   filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
   filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
-  let filter3={"year":"$year","day":"$day","agent":"$userID"}
-  filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
+  let filter3={"year":"$year","day":"$day"}
+  filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
   let filter31={"label":{$first:"$day"}}
   filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;
@@ -782,8 +782,8 @@ getGroupAllTicketInbr:async(parent,args,context)=>{
   filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
   filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
-  let filter3={"year":"$year","day":"$day","agent":"$userID"}
-  filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
+  let filter3={"year":"$year","day":"$day"}
+  filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
   let filter31={"label":{$first:"$day"}}
   filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;

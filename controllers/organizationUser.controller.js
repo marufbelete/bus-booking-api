@@ -274,7 +274,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
 //get all casher user
 exports.getAllOrganizationUser= async(req,res,next) =>{
 try{
-  const organization_code=req.body.organizationcode;
+  const organization_code=req.userinfo.organization_code;
   const user_role=req.userinfo.user_role
   console.log(user_role)
   if(user_role===process.env.SUPERADMIN)

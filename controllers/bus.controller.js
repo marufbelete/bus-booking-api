@@ -74,7 +74,7 @@ exports.getDetailOrganizationBus = async (req, res, next) => {
     }
   },
   {
-    $project:{"_id":0,"busState":1,"onDuty":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverName":{$arrayElemAt:["$driver.firstName",0]},"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"readtPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
+    $project:{"_id":1,"busState":1,"onDuty":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverName":{$arrayElemAt:["$driver.firstName",0]},"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"readtPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
   },
 ])
   res.json(allbus)
@@ -101,22 +101,16 @@ exports.getAllOrganizationBusByState = async (req, res, next) => {
 exports.updateBusInfo = async (req, res, next) => {
   try {
    const id=req.params.id
-   const busplateno = req.body.busplateno;
-   const bussideno= req.body.bussideno;
-   const driver_id =req.body.driverid;
-   const redat_id =req.body.redatid;
-   const bus_state=req.body.bus_state;
-   const totalsit =req.body.totalsit;
+   const bus_state=req.body.busState;
+   const totalsit =req.body.totalSit;
+   const service_year =req.body.serviceYear;
    const createdby =req.userinfo.sub;
    const bus= await Bus.findAndUpdateById(id,{
      $set:{
-      busPlateNo:busplateno ,
-      busSideNo:bussideno,
-      driverId:driver_id,
-      readtId:redat_id,
       totalNoOfSit:totalsit,
       createdBy:createdby,
-      busState:bus_state
+      busState:bus_state,
+      serviceYear:service_year
      }
    })
    res.json(bus)

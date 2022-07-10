@@ -78,7 +78,7 @@ router.delete('/deletecity/:id',userauth,authaAdminCasher,deleteCity,errorHandle
 //bus
 router.post('/registerbus',userauth,authaAdminCasher,registerBus,errorHandler)
 router.get('/getallorganizationbus',userauth,authaAdminCasher,getAllOrganizationBus,errorHandler)
-router.get('/getdetailorganizationbus',getDetailOrganizationBus,errorHandler)
+router.get('/getdetailorganizationbus',userauth,authaAdminCasher,getDetailOrganizationBus,errorHandler)
 router.put('/updatebusinfo/:id',userauth,authaAdminCasher,updateBusInfo,errorHandler)
 router.get('/getorganizationbusbystate',userauth,authaAdminCasher,getAllOrganizationBusByState,errorHandler)
 router.put('/updatebusstatus/:id',userauth,authaAdminCasher,updateBusStatus,errorHandler)

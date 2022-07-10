@@ -52,10 +52,10 @@ exports.getAllOrganizationBus = async (req, res, next) => {
 //get bus detail
 exports.getDetailOrganizationBus = async (req, res, next) => {
   try {
-  // const orgcode =req.userinfo.organization_code;
+  const orgcode =req.userinfo.organization_code;
   // console.log(orgcode)
   const allbus= await Bus.aggregate([{
-      $match:{organizationCode:"001000"}
+      $match:{organizationCode:orgcode}
   },
   {
     $lookup:{

@@ -96,7 +96,17 @@ exports.getAllOrganizationBusByState = async (req, res, next) => {
     next(error)
   }
 };
-
+//get active bus imited info
+exports.getOrganizationActiveBus = async (req, res, next) => {
+  try {
+  const orgcode =req.userinfo.organization_code;
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"},{projection: { _id: 1,busPlateNo:1 }})
+  returnres.json(allbus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 //get organization by id
 exports.updateBusInfo = async (req, res, next) => {
   try {

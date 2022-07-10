@@ -38,8 +38,8 @@ next(error);
 exports.getOrganizationRoute = async (req, res, next) => {
   try {
   
-  const orgcode =req.userinfo.organization_code;
-  const allroute= await Route.find({organizationCode:orgcode})
+  // const orgcode =req.userinfo.organization_code;
+  const allroute= await Route.find({organizationCode:"001000"})
   return res.json(allroute)
   }
   catch(error) {

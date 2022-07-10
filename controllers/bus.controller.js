@@ -100,7 +100,7 @@ exports.getAllOrganizationBusByState = async (req, res, next) => {
 exports.getOrganizationActiveBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"},{projection: { _id: 1,busPlateNo:1,busSideNo }})
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"},{projection: { _id: 1,busPlateNo:1,busSideNo:1 }})
   return res.json(allbus)
   }
   catch(error) {

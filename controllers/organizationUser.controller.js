@@ -296,8 +296,8 @@ catch(error) {
 //get all organization user 
 exports.getAllOrganizationDriver= async(req,res,next) =>{
   try{
-    const organization_code=req.body.organizationcode;
-    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code,})
+    const organization_code=req.userinfo.organization_code;
+    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code})
      return res.json(driver)
   }
   catch(error) {

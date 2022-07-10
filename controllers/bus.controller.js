@@ -49,6 +49,41 @@ exports.getAllOrganizationBus = async (req, res, next) => {
   }
 };
 
+//get bus detail
+exports.getDetailOrganizationBus = async (req, res, next) => {
+  try {
+  // const orgcode =req.userinfo.organization_code;
+  // console.log(orgcode)
+  const allbus= await Bus.aggregate([{
+      $match:{organizationCode:"001000"}
+  },
+  {
+    $lookup:{
+      from:'users',
+      foreignField:"_id",
+      localField:"driverId",
+      as:"driver"
+    }
+  },
+  {
+    $lookup:{
+      from:'users',
+      foreignField:"_id",
+      localField:"redatId",
+      as:"redat"
+    }
+  },
+  {
+    $project:{"_id":0,"busState":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverName":{$arrayElemAt:["$driver.firstName",0]},"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"readtPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
+  },
+])
+  res.json(allbus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+
 //get bus by route
 exports.getAllOrganizationBusByState = async (req, res, next) => {
   try {

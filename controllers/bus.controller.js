@@ -105,7 +105,7 @@ exports.updateBusInfo = async (req, res, next) => {
    const totalsit =req.body.totalSit;
    const service_year =req.body.serviceYear;
    const createdby =req.userinfo.sub;
-   const bus= await Bus.findAndUpdateById(id,{
+   const bus= await Bus.findByIdAndUpdate(id,{
      $set:{
       totalNoOfSit:totalsit,
       createdBy:createdby,

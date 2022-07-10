@@ -485,4 +485,40 @@ exports.activateOrganizationUser = async (req, res, next) => {
        }
   };
 
+//change password
+exports.changePassword = async (req, res, next) => {
+  try {
+    const password=req.body.newPassword
+    const oldPasswrod=req.body.oldPassword
+    let passwordHash
+    const id=req.userinfo.sub;
+    console.log(id,password,oldPasswrod)
+    const user = await User.findOne({
+      where:{ _id: id}
+    });
+    const isMatch = await bcrypt.compare(oldPasswrod, user.password)
+    if (!isMatch) {
+      const error = new Error("Incorrect old password.")
+      error.statusCode = 400
+      throw error;
+    }
+  if(password)
+{
+    if (password.length < 5) {
+      const error = new Error("the password need to be atleast 5 charcter long.")
+      error.statusCode = 400
+      throw error;
+    }
+    const salt = await bcrypt.genSalt();
+    passwordHash = await bcrypt.hash(password, salt);
+  } 
 
+   await User.update(
+    {password:passwordHash},
+    { where: { _id: id } })
+    return res.json({success:true})
+  }
+  catch(err){
+    next(err)
+  }
+}

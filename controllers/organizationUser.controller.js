@@ -278,13 +278,19 @@ try{
   const user_role=req.userinfo.user_role
   if(user_role===process.env.SUPERADMIN)
   {
-    const allcasher=await User.find({organizationCode:organization_code})
+    const allcasher=await User.find({organizationCode:organization_code,isMobileUser:false})
    return res.json(allcasher)
   }
   if(user_role===process.env.ADMIN)
   {
-    const allcasher=await User.find({userRole:"casher",
-    organizationCode:organization_code,})
+    const allcasher=await User.find({userRole:process.env.CASHER,
+    organizationCode:organization_code,isMobileUser:false})
+    return res.json(allcasher)
+  }
+  if(user_role===process.env.Casher)
+  {
+    const allcasher=await User.find({userRole:process.env.DRIVER,
+    organizationCode:organization_code,isMobileUser:false})
     return res.json(allcasher)
   }
 }
@@ -297,7 +303,7 @@ catch(error) {
 exports.getAllOrganizationDriver= async(req,res,next) =>{
   try{
     const organization_code=req.userinfo.organization_code;
-    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code})
+    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code,isMobileUser:false})
      return res.json(driver)
   }
   catch(error) {

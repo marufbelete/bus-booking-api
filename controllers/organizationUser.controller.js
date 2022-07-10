@@ -493,9 +493,7 @@ exports.changePassword = async (req, res, next) => {
     let passwordHash
     const id=req.userinfo.sub;
     console.log(id,password,oldPasswrod)
-    const user = await User.findOne({
-      where:{ _id: id}
-    });
+    const user = await User.findById(id);
     const isMatch = await bcrypt.compare(oldPasswrod, user.password)
     if (!isMatch) {
       const error = new Error("Incorrect old password.")

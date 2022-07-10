@@ -272,13 +272,21 @@ exports.loginOrganizationUser = async (req, res, next) => {
      }
 };
 //get all casher user
-exports.getAllCasher= async(req,res,next) =>{
+exports.getAllOrganizationUser= async(req,res,next) =>{
 try{
   const organization_code=req.body.organizationcode;
-  const allcasher=await User.find({userRole:"casher",
-    organizationCode:organization_code,})
+  const user_role=req.userinfo.user_role
+  if(user_role===process.env.SUPERADMIN)
+  {
+    const allcasher=await User.find({organizationCode:organization_code})
    return res.json(allcasher)
-
+  }
+  if(user_role===process.env.ADMIN)
+  {
+    const allcasher=await User.find({userRole:"casher",
+    organizationCode:organization_code,})
+    return res.json(allcasher)
+  }
 }
 catch(error) {
   next(error)
@@ -286,13 +294,11 @@ catch(error) {
 
 }
 //get all organization user 
-exports.getAllOrganizationUser= async(req,res,next) =>{
+exports.getAllOrganizationDriver= async(req,res,next) =>{
   try{
     const organization_code=req.body.organizationcode;
-    const allcasher=await User.find({userRole:{$in:["casher","admin","driver","agent"]},
-      organizationCode:organization_code,})
-     return res.json(allcasher)
-  
+    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code,})
+     return res.json(driver)
   }
   catch(error) {
     next(error)

@@ -15,7 +15,7 @@ exports.registerCity = async (req, res, next) => {
     return res.json(savedbus)
   }
 catch(error) {
-next(error);
+next({message:"city already exist"});
   }
 };
 //get all city in organization

@@ -55,7 +55,7 @@ exports.updateRouteInfo = async (req, res, next) => {
    const destination = req.body.destination;
    const tarif= req.body.tarif;
    const distance = req.body.distance;
-   const estimated_hour = req.body.estimatedhour;
+   const estimated_hour = req.body.estimatedHour;
    const max_trip=req.body.maxtrip//array of bus
    const dep_plcae=req.body.departureplace
    const createdby =req.userinfo.sub;

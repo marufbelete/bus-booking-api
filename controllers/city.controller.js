@@ -33,10 +33,10 @@ exports.getAllOrganizationCity = async (req, res, next) => {
 exports.updateCityInfo = async (req, res, next) => {
   try {
    const id=req.params.id
-   const city_name = req.body.cityname;
-   const departure_place= req.body.departureplace;
+   const city_name = req.body.cityName;
+   const departure_place= req.body.departurePlace;
    const org_code =req.userinfo.organization_code;
-   const bus= await City.findAndUpdateById(id,{
+   const bus= await City.findByIdAndUpdate(id,{
      $set:{
       cityName:city_name,
       departurePlace:departure_place,

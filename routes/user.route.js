@@ -28,7 +28,7 @@ router.put('/deactivateorganizationuser/:id',userauth,authAdmin,deactivateOrgani
 router.put('/activateorganizationuser/:id',userauth,authAdmin,activateOrganizationUser,errorHandler)
 router.get('/getallorganizationuser',userauth,authAdmin,getAllOrganizationUser,errorHandler)
 router.get('/getallorganizationdriver',userauth,authaAdminCasher,getAllOrganizationDriver,errorHandler)
-router.get('/getuserbyrole',userauth,authAdmin,getUserByRole,errorHandler)
+router.get('/getuserbyrole',userauth,authaAdminCasher,getUserByRole,errorHandler)
 router.put('/changepassword',userauth,changePassword,errorHandler)
 
 //role

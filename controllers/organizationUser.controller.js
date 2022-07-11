@@ -329,7 +329,6 @@ exports.updateOrganizationUser = async (req, res, next) => {
       error.statusCode = 400
       throw error;
      }
-
 //super admin
 if(user_role===process.env.SUPERADMIN)
 { 
@@ -352,6 +351,9 @@ else{
     $set:{
     firstName:first_name,
     lastName:last_name,
+    gender:gender,
+    isActive:status,
+
   }
     },{useFindAndModify:false,new:true})
     return res.json(updateduser)
@@ -368,6 +370,8 @@ if(user_role===process.env.ADMIN ){
       $set:{
       firstName:first_name,
       lastName:last_name,
+      gender:gender
+
     }
       },{useFindAndModify:false,new:true})
       return res.json(updateduser)
@@ -376,9 +380,12 @@ if(user_role===process.env.ADMIN ){
   else if(editeduser.userRole!==process.env.SUPERADMIN && editeduser.userRole!==process.env.ADMIN&&editeduser.userRole!==process.env.OWNER ){
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
-      firstName:first_name,
-      lastName:last_name,
-      userRole:change_role,
+        firstName:first_name,
+        lastName:last_name,
+        gender:gender,
+        isActive:status,
+        userRole:change_role,
+
     }
       },{useFindAndModify:false,new:true})
       return res.json(updateduser)
@@ -388,6 +395,12 @@ if(user_role===process.env.ADMIN ){
   throw error;
 
 }
+const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
+  $set:{
+    isActive:status,
+}
+  },{useFindAndModify:false,new:true})
+  return res.json(updateduser)
 }
   catch(error) {
     next(error)

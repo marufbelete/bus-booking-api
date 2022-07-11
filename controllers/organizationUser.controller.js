@@ -304,7 +304,7 @@ catch(error) {
 exports.getAllOrganizationDriver= async(req,res,next) =>{
   try{
     const organization_code=req.userinfo.organization_code;
-    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code,isMobileUser:false})
+    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code,isMobileUser:false,isActive:true})
      return res.json(driver)
   }
   catch(error) {
@@ -314,43 +314,20 @@ exports.getAllOrganizationDriver= async(req,res,next) =>{
 //update organization user info
 exports.updateOrganizationUser = async (req, res, next) => {
   try {
-    const first_name = req.body.firstname;
+    const first_name = req.body.firstName;
     const gender=req.body.gender;
-    const last_name = req.body.lastname;
+    const status=req.body.isActive
+    const last_name = req.body.lastName;
     const updateduserid=req.params.id
-    const phone_number = req.body.phonenumber;
-    const password=req.body.password;
-    const confirm_password=req.body.confirmpassword;
-    const change_role=req.body.userrole;
+    const change_role=req.body.userRole;
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.user_role;
     const user_id=req.userinfo.sub;
-    if (!first_name||!last_name || !phone_number || !password || !user_role) {
+    if (!first_name||!last_name ) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
      }
-    if (password.length < 5) {
-      const error = new Error("the password need to be atleast 5 charcter long.")
-      error.statusCode = 400
-      throw error;
-    }
-    if (password != confirm_password) {
-      const error = new Error( "password doesn't match. please try again.")
-      error.statusCode = 400
-      throw error;
-    }
-
-const salt = await bcrypt.genSalt();
-const passwordHash = await bcrypt.hash(password, salt);
-//owner
-
-if(user_role===process.env.OWNER)
-{
-  const error = new Error( "you can't change owner info please contact you provider.")
-  error.statusCode = 400
-  throw error;
- }
 
 //super admin
 if(user_role===process.env.SUPERADMIN)
@@ -361,8 +338,9 @@ if(user_role===process.env.SUPERADMIN)
   $set:{
   firstName:first_name,
   lastName:last_name,
-  password:passwordHash,
   userRole:change_role,
+  isActive:status,
+  gender:gender
 }
   },{useFindAndModify:false})
   return res.json(updateduser)
@@ -373,7 +351,6 @@ else{
     $set:{
     firstName:first_name,
     lastName:last_name,
-    password:passwordHash,
   }
     },{useFindAndModify:false,new:true})
     return res.json(updateduser)
@@ -390,19 +367,16 @@ if(user_role===process.env.ADMIN ){
       $set:{
       firstName:first_name,
       lastName:last_name,
-      password:passwordHash,
     }
       },{useFindAndModify:false,new:true})
       return res.json(updateduser)
   }
 // for other than like casher
-  else if(editeduser.userRole!==process.env.SUPERADMIN && editeduser.userRole!==process.env.ADMIN ){
-    console.log("in")
+  else if(editeduser.userRole!==process.env.SUPERADMIN && editeduser.userRole!==process.env.ADMIN&&editeduser.userRole!==process.env.OWNER ){
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
       firstName:first_name,
       lastName:last_name,
-      password:passwordHash,
       userRole:change_role,
     }
       },{useFindAndModify:false,new:true})
@@ -413,21 +387,6 @@ if(user_role===process.env.ADMIN ){
   throw error;
 
 }
-
-if(user_id===updateduserid)
-{
-const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
-  $set:{
-  firstName:first_name,
-  lastName:last_name,
-  password:passwordHash,
-}
-  },{useFindAndModify:false,new:true})
-return res.json(updateduser)  
-  }
-  const error = new Error( "you can't edit others info.")
-  error.statusCode = 400
-  throw error;
 }
   catch(error) {
     next(error)

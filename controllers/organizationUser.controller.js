@@ -279,7 +279,7 @@ try{
   console.log(user_role)
   if(user_role===process.env.SUPERADMIN)
   {
-    const alluser=await User.find({organizationCode:organization_code,isMobileUser:false})
+    const alluser=await User.find({organizationCode:organization_code,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER]},isMobileUser:false})
    return res.json(alluser)
   }
   if(user_role===process.env.ADMIN)

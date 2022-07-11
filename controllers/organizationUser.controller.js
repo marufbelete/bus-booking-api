@@ -289,7 +289,7 @@ try{
     organizationCode:organization_code,isMobileUser:false})
     return res.json(allcasher)
   }
-  if(user_role===process.env.Casher)
+  if(user_role===process.env.CASHER)
   {
     const allcasher=await User.find({userRole:{$in:[process.env.DRIVER,process.env.REDAT]},
     organizationCode:organization_code,isMobileUser:false})

@@ -100,7 +100,15 @@ exports.lockSit = async (req, res, next) => {
 
 //get all schedule
 exports.getAllSchgedule=async(req,res,next)=>{
-const schedule=await Schedule.find()
+  const orgcode =req.userinfo.organization_code;
+const schedule=await Schedule.aggregate([
+  {
+    $match:{organizationCode:orgcode}
+  },
+  {
+    $project:{"_id":1,"source":1,"destination":1,}
+  }
+])
 return res.json(schedule)
 }
 

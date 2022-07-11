@@ -70,7 +70,6 @@ exports.updateRouteInfo = async (req, res, next) => {
       maximumTrip:max_trip,
       createdBy:createdby,
       departurePlace:dep_plcae,
-      createdBy:createdby,
       bus:assignedbus
 
      }

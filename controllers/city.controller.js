@@ -2,8 +2,8 @@ const City = require("../models/city.model");
 
 exports.registerCity = async (req, res, next) => {
   try {
-    const cityname = req.body.cityname;
-    const departureplace= req.body.departureplace;
+    const cityname = req.body.cityName;
+    const departureplace= req.body.departurePlace;
     const orgcode =req.userinfo.organization_code;
 
     const newbus= new City({

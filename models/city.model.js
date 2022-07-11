@@ -9,7 +9,7 @@ cityName: {
     required: true,
   },
 departurePlace: {
-    type: String,
+    type: [String],
     trim: true,
 },
 organizationCode:{

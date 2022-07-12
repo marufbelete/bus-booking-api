@@ -98,12 +98,23 @@ exports.lockSit = async (req, res, next) => {
     next(error)
   }
 }
-
-//get all schedule
 exports.getAllSchgedule=async(req,res,next)=>{
-  const orgcode =req.userinfo.organization_code;
-  const now =moment().toISOString()
-  console.log(now)
+  try{
+    const orgcode =req.userinfo.organization_code;
+    const schedule=await Schedule.find({organizationCode:orgcode})
+    return res.json(schedule)
+  }
+  catch(error) {
+    next(error)
+  }
+}
+//get all schedule
+exports.getAllSpecialSchgedule=async(req,res,next)=>{
+ 
+  try{
+    const orgcode =req.userinfo.organization_code;
+    const now =moment().toISOString()
+    console.log(now)
 const schedule=await Schedule.aggregate([
   {
     $match:{organizationCode:orgcode}
@@ -116,6 +127,10 @@ const schedule=await Schedule.aggregate([
   }
 ])
 return res.json(schedule)
+  }
+  catch(error) {
+    next(error)
+  }
 }
 
 //book ticket use io

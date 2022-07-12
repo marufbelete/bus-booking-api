@@ -29,6 +29,17 @@ exports.getAllOrganizationCity = async (req, res, next) => {
     next(error)
   }
 };
+//dep.place
+exports.getAllDepPlace = async (req, res, next) => {
+  try {
+  const orgcode =req.userinfo.organization_code;
+  const allcity= await City.find({organizationCode:orgcode})
+  return res.json(allcity)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 //get organization by id
 exports.updateCityInfo = async (req, res, next) => {
   try {

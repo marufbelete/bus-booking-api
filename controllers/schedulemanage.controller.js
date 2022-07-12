@@ -115,7 +115,7 @@ exports.getAllFilterSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
     const now =new Date()
-    const schedule=await Schedule.find({organizationCode:orgcode},{source:1,destination:1})
+    const schedule=await Schedule.find({organizationCode:orgcode},{source:1,destination:1,departureDateAndTime:1})
     return res.json(schedule)
   }
   catch(error) {

@@ -41,7 +41,6 @@ exports.addSchedule = async (req, res, next) => {
     }
     for(let i=0;i<number_of_schedule;i++)
     {
-      console.log("once")
       schedules.push(newschedule)
     }   
     const savedSchedule=await Schedule.insertMany(schedules)
@@ -136,10 +135,10 @@ exports.getSchgeduleById=async(req,res,next)=>{
         $unwind:"$passangerInfo"
       },
       {
-        $project:{"passangerName":{$arrayElemAt:["$passangerInfo.passangerName",0]},"tarif":1,"passangerId":"$passangerInfo.uniqueId","isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
+        $project:{"passangerName":{$arrayElemAt:["$passangerInfo.passangerName",0]},"tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
       },
       {
-        $project:{"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
+        $project:{"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
       },
     
     ])

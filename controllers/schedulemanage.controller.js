@@ -102,7 +102,7 @@ exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
     const now =new Date()
-    const schedule=await Schedule.find({organizationCode:orgcode,departureDateAndTime:{$gte:now}})
+    const schedule=await Schedule.find({organizationCode:orgcode,isTripCanceled:false,departureDateAndTime:{$gte:now}})
     return res.json(schedule)
   }
   catch(error) {

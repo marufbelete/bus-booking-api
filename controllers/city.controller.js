@@ -33,7 +33,7 @@ exports.getAllOrganizationCity = async (req, res, next) => {
 exports.getAllDepPlace = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const allcity= await City.find({organizationCode:orgcode})
+  const allcity= await City.find({organizationCode:orgcode},{departurePlace:1})
   return res.json(allcity)
   }
   catch(error) {

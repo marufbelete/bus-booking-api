@@ -1,6 +1,8 @@
 const Schedule = require("../models/schedule.model");
 const Bus = require("../models/bus.model");
 const moment=require('moment')
+const mongoose = require("mongoose");
+
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;
@@ -113,7 +115,7 @@ exports.getAllFilterSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
     const now =new Date()
-    const schedule=await Schedule.find({organizationCode:orgcode,isTripCanceled:false,departureDateAndTime:{$gte:now}},{source:1,destination:1})
+    const schedule=await Schedule.find({organizationCode:orgcode},{source:1,destination:1})
     return res.json(schedule)
   }
   catch(error) {
@@ -122,10 +124,21 @@ exports.getAllFilterSchgedule=async(req,res,next)=>{
 }
 exports.getSchgeduleById=async(req,res,next)=>{
   try{
-    const id=req.params.id
+    const id=mongoose.Types.ObjectId(req.params.id)
     const orgcode =req.userinfo.organization_code;
     const now =new Date()
-    const schedule=await Schedule.findById(id)
+    console.log(id)
+    const schedule=await Schedule.aggregate([
+      {
+        $match:{organizationCode:orgcode,_id:id}
+      },
+      {
+        $unwind:"$passangerInfo"
+      },
+      {
+        $project:{"passangerName":{$arrayElemAt:["$passangerInfo.passangerName",0]},"tarif":1,"sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","isTicketCanceled":"$passangerInfo.isTiacketCanceled"}
+      }
+    ])
     return res.json(schedule)
   }
   catch(error) {

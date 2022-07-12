@@ -109,6 +109,17 @@ exports.getAllSchgedule=async(req,res,next)=>{
     next(error)
   }
 }
+exports.getAllFilterSchgedule=async(req,res,next)=>{
+  try{
+    const orgcode =req.userinfo.organization_code;
+    const now =new Date()
+    const schedule=await Schedule.find({organizationCode:orgcode,isTripCanceled:false,departureDateAndTime:{$gte:now}},{source:1,destination:1})
+    return res.json(schedule)
+  }
+  catch(error) {
+    next(error)
+  }
+}
 //get all schedule
 exports.getAllSpecialSchgedule=async(req,res,next)=>{
  //departureDateAndTime:{$gte:now}

@@ -1,7 +1,7 @@
 const express = require('express');
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
-const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiservedSit,cancelSchedule,undoCanceldSchedule,getActiveScheduleByRoute, getAllSchgedule, getAllSpecialSchgedule}= require("../controllers/schedulemanage.controller")
+const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiservedSit,cancelSchedule,undoCanceldSchedule,getActiveScheduleByRoute, getAllSchgedule, getAllSpecialSchgedule,getAllFilterSchgedule}= require("../controllers/schedulemanage.controller")
 const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/route.controller")
 const {createRole,getRole,deleteRole}=require("../controllers/manageRole.controller")
 const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controllers/policy.controller")
@@ -47,6 +47,7 @@ router.put('/undocanceledschedule/:id',userauth,undoCanceldSchedule,errorHandler
 router.get('/getreservedsit/:id',userauth,getRiservedSit,errorHandler)
 router.get('/getdetailschedule',userauth,getAllSpecialSchgedule,errorHandler)
 router.get('/getallschedule',userauth,getAllSchgedule,errorHandler)
+router.get('/getallfilterschedule',userauth,getAllFilterSchgedule,errorHandler)
 
 router.get('/getorganizationschedulebyroute',userauth,authaAdminCasher,getActiveScheduleByRoute,errorHandler)
 

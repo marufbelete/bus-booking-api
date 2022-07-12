@@ -39,7 +39,6 @@ createdBy:{
 onDuty:{
   type:Boolean,
   default:false,
-  required:true
 },
 busState:{
   type:String,

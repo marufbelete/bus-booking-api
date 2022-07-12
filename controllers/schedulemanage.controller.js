@@ -123,7 +123,7 @@ const schedule=await Schedule.aggregate([
     $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":"$assignedBus","departureDateAndTime":1,"status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departureDateAndTime":1,"departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
   }
 ])
 return res.json(schedule)

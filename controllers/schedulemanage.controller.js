@@ -261,9 +261,9 @@ exports.updatePassinfo = async (req, res, next) => {
    const pass_id= req.body.passangerId;
    const passangerName=req.body.passangerName;
    const passangerPhone=req.body.phoneNumber;
-   const res=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
+   const responses=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
-   return res.json(res)
+   return res.json(responses)
   }
   catch(error) {
     next(error)

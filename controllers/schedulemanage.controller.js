@@ -101,7 +101,8 @@ exports.lockSit = async (req, res, next) => {
 exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
-    const schedule=await Schedule.find({organizationCode:orgcode})
+    const now =new Date()
+    const schedule=await Schedule.find({organizationCode:orgcode,departureDateAndTime:{$gte:now}})
     return res.json(schedule)
   }
   catch(error) {
@@ -110,17 +111,16 @@ exports.getAllSchgedule=async(req,res,next)=>{
 }
 //get all schedule
 exports.getAllSpecialSchgedule=async(req,res,next)=>{
- 
+ //departureDateAndTime:{$gte:now}
   try{
-    const orgcode =req.userinfo.organization_code;
-    const now =moment().toISOString()
-    console.log(now)
+const orgcode =req.userinfo.organization_code;
+const now =new Date()
 const schedule=await Schedule.aggregate([
   {
     $match:{organizationCode:orgcode}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":"$assignedBus","status":{$cond:[{$gte:[now,"$departureDateAndTime"]},"Not Departed","Departed"]}}
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":"$assignedBus","departureDateAndTime":1,"status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
   },
   {
     $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}

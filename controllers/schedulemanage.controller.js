@@ -117,10 +117,10 @@ const schedule=await Schedule.aggregate([
     }
     },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"assignedBus":{$arrayElemAt:["$bus.busSideNo",0]},"status":{$cond:[{$gte:[now,"$departureDateAndTime"]},"Not Departed","Departed"]}}
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":{$arrayElemAt:["$bus.busSideNo",0]},"status":{$cond:[{$gte:[now,"$departureDateAndTime"]},"Not Departed","Departed"]}}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departurePlace":1,"assignedBus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
   }
 ])
 return res.json(schedule)

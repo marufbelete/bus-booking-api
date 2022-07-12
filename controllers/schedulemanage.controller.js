@@ -253,6 +253,22 @@ exports.assignBusToSchedule = async (req, res, next) => {
     next(error)
   }
 };
+
+//update passanger info
+exports.updatePassinfo = async (req, res, next) => {
+  try {
+   const schedule_id=req.params.id
+   const pass_id= req.body.passangerId;
+   const passangerName=req.body.passangerName;
+   const passangerPhone=req.body.phoneNumber;
+   const res=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
+     {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
+   return res.json(res)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 //cancel schedule io
 exports.cancelSchedule= async (req, res, next) => {
   try {

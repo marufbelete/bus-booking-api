@@ -139,8 +139,9 @@ exports.getSchgeduleById=async(req,res,next)=>{
         $project:{"passangerName":{$arrayElemAt:["$passangerInfo.passangerName",0]},"tarif":1,"isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
       },
       {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departureDateAndTime":1,"departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
-       }
+        $project:{"passangerName":1,"tarif":1,"sit":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
+      },
+    
     ])
     return res.json(schedule)
   }

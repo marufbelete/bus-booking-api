@@ -1,5 +1,6 @@
 const Schedule = require("../models/schedule.model");
 const Bus = require("../models/bus.model");
+const moment=require('moment')
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;
@@ -101,12 +102,25 @@ exports.lockSit = async (req, res, next) => {
 //get all schedule
 exports.getAllSchgedule=async(req,res,next)=>{
   const orgcode =req.userinfo.organization_code;
+  const now =moment().toISOString()
+  console.log(now)
 const schedule=await Schedule.aggregate([
   {
     $match:{organizationCode:orgcode}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,}
+    $lookup:{
+      from:'buses',
+      foreignField:"_id",
+      localField:"assignedBus",
+      as:"bus"
+    }
+    },
+  {
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"assignedBus":{$arrayElemAt:["$bus.busSideNo",0]},"status":{$cond:[{$gte:[now,"$departureDateAndTime"]},"Not Departed","Departed"]}}
+  },
+  {
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departurePlace":1,"assignedBus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
   }
 ])
 return res.json(schedule)

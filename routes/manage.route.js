@@ -45,7 +45,7 @@ router.put('/cancelschedule/:id',userauth,cancelSchedule,errorHandler)
 router.put('/assignbustoschedule/:id',userauth,assignBusToSchedule,errorHandler)
 router.put('/undocanceledschedule/:id',userauth,undoCanceldSchedule,errorHandler)
 router.get('/getreservedsit/:id',userauth,getRiservedSit,errorHandler)
-router.get('/getdetailschedule',getAllSpecialSchgedule,errorHandler)
+router.get('/getdetailschedule',userauth,getAllSpecialSchgedule,errorHandler)
 router.get('/getallschedule',userauth,getAllSchgedule,errorHandler)
 
 router.get('/getorganizationschedulebyroute',userauth,authaAdminCasher,getActiveScheduleByRoute,errorHandler)

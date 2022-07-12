@@ -222,7 +222,7 @@ exports.cancelSchedule= async (req, res, next) => {
    const canceler_id=req.userinfo.sub
    const timenow=Date.now()
    await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
-  isCanceled:true,
+  isTripCanceled:true,
   canceledBy:canceler_id
    }})
   return res.json("deleted successfully")

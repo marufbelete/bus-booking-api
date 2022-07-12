@@ -109,15 +109,7 @@ const schedule=await Schedule.aggregate([
     $match:{organizationCode:orgcode}
   },
   {
-    $lookup:{
-      from:'buses',
-      foreignField:"_id",
-      localField:"assignedBus",
-      as:"bus"
-    }
-    },
-  {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":1,"status":{$cond:[{$gte:[now,"$departureDateAndTime"]},"Not Departed","Departed"]}}
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":"$assignedBus","status":{$cond:[{$gte:[now,"$departureDateAndTime"]},"Not Departed","Departed"]}}
   },
   {
     $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}

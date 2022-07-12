@@ -197,14 +197,18 @@ exports.getRiservedSit = async (req, res, next) => {
 exports.assignBusToSchedule = async (req, res, next) => {
   try {
    const id=req.params.id
-   const bus_id = req.body.busid;
+   const bus= req.body.bus;
+   const departurePlace=req.body.departurePlace
+   const departureDateAndTime=req.body.departureDateAndTime
    const timenow=Date.now()
-   const bus= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
+   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
      $set:{
-      assignedBus:bus_id
+      assignedBus:bus,
+      departurePlace,
+      departureDateAndTime
      }
    })
-   return res.json(bus)
+   return res.json(buses)
   }
   catch(error) {
     next(error)

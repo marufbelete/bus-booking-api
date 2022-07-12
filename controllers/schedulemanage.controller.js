@@ -120,6 +120,18 @@ exports.getAllFilterSchgedule=async(req,res,next)=>{
     next(error)
   }
 }
+exports.getSchgeduleById=async(req,res,next)=>{
+  try{
+    const id=req.params.id
+    const orgcode =req.userinfo.organization_code;
+    const now =new Date()
+    const schedule=await Schedule.findById(id)
+    return res.json(schedule)
+  }
+  catch(error) {
+    next(error)
+  }
+}
 //get all schedule
 exports.getAllSpecialSchgedule=async(req,res,next)=>{
  //departureDateAndTime:{$gte:now}

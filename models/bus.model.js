@@ -6,13 +6,13 @@ busPlateNo: {
     type: String,
     trim: true,
     required: true,
-    unique:true
+    unique:[true,"Bus Plate Number Already Exist"]
   },
 busSideNo: {
     type: String,
     trim: true,
     required: true,
-    unique:true
+    unique:[true,"Bus Side Number Already Exist"]
 },
 redatId: {
   type: mongoose.Schema.Types.ObjectId,  

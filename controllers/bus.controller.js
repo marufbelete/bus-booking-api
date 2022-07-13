@@ -17,7 +17,7 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
       busPlateNo:busplateno ,
       busSideNo:bussideno,
       driverId:driver_id,
-      readtId:redat_id,
+      redatId:redat_id,
       serviceYear:service_year,
       totalNoOfSit:totalsit,
       createdBy:createdby,

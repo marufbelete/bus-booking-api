@@ -756,6 +756,9 @@ $lookup:{
   $project:{
     "_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
   }
+},
+{
+  $sort:{"bookedAt":1}
 }
 
   ] )
@@ -788,6 +791,9 @@ $lookup:{
   $project:{
     "_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
   }
+},
+{
+  $sort:{"bookedAt":1}
 }
 
   ] )
@@ -820,8 +826,10 @@ $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"total
 $project:{
   "_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
 }
+},
+{
+  $sort:{"bookedAt":1}
 }
-
 ] )
 const LocalTicket= await Schedule.aggregate( [
 {
@@ -851,6 +859,9 @@ $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"total
 $project:{
 "_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
 }
+},
+{
+  $sort:{"bookedAt":1}
 }
 
 ] )

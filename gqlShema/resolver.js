@@ -711,7 +711,6 @@ catch(error) {
 //sale map in br
 getDaysInbr:async(parent,args,context)=>{
   try{
-
     const now=new Date()
     let currentYear=now.getFullYear()
     let currentMonth=moment(now).month()+1;
@@ -855,7 +854,8 @@ $project:{
 }
 
 ] )
-  return (LocalTicket,AgentTicket,LocalTicket,AllTicket)
+
+  return ([{LocalTicket},{AgentTicket},{MobileTicket},{AllTicket}])
 
 }
 catch(error) {

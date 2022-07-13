@@ -2,9 +2,9 @@ const Bus = require("../models/bus.model");
 
 exports.registerBus = async (req, res, next) => {
   try {
+    console.log(req.body)
     const busplateno = req.body.busplateno;
     const bussideno= req.body.bussideno;
-    const bus_state=req.body.bus_state;
     const redat_id =req.body.redatid;
     const driver_id =req.body.driverid;
     const service_year=req.body.serviceyear;
@@ -22,7 +22,6 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
       totalNoOfSit:totalsit,
       createdBy:createdby,
       organizationCode:orgcode,
-      busState:bus_state
     })
     const savedbus=await newbus.save()
     return res.json(savedbus)

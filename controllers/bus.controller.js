@@ -113,11 +113,15 @@ exports.updateBusInfo = async (req, res, next) => {
    const id=req.params.id
    const bus_state=req.body.busState;
    const totalsit =req.body.totalNoOfSit;
+   const driverId=req.body.driverId
+   const redatId=req.body.readtId
    const service_year =req.body.serviceYear;
    const createdby =req.userinfo.sub;
    const bus= await Bus.findByIdAndUpdate(id,{
      $set:{
       totalNoOfSit:totalsit,
+      driverId,
+      redatId,
       createdBy:createdby,
       busState:bus_state,
       serviceYear:service_year

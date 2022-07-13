@@ -8,7 +8,7 @@ const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controller
 const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganization,deleteOrganization, getOrganizationById}=require("../controllers/organization.controller")
 const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
-const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace}=require("../controllers/city.controller")
+const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace, getCityNameOnly}=require("../controllers/city.controller")
 const {registerBus,getAllOrganizationBus,updateBusStatus,updateBusInfo,deleteBus, getAllOrganizationBusByState, getDetailOrganizationBus, getOrganizationActiveBus}=require("../controllers/bus.controller")
 
 const {errorHandler} = require('../middleware/errohandling.middleware')
@@ -79,6 +79,7 @@ router.delete('/deletehotelorpension/:id',userauth,authaAdminCasher,deleteHotelO
 router.post('/registercity',userauth,authaAdminCasher,registerCity,errorHandler)
 router.get('/getallorganizationcity',userauth,authaAdminCasher,getAllOrganizationCity,errorHandler)
 router.get('/getalldepartureplace',userauth,authaAdminCasher,getAllDepPlace,errorHandler)
+router.get('/getcityonly',userauth,authaAdminCasher,getCityNameOnly,errorHandler)
 router.put('/updatecityinfo/:id',userauth,authaAdminCasher,updateCityInfo,errorHandler)
 router.delete('/deletecity/:id',userauth,authaAdminCasher,deleteCity,errorHandler)
 //bus

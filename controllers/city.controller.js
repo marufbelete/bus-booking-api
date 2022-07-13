@@ -40,6 +40,17 @@ exports.getAllDepPlace = async (req, res, next) => {
     next(error)
   }
 };
+//city only
+exports.getCityNameOnly = async (req, res, next) => {
+  try {
+  const orgcode =req.userinfo.organization_code;
+  const allcity= await City.find({organizationCode:orgcode},{cityName:1})
+  return res.json(allcity)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 //get organization by id
 exports.updateCityInfo = async (req, res, next) => {
   try {

@@ -48,15 +48,17 @@ for (let i=0;i<intersection.length; i++)
 }
   //transfer maping for userinfo info
   const add_passanger_info=transfer_info.passangerInfo.map((elem)=>{
-    const each_intersection = elem.passangerOccupiedSitNo.filter(eachelem => occupied2.includes(eachelem));
-    let each_pass_sit=elem.passangerOccupiedSitNo.map((esit)=>
-    {
-       if(each_intersection.includes(esit))
+    const each_intersection = occupied2.includes(elem.passangerOccupiedSitNo)
+    let each_pass_sit
+       if(each_intersection.includes(elem.passangerOccupiedSitNo))
        {
-         return generated_sit.splice(-1)[0]
-        }
-        else {return esit}
-    })
+        each_pass_sit=generated_sit.splice(-1)[0]
+      }
+      else 
+      {
+        each_pass_sit=elem.passangerOccupiedSitNo
+      }
+   
     return {...elem,passangerOccupiedSitNo:each_pass_sit}
   })
    //find and insert to shedule which can accomodate those passanger in given date
@@ -162,20 +164,20 @@ exports.refundRequest = async (req, res, next) => {
   try {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
-    const pass_sit=req.body.passsit//[]
+    const pass_sit=req.body.passsit
     
     session.startTransaction()
     const timenow = new Date
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,$addToSet:{"passangerInfo.$[el].sitCanceled":{$each:pass_sit}},$pull:{occupiedSitNo:{ $in: pass_sit }}}},
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit,$pull:{occupiedSitNo: pass_sit }}},
       {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
-      await Schedule.findByIdAndUpdate(schedule_id,{$pull:{occupiedSitNo:{ $in: pass_sit }}},
+      await Schedule.findByIdAndUpdate(schedule_id,{$pull:{occupiedSitNo:pass_sit }},
       {session,new:true,useFindAndModify:false})
     }
     else{
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true},$addToSet:{"passangerInfo.$[el].sitCanceled":{$each:pass_sit}}},
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit}},
       {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
     }
     session.commitTransaction()

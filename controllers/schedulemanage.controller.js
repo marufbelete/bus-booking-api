@@ -8,18 +8,19 @@ const ShortUniqueId = require('short-unique-id');
 let sitTimer;
 let unlockSit=()=>{};
 exports.addSchedule = async (req, res, next) => {
+  const session=await Schedule.startSession()
   try {
     console.log(req.body)
-    const description=req.body.description;
-    const source = req.body.source;
-    const destination = req.body.destination;
-    const tarif= req.body.tarif;
-    const distance = req.body.distance;
-    const estimated_hour = req.body.estimatedhour;
-    const departure_date_and_time= req.body.depdateandtime;
-    const departure_place = req.body.depplace;
-    const busid=req.body.assignedbus
-    const number_of_schedule = req.body.numberofschedule?req.body.numberofschedule:1;
+    const description=e.description;
+    const source = e.source;
+    const destination = e.destination;
+    const tarif= e.tarif;
+    const distance = e.distance;
+    const estimated_hour = e.estimatedhour;
+    const departure_date_and_time= e.depdateandtime;
+    const departure_place = e.depplace;
+    const busid=e.assignedbus
+    const number_of_schedule = e.numberofschedule?e.numberofschedule:1;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
 
@@ -42,23 +43,33 @@ exports.addSchedule = async (req, res, next) => {
     for(let i=0;i<number_of_schedule;i++)
     {
       schedules.push(newschedule)
-    }   
-    const savedSchedule=await Schedule.insertMany(schedules)
-    console.log(schedules)
-    return res.json(savedSchedule)
-  }
-  ///make transaction
-   await Bus.findByIdAndUpdate(busid,{
-    $set:{
-     onduty:true
+    } 
+    session.startTransaction()  
+    const savedSchedule=await Schedule.insertMany(schedules,{session})
+    if(busid)
+    {
+      await Bus.findByIdAndUpdate(busid,{
+        $set:{
+         onduty:true
+        }
+      }
+      ,{new:true,session})
     }
+   
+
+    session.commitTransaction()
+    return res.json(savedSchedule)
+  }  
+  else
+  {
+    const error=new Error("please fill all required field")
+    error.statusCode=401
+    throw error
   }
-  ,{new:true})
-  const error=new Error("please fill all required field")
-  error.statusCode=401
-  throw error
+
   }
 catch(error) {
+  await session.abortTransaction();
 next(error);
   }
 };
@@ -66,7 +77,7 @@ next(error);
 exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
-   const sit =req.body.sits
+   const sit =e.sits
     console.log(sit)
    const isSitFree=await Schedule.findById(id)
    if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
@@ -135,7 +146,7 @@ exports.getSchgeduleById=async(req,res,next)=>{
         $unwind:"$passangerInfo"
       },
       {
-        $project:{"passangerName":{$arrayElemAt:["$passangerInfo.passangerName",0]},"tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
+        $project:{"passangerName":"$passangerInfo.passangerName","tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"To Be Departed","Departed"]}}
       },
       {
         $project:{"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
@@ -179,18 +190,19 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     clearTimeout(sitTimer)
     unlockSit()
    const id=req.params.id
-   const passange_name = req.body.passname;
-   const pass_phone_number = req.body.passphone;
-   const psss_ocupied_sit_no= req.body.sits
-   const booked_by = req.userinfo.sub;
-   const uid = new ShortUniqueId({ length: 12 });
-   console.log(uid())
-   const isSitFree=await Schedule.findById(id)
-   if(isSitFree.occupiedSitNo.some(e=>psss_ocupied_sit_no.includes(e)))
-   {
-    return res.json({message:"sit already reserved before, please try another sit"});
-   }
-   const schedule= await Schedule.findByIdAndUpdate(id,{
+   let passlength=req.body.length
+   for(let i=0;i<passlength;i++)
+     {
+    const passange_name = req.body[i].passname;
+    const pass_phone_number = req.body[i].passphone;
+    const psss_ocupied_sit_no= req.body[i].sits
+    const booked_by = req.userinfo.sub;
+    const uid = new ShortUniqueId({ length: 12 });
+    if(isSitFree.occupiedSitNo.some(el=>psss_ocupied_sit_no.includes(el)))
+    {
+     return res.json({message:`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`});
+    }
+    await Schedule.findByIdAndUpdate(id,{
       $push:{passangerInfo:{passangerName:passange_name,
        passangerPhone:pass_phone_number,
        passangerOccupiedSitNo:psss_ocupied_sit_no,
@@ -198,7 +210,8 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
        bookedBy:booked_by}},
        $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
    },{new:true})
-   return res.json(schedule)
+   }
+   return res.json("done")
   }
   catch(error) {
     next(error)
@@ -236,9 +249,9 @@ exports.getRiservedSit = async (req, res, next) => {
 exports.assignBusToSchedule = async (req, res, next) => {
   try {
    const id=req.params.id
-   const bus= req.body.bus;
-   const departurePlace=req.body.departurePlace
-   const departureDateAndTime=req.body.departureDateAndTime
+   const bus= e.bus;
+   const departurePlace=e.departurePlace
+   const departureDateAndTime=e.departureDateAndTime
    const timenow=Date.now()
    const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
      $set:{
@@ -258,9 +271,9 @@ exports.assignBusToSchedule = async (req, res, next) => {
 exports.updatePassinfo = async (req, res, next) => {
   try {
    const schedule_id=req.params.id
-   const pass_id= req.body.passangerId;
-   const passangerName=req.body.passangerName;
-   const passangerPhone=req.body.phoneNumber;
+   const pass_id= e.passangerId;
+   const passangerName=e.passangerName;
+   const passangerPhone=e.phoneNumber;
    const responses=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
    return res.json("done")
@@ -269,6 +282,7 @@ exports.updatePassinfo = async (req, res, next) => {
     next(error)
   }
 };
+
 //cancel schedule io
 exports.cancelSchedule= async (req, res, next) => {
   try {

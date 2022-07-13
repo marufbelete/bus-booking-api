@@ -62,7 +62,7 @@ createdBy:{
 //changes during ticket creation
 passangerInfo:[{
   passangerName: {
-      type: Array,
+      type: String,
       trim: true,
         },
     passangerPhone: {
@@ -70,7 +70,7 @@ passangerInfo:[{
         trim: true,
         },
     passangerOccupiedSitNo:{
-      type: [Number],
+      type: Number,
       trim: true,
     },
     bookedBy: {
@@ -82,7 +82,7 @@ passangerInfo:[{
       default:false,
       },
     sitCanceled: {
-      type: [Number],
+      type: Number,
       trim: true,
       },
     isPassangerTransfered: {

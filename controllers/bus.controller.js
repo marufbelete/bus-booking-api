@@ -113,7 +113,7 @@ exports.updateBusInfo = async (req, res, next) => {
    const bus_state=req.body.busState;
    const totalsit =req.body.totalNoOfSit;
    const driverId=req.body.driverId
-   const redatId=req.body.readtId
+   const redatId=req.body.redatId
    const service_year =req.body.serviceYear;
    const createdby =req.userinfo.sub;
    const bus= await Bus.findByIdAndUpdate(id,{

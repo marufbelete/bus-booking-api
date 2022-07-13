@@ -263,7 +263,7 @@ exports.updatePassinfo = async (req, res, next) => {
    const passangerPhone=req.body.phoneNumber;
    const responses=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
-   return res.json(responses)
+   return res.json("done")
   }
   catch(error) {
     next(error)

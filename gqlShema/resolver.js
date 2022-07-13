@@ -595,6 +595,7 @@ catch(error) {
 },
 
 //sale map in br
+//cancel
 getDaysAgentTicketInbr:async(parent,args,context)=>{
   try{
     const now=new Date()
@@ -650,6 +651,7 @@ catch(error) {
   }
 },
 //sale map in br
+//cancel
 getDaysLocalTicketInbr:async(parent,args,context)=>{
   try{
     const now=new Date()
@@ -707,6 +709,160 @@ catch(error) {
   }
 },
 //sale map in br
+getDaysInbr:async(parent,args,context)=>{
+  try{
+
+    const now=new Date()
+    let currentYear=now.getFullYear()
+    let currentMonth=moment(now).month()+1;
+    let currentWeek=moment(now).weeks()-1;
+    let today =moment(now).dayOfYear();
+    const sort=args.input.filter
+
+    let filter1
+    filter1=sort=="week"?{"week":week}:filter1
+    filter1=sort=="month"?{"month":month}:filter1
+
+    let filter2={"year":currentYear}
+    filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+    filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+    filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+
+    const orgcode =context.organization_code;
+  const AgentTicket= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
+},
+{
+  $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
+},
+{
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
+},
+{
+  $project:{
+    "_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
+  }
+}
+
+  ] )
+    
+  const MobileTicket= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
+},
+{
+  $match:{"isMobileUser":true,...filter2}
+},
+{
+  $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
+},
+{
+  $project:{
+    "_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
+  }
+}
+
+  ] )
+
+const AllTicket= await Schedule.aggregate( [
+{
+  $match:{organizationCode:orgcode}
+},
+{
+$unwind:"$passangerInfo"
+},
+{
+$lookup:{
+from:'users',
+foreignField:"_id",
+localField:"passangerInfo.bookedBy",
+as:"user"
+}
+},
+{
+$project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
+},
+{
+$match:{...filter2}
+},
+{
+$group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
+},
+{
+$project:{
+  "_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
+}
+}
+
+] )
+const LocalTicket= await Schedule.aggregate( [
+{
+$match:{organizationCode:orgcode}
+},
+{
+$unwind:"$passangerInfo"
+},
+{
+$lookup:{
+from:'users',
+foreignField:"_id",
+localField:"passangerInfo.bookedBy",
+as:"user"
+}
+},
+{
+$project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"totalTicket":{$size:"$passangerInfo.passangerOccupiedSitNo"},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
+},
+{
+$match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+},
+{
+$group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:{$multiply:["$totalTicket","$price"]}}}
+},
+{
+$project:{
+"_id":0,"year":"$_id.year","bookedAt":1,"totalPrice":1
+}
+}
+
+] )
+  return (LocalTicket,AgentTicket,LocalTicket,AllTicket)
+
+}
+catch(error) {
+  return []
+  }
+},
+//cancel
 getDaysMobileTicketInbr:async(parent,args,context)=>{
   try{
     const now=new Date()
@@ -830,6 +986,7 @@ catch(error) {
 },
 //all sales
 //sale map in br
+//cancel
 getDaysAllTicketInbr:async(parent,args,context)=>{
   try{
     const now=new Date()

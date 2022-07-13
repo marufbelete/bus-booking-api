@@ -21,6 +21,12 @@ input SaleInputFilteasr {
 input SaleInputFilter {
     filter:String
     }
+type DaysTicket{
+    AgentTicket:[Ticket]
+    MobileTicket:[Ticket]
+    LocalTicket:[Ticket]
+    AllTicket:[Ticket]
+}
 
 type Query{
 getLocalTotalSale(input:SaleInputFilter):Ticket
@@ -37,6 +43,7 @@ getGroupLocalTicketInbr(input:SaleInputFilter):[Ticket]
 getGroupMobileTicketInbr(input:SaleInputFilter):[Ticket]
 getGroupAllTicketInbr(input:SaleInputFilter):[Ticket]
 
+getDaysInbr(input:SaleInputFilter):[DaysTicket]
 getDaysAgentTicketInbr(input:SaleInputFilter):[Ticket]
 getDaysLocalTicketInbr(input:SaleInputFilter):[Ticket]
 getDaysMobileTicketInbr(input:SaleInputFilter):[Ticket]

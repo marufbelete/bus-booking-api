@@ -26,6 +26,13 @@ exports.addRoute = async (req, res, next) => {
       organizationCode:orgcode,
       bus:assignedbus
     })
+    const isRouteExist=await Route.findOne({source,destination})
+    if(isRouteExist)
+    {
+  const error = new Error("This Route Already Exist. Please Check The Route List")
+  error.statusCode = 400
+  throw error;
+    }
     const savedroute=await newroute.save()
     return res.json(savedroute)
   }

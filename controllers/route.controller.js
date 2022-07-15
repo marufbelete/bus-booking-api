@@ -27,6 +27,7 @@ exports.addRoute = async (req, res, next) => {
       bus:assignedbus
     })
     const isRouteExist=await Route.findOne({organizationCode:orgcode,source,destination})
+    console.log(isRouteExist)
     if(isRouteExist)
     {
   const error = new Error("This Route Already Exist. Please Check The Route List")

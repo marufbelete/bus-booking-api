@@ -11,11 +11,18 @@ exports.registerCity = async (req, res, next) => {
       departurePlace:departureplace,
       organizationCode:orgcode,
     })
+    const isCityExist=await Route.findOne({cityName:cityname})
+    if(isCityExist)
+    {
+  const error = new Error("This city already exist, try another one")
+  error.statusCode = 400
+  throw error;
+    }
     const savedbus=await newbus.save()
     return res.json(savedbus)
   }
 catch(error) {
-next({message:"city already exist"});
+next();
   }
 };
 //get all city in organization

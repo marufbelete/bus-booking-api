@@ -6,6 +6,7 @@ const CitySchema = new mongoose.Schema({
 cityName: {
     type: String,
     trim: true,
+    lowercase:true,
     unique:[true,"city already exist"],
     required: true,
   },

@@ -56,7 +56,6 @@ password: {
     timestamps: true,
   },
 );
-//solve this
 UserSchema.index({userRole: 1},{unique: true, partialFilterExpression: { "userRole" : "owner" }});
 // this make for one org only one use with superadmin
 UserSchema.index({organizationCode: 1,userRole: 1},{unique: true, partialFilterExpression: { "userRole" : "superadmin" }});

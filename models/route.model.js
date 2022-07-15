@@ -54,7 +54,7 @@ organizationCode:{
   },
 );
 
-RouteSchema.index( { "source": 1, "destination": 1 }, { unique: true } )
+RouteSchema.index( {organizationCode: 1, source: 1, destination: 1 }, { unique: true } )
 
 const Route = mongoose.model("route", RouteSchema);
 

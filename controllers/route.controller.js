@@ -26,7 +26,7 @@ exports.addRoute = async (req, res, next) => {
       organizationCode:orgcode,
       bus:assignedbus
     })
-    const isRouteExist=await Route.findOne({source,destination})
+    const isRouteExist=await Route.findOne({organizationCode:orgcode,source,destination})
     if(isRouteExist)
     {
   const error = new Error("This Route Already Exist. Please Check The Route List")
@@ -45,8 +45,8 @@ next(error);
 exports.getOrganizationRoute = async (req, res, next) => {
   try {
   
-  // const orgcode =req.userinfo.organization_code;
-  const allroute= await Route.find({organizationCode:"001000"})
+  const orgcode =req.userinfo.organization_code;
+  const allroute= await Route.find({organizationCode:orgcode})
   return res.json(allroute)
   }
   catch(error) {

@@ -200,7 +200,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     const booked_by = req.userinfo.sub;
     const uid = new ShortUniqueId({ length: 12 });
     const isSitFree=await Schedule.findById(id)
-    if(isSitFree.occupiedSitNo.some(el=>psss_ocupied_sit_no.includes(el)))
+    if(isSitFree.occupiedSitNo.includes(psss_ocupied_sit_no))
     {
      return res.json({message:`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`});
     }

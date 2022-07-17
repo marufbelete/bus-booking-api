@@ -191,6 +191,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     unlockSit()
    const id=req.params.id
    let passlength=req.body.length
+   console.log(req.body)
    for(let i=0;i<passlength;i++)
      {
     const passange_name = req.body[i].passname;

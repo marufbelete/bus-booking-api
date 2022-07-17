@@ -160,29 +160,25 @@ exports.postPoneTrip = async (req, res, next) => {
 }
 //refund
 exports.refundRequest = async (req, res, next) => {
-  const session=await Schedule.startSession()
   try {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
     const pass_sit=req.body.passsit
-    session.startTransaction()
     const timenow = new Date
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
       const re=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit,$pull:{occupiedSitNo: pass_sit }}},
-      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
+      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
       console.log(re)
     }
     else{
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit}},
-      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
+      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
     }
-    session.commitTransaction()
     return res.json("refund done")
   }
   catch(error) {
-    await session.abortTransaction();
     next(error)
   }
 }

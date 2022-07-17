@@ -215,6 +215,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    return res.json("done")
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 };

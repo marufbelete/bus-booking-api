@@ -8,19 +8,19 @@ const ShortUniqueId = require('short-unique-id');
 let sitTimer;
 let unlockSit=()=>{};
 exports.addSchedule = async (req, res, next) => {
+  console.log(req.body)
   const session=await Schedule.startSession()
   try {
-    console.log(req.body)
-    const description=e.description;
-    const source = e.source;
-    const destination = e.destination;
-    const tarif= e.tarif;
-    const distance = e.distance;
-    const estimated_hour = e.estimatedhour;
-    const departure_date_and_time= e.depdateandtime;
-    const departure_place = e.depplace;
-    const busid=e.assignedbus
-    const number_of_schedule = e.numberofschedule?e.numberofschedule:1;
+    const description=req.body.description;
+    const source = req.body.source;
+    const destination = req.body.destination;
+    const tarif= req.body.tarif;
+    const distance = req.body.distance;
+    const estimated_hour = req.body.estimatedhour;
+    const departure_date_and_time= req.body.depdateandtime;
+    const departure_place = req.body.depplace;
+    const busid=req.body.assignedbus
+    const number_of_schedule = req.body.numberofschedule?e.numberofschedule:1;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
 
@@ -77,7 +77,7 @@ next(error);
 exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
-   const sit =e.sits
+   const sit =req.body.sits
     console.log(sit)
    const isSitFree=await Schedule.findById(id)
    if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
@@ -186,7 +186,6 @@ return res.json(schedule)
 //book ticket use io
 exports.bookTicketFromSchedule = async (req, res, next) => {
   try {
-    console.log("in")
     clearTimeout(sitTimer)
     unlockSit()
    const id=req.params.id
@@ -249,9 +248,9 @@ exports.getRiservedSit = async (req, res, next) => {
 exports.assignBusToSchedule = async (req, res, next) => {
   try {
    const id=req.params.id
-   const bus= e.bus;
-   const departurePlace=e.departurePlace
-   const departureDateAndTime=e.departureDateAndTime
+   const bus= req.body.bus;
+   const departurePlace=req.body.departurePlace
+   const departureDateAndTime=req.body.departureDateAndTime
    const timenow=Date.now()
    const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
      $set:{
@@ -271,9 +270,9 @@ exports.assignBusToSchedule = async (req, res, next) => {
 exports.updatePassinfo = async (req, res, next) => {
   try {
    const schedule_id=req.params.id
-   const pass_id= e.passangerId;
-   const passangerName=e.passangerName;
-   const passangerPhone=e.phoneNumber;
+   const pass_id= req.body.passangerId;
+   const passangerName=req.body.passangerName;
+   const passangerPhone=req.body.phoneNumber;
    const responses=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
    return res.json("done")

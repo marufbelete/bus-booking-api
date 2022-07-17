@@ -165,6 +165,7 @@ exports.refundRequest = async (req, res, next) => {
     const pass_id=req.body.uniqueid
     const pass_sit=req.body.passsit
     const timenow = new Date
+    console.log(req.body)
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 

@@ -165,7 +165,6 @@ exports.refundRequest = async (req, res, next) => {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
     const pass_sit=req.body.passsit
-    
     session.startTransaction()
     const timenow = new Date
     const schedule=await Schedule.findById(schedule_id)

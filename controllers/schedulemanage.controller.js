@@ -210,7 +210,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
        passangerOccupiedSitNo:psss_ocupied_sit_no,
        uniqueId:uid(),
        bookedBy:booked_by}},
-       $addToSet:{occupiedSitNo:{$each:psss_ocupied_sit_no}},
+       $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
    },{new:true})
    }
    return res.json("done")

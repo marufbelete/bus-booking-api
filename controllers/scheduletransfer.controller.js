@@ -173,8 +173,6 @@ exports.refundRequest = async (req, res, next) => {
     { 
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit,$pull:{occupiedSitNo: pass_sit }}},
       {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
-      await Schedule.findByIdAndUpdate(schedule_id,{$pull:{occupiedSitNo:pass_sit }},
-      {session,new:true,useFindAndModify:false})
     }
     else{
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit}},

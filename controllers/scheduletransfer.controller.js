@@ -170,8 +170,9 @@ exports.refundRequest = async (req, res, next) => {
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit,$pull:{occupiedSitNo: pass_sit }}},
+      const re=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit,$pull:{occupiedSitNo: pass_sit }}},
       {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
+      console.log(re)
     }
     else{
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit}},

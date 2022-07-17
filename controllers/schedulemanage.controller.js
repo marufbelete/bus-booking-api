@@ -18,8 +18,8 @@ exports.addSchedule = async (req, res, next) => {
     const distance = req.body.distance;
     const estimated_hour = req.body.estimatedhour;
     const departure_date_and_time= req.body.depdateandtime;
-    const departure_place = req.body.depplace;
-    const busid=req.body.assignedbus
+    const departure_place = req.body.depplace?req.body.depplace:null;
+    const busid=req.body.assignedbus?req.body.assignedbus:null
     const number_of_schedule = req.body.numberofschedule?e.numberofschedule:1;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;

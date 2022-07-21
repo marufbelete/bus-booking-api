@@ -504,3 +504,39 @@ exports.changePassword = async (req, res, next) => {
     next(err)
   }
 }
+//temp reset Password
+exports.tempResetPassword = async (req, res, next) => {
+  try {
+    const user_id=req.params.id
+    const password=req.body.password
+    let passwordHash
+    const role=req.userinfo.user_role;
+
+    console.log(id,password)
+
+  if(password)
+{
+    if (password.length < 5) {
+      const error = new Error("the password need to be atleast 5 charcter long.")
+      error.statusCode = 400
+      throw error;
+    }
+    const salt = await bcrypt.genSalt();
+    passwordHash = await bcrypt.hash(password, salt);
+  } 
+  if(role==process.env.SUPERADMIN)  
+{
+  await User.findByIdAndUpdate(user_id,{password:passwordHash})
+  return res.json({success:true})
+}  
+if(role==process.env.ADMIN)
+{
+  await User.findOneAndUpdate({_id:user_id,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER,process.env.ADMIN]}},{password:passwordHash})
+  return res.json({success:true})
+}
+
+  }
+  catch(err){
+    next(err)
+  }
+}

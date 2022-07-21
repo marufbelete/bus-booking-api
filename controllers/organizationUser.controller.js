@@ -511,9 +511,6 @@ exports.tempResetPassword = async (req, res, next) => {
     const password=req.body.password
     let passwordHash
     const role=req.userinfo.user_role;
-
-    console.log(id,password)
-
   if(password)
 {
     if (password.length < 5) {
@@ -537,6 +534,7 @@ if(role==process.env.ADMIN)
 
   }
   catch(err){
+    console.log(err)
     next(err)
   }
 }

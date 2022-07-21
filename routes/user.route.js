@@ -30,7 +30,7 @@ router.get('/getallorganizationuser',userauth,authaAdminCasher,getAllOrganizatio
 router.get('/getallorganizationdriver',userauth,authaAdminCasher,getAllOrganizationDriver,errorHandler)
 router.get('/getuserbyrole',userauth,authaAdminCasher,getUserByRole,errorHandler)
 router.put('/changepassword',userauth,changePassword,errorHandler)
-router.put('/resetpassword:/id',userauth,tempResetPassword,errorHandler)
+router.put('/resetpassword/:id',userauth,tempResetPassword,errorHandler)
 
 //role
 router.post('/createrole',userauth,authAdmin, createRole,errorHandler)

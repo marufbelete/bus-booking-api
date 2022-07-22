@@ -285,15 +285,16 @@ try{
   }
   if(user_role===process.env.ADMIN)
   {
-    const allcasher=await User.find({userRole:{$in:[process.env.CASHER,process.env.DRIVER,process.env.AGENT]},
+    const allcasher=await User.find({userRole:{$in:[process.env.CASHER,process.env.DRIVER,process.env.AGENT,process.env.REDAT]},
     organizationCode:organization_code,isMobileUser:false})
     return res.json(allcasher)
   }
   if(user_role===process.env.CASHER)
   {
-    const allcasher=await User.find({userRole:{$in:[process.env.DRIVER,process.env.REDAT]},
+    console.log("casher")
+    const all=await User.find({userRole:{$in:[process.env.DRIVER,process.env.REDAT]},
     organizationCode:organization_code,isMobileUser:false})
-    return res.json(allcasher)
+    return res.json(all)
   }
 }
 catch(error) {

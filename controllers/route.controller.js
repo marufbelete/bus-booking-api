@@ -1,9 +1,10 @@
 const Route = require("../models/route.model");
+const Load= require('lodash');
 
 exports.addRoute = async (req, res, next) => {
   try {
-    const source = req.body.source;
-    const destination = req.body.destination;
+    const source = Load.capitalize(req.body.source);
+    const destination = Load.capitalize(req.body.destination);
     const tarif= req.body.tarif;
     const distance = req.body.distance;
     const estimated_hour = req.body.estimatedhour;
@@ -59,8 +60,6 @@ exports.updateRouteInfo = async (req, res, next) => {
   try {
     const assignedbus=req.body.bus
    const id=req.params.id
-   const source = req.body.source;
-   const destination = req.body.destination;
    const tarif= req.body.tarif;
    const distance = req.body.distance;
    const estimated_hour = req.body.estimatedHour;
@@ -70,8 +69,6 @@ exports.updateRouteInfo = async (req, res, next) => {
 
    const bus= await Route.findByIdAndUpdate(id,{
      $set:{
-      source:source,
-      destination:destination,
       tarif:tarif,
       distance:distance,
       estimatedHour:estimated_hour,

@@ -2,6 +2,7 @@ const Schedule = require("../models/schedule.model");
 const Bus = require("../models/bus.model");
 const moment=require('moment')
 const mongoose = require("mongoose");
+const Load= require('lodash');
 
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
@@ -12,8 +13,6 @@ exports.addSchedule = async (req, res, next) => {
   const session=await Schedule.startSession()
   try {
     const description=req.body.description;
-    const source = req.body.source;
-    const destination = req.body.destination;
     const tarif= req.body.tarif;
     const distance = req.body.distance;
     const estimated_hour = req.body.estimatedhour;
@@ -29,8 +28,6 @@ exports.addSchedule = async (req, res, next) => {
     const schedules=[]
     const newschedule= {
       description:description,
-      source:source,
-      destination:destination,
       tarif:tarif,
       distance:distance,
       estimatedHour:estimated_hour,
@@ -277,7 +274,7 @@ exports.updatePassinfo = async (req, res, next) => {
    const pass_id= req.body.passangerId;
    const passangerName=req.body.passangerName;
    const passangerPhone=req.body.phoneNumber;
-   const responses=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
+   await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
    return res.json("done")
   }

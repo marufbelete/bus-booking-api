@@ -1,10 +1,9 @@
 const City = require("../models/city.model");
-
+const Load= require('lodash');
 exports.registerCity = async (req, res, next) => {
   try {
-    console.log("city")
-    const cityname = req.body.cityName;
-    const departureplace= req.body.departurePlace;
+    const cityname = Load.capitalize(req.body.cityName);
+    const departureplace= req.body.departurePlace.map(e=>Load.capitalize(e));
     const orgcode =req.userinfo.organization_code;
 
     const newbus= new City({
@@ -64,8 +63,8 @@ exports.getCityNameOnly = async (req, res, next) => {
 exports.updateCityInfo = async (req, res, next) => {
   try {
    const id=req.params.id
-   const city_name = req.body.cityName;
-   const departure_place= req.body.departurePlace;
+   const city_name = Load.capitalize(req.body.cityName);
+   const departure_place= req.body.departurePlace.map(e=>Load.capitalize(e));
    const org_code =req.userinfo.organization_code;
    const bus= await City.findByIdAndUpdate(id,{
      $set:{

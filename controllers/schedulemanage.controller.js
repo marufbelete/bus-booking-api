@@ -12,7 +12,10 @@ exports.addSchedule = async (req, res, next) => {
   console.log(req.body)
   const session=await mongoose.startSession()
   try {
+    session.startTransaction()  
     const description=req.body.description;
+    const source=req.body.source;
+    const destination=req.body.destination;
     const tarif= req.body.tarif;
     const distance = req.body.distance;
     const estimated_hour = req.body.estimatedhour;
@@ -28,6 +31,8 @@ exports.addSchedule = async (req, res, next) => {
     const schedules=[]
     const newschedule= {
       description:description,
+      source:source,
+      destination:destination,
       tarif:tarif,
       distance:distance,
       estimatedHour:estimated_hour,
@@ -41,7 +46,6 @@ exports.addSchedule = async (req, res, next) => {
     {
       schedules.push(newschedule)
     } 
-    session.startTransaction()  
     const savedSchedule=await Schedule.insertMany(schedules,{session})
     if(busid)
     {
@@ -66,8 +70,9 @@ exports.addSchedule = async (req, res, next) => {
 
   }
 catch(error) {
-  await session.abortTransaction();
   console.log(error)
+
+  await session.abortTransaction();
 next(error);
   }
 };

@@ -10,6 +10,14 @@ lastName:{
   type: String,
   trim: true,
 },
+isAssigned:{
+  type: String,
+  enum:{
+    values:["1","0","2"],
+    message: '{VALUE} is not supported'
+  },
+  default:"0"
+},
 phoneNumber:{
     type: String,
     trim: true,

@@ -1,6 +1,10 @@
 const Bus = require("../models/bus.model");
+const User = require("../models/user.model");
+const mongoose = require("mongoose");
+const { update } = require("lodash");
 
 exports.registerBus = async (req, res, next) => {
+  const session=await mongoose.startSession()
   try {
     console.log(req.body)
     const busplateno = req.body.busplateno;
@@ -23,7 +27,19 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
       createdBy:createdby,
       organizationCode:orgcode,
     })
-    const savedbus=await newbus.save()
+    session.startTransaction()  
+    const savedbus=await newbus.save({session})
+    await User.findByIdAndUpdate(driver_id,{
+      $set:{
+       isAssigned:"2"
+      }
+    },{session})
+    await User.findByIdAndUpdate(redat_id,{
+      $set:{
+       isAssigned:"2"
+      }
+    },{session})
+    session.commitTransaction()
     return res.json(savedbus)
   }
   const error = new Error("please fill all field")
@@ -31,6 +47,7 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
   throw error;
   }
 catch(error) {
+await session.abortTransaction();
 next(error);
   }
 };
@@ -108,27 +125,54 @@ exports.getOrganizationActiveBus = async (req, res, next) => {
 };
 //get organization by id
 exports.updateBusInfo = async (req, res, next) => {
+  const session=await mongoose.startSession()
   try {
+   const updated={createdBy:req.userinfo.sub}
    const id=req.params.id
-   const bus_state=req.body.busState;
-   const totalsit =req.body.totalNoOfSit;
-   const driverId=req.body.driverId
-   const redatId=req.body.redatId
-   const service_year =req.body.serviceYear;
-   const createdby =req.userinfo.sub;
+   req.body.busState?updated.busState=req.body.busState:updated
+   req.body.totalNoOfSit?updated.totalNoOfSit=req.body.totalNoOfSit:updated
+   req.body.driverId?updated.driverId=req.body.driverId:updated
+   req.body.redatId?updated.redatId=req.body.redatId:updated
+   req.body.serviceYear?updated.serviceYear=req.body.serviceYear:updated
+   session.startTransaction()  
+   const bus_user= await Bus.findById(id)
+   if(bus_user.driverId!=req.body.driverId)
+   {
+    await User.findByIdAndUpdate(bus_user.driverId,{
+      $set:{
+       isAssigned:"1"
+      }
+    },{session})
+   }
+   if(bus_user.redatId!=req.body.redatId)
+   {
+    await User.findByIdAndUpdate(bus_user.redatId,{
+      $set:{
+       isAssigned:"1"
+      }
+    },{session})
+   }
    const bus= await Bus.findByIdAndUpdate(id,{
      $set:{
-      totalNoOfSit:totalsit,
-      driverId,
-      redatId,
-      createdBy:createdby,
-      busState:bus_state,
-      serviceYear:service_year
+   ...updated
      }
    })
-   res.json(bus)
+   await User.findByIdAndUpdate(req.body.driverId,{
+     $set:{
+      isAssigned:"2"
+     }
+   },{session})
+   await User.findByIdAndUpdate(req.body.redatId,{
+     $set:{
+      isAssigned:"2"
+     }
+   },{session})
+   session.commitTransaction()
+   return res.json(bus)
   }
   catch(error) {
+    await session.abortTransaction()
+    console.log(error)
     next(error)
   }
 };

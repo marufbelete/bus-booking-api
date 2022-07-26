@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
+const Bus = require("../models/bus.model");
 
 exports.checkAuth = (req, res, next) => {
   try{
@@ -171,6 +172,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const confirm_password=req.body.confirmpassword;
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
+    const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?"1":"0"
     console.log(organization_code)
 if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
 { 
@@ -211,6 +213,7 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
       phoneNumber: phone_number,
       isMobileUser:false,
       userRole:add_role,
+      isAssigned:isAssigned,
       organizationCode:organization_code,
       password: passwordHash,
       createdBy:saved_by,
@@ -220,6 +223,7 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
    return res.json(neworguser)
   }
   catch(error) {
+    console.log(error)
     next(error)
      }
 };
@@ -321,10 +325,13 @@ exports.updateOrganizationUser = async (req, res, next) => {
     const status=req.body.isActive
     const last_name = req.body.lastName;
     const updateduserid=req.params.id
+    const phone_number=req.body.phoneNumber
     const change_role=req.body.userRole;
+    const is_assigned=req.body.isAssigned
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.user_role;
     const user_id=req.userinfo.sub;
+    console.log("in")
     if (!first_name||!last_name ) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
@@ -335,10 +342,24 @@ if(user_role===process.env.SUPERADMIN)
 { 
   //for other
   if(updateduserid!==user_id){
+    if(is_assigned=="1")
+    {
+    const u_user=await User.findById(updateduserid)
+    let filter={}
+    let setVal={}
+    u_user.userRole==process.env.DRIVER?filter={driverId:updateduserid}:filter={redatId:updateduserid}
+    u_user.userRole==process.env.DRIVER?setVal={driverId:null}:setVal={redatId:null}
+    console.log(u_user.userRole)
+    console.log(setVal)
+    const updatebus=await Bus.findOneAndUpdate({...filter,organizationCode:organization_code},{$set:{...setVal}})
+    console.log(updatebus)
+    }
   const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
   $set:{
   firstName:first_name,
+  isAssigned:is_assigned,
   lastName:last_name,
+  phoneNumber:phone_number,
   userRole:change_role,
   isActive:status,
   gender:gender
@@ -367,9 +388,11 @@ if(user_role===process.env.ADMIN ){
   //for itself
   if(updateduserid===user_id)
   { 
+   
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
       firstName:first_name,
+      isAssigned:is_assigned,
       lastName:last_name,
       gender:gender
 
@@ -379,10 +402,20 @@ if(user_role===process.env.ADMIN ){
   }
 // for other than like casher
   else if(editeduser.userRole!==process.env.SUPERADMIN && editeduser.userRole!==process.env.ADMIN&&editeduser.userRole!==process.env.OWNER ){
+    if(is_assigned=="1")
+    {
+    const u_user=User.findById(updateduserid)
+    let filter={}
+    let setVal={}
+    u_user.userRole==process.env.DRIVER?filter={driverId:updateduserid}:filter={redatId:updateduserid}
+    u_user.userRole==process.env.DRIVER?setVal={driverId:null}:filter={redatId:null}
+    await Bus.updateMany({...filter,organizationCode:organization_code},{$set:{...setVal}})
+    }
     const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
       $set:{
         firstName:first_name,
         lastName:last_name,
+        isAssigned:is_assigned,
         gender:gender,
         isActive:status,
         userRole:change_role,
@@ -439,10 +472,23 @@ throw error;
 exports.getUserByRole=async(req,res,next)=>{
   const role=req.query.role
   const organization_code=req.userinfo.organization_code;
-  const user=await User.find({userRole:role,organizationCode:organization_code})
+  const user=await User.find({userRole:role,organizationCode:organization_code,isAssigned:'1'})
   return res.json(user)
 }
-
+exports.getAssignedUserByRole=async(req,res,next)=>{
+  const role=req.query.role
+  const organization_code=req.userinfo.organization_code;
+  const user=await User.find({userRole:role,organizationCode:organization_code,isAssigned:'2'})
+  return res.json(user)
+}
+exports.getUserByRoleWithEdit=async(req,res,next)=>{
+  const role=req.query.role
+  const current_user=req.query.current
+  console.log(role,current_user)
+  const organization_code=req.userinfo.organization_code;
+  const user=await User.find({$or:[{_id:current_user},{userRole:role,organizationCode:organization_code,isAssigned:'1'}]})
+  return res.json(user)
+}
 exports.activateOrganizationUser = async (req, res, next) => {
   try {
       const updateduserid=req.params.id
@@ -458,7 +504,8 @@ exports.activateOrganizationUser = async (req, res, next) => {
     throw error;
   }
     await User.findByIdAndUpdate(id,{
-      isActive:true
+      isActive:true,
+      isAssigned:false,
     })
     return res.json("user deleted successfully")
   }

@@ -10,7 +10,7 @@ let sitTimer;
 let unlockSit=()=>{};
 exports.addSchedule = async (req, res, next) => {
   console.log(req.body)
-  const session=await Schedule.startSession()
+  const session=await mongoose.startSession()
   try {
     const description=req.body.description;
     const tarif= req.body.tarif;

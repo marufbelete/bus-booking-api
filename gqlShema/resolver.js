@@ -197,7 +197,65 @@ Query:{
     return []
     }
 },
+getTotalSale:async(parent,args,context)=>{
+  try{
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const sort=args.input.filter
+  let filter1
+  filter1=sort=="day"?{"day":dayY}:filter1
+  filter1=sort=="week"?{"week":week}:filter1
+  filter1=sort=="month"?{"month":month}:filter1
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3={"year":"$year"}
+  filter3=sort=="day"?{"year":"$year","day":"$day"}:filter3
+  filter3=sort=="week"?{"year":"$year","week":"$week"}:filter3
+  filter3=sort=="month"?{"year":"$year","month":"$month"}:filter3
+  const orgcode =context.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
+},
+{
+  $match:{...filter2}
+},
+{
+  $group:{_id:filter3,"totalTicket":{$sum:1}}
+},
+{
+  $project:{
+    "_id":0,"year":"$_id.year","totalTicket":1
+  }
+}
+  ] )
+  console.log(allSchedule[0])
+  return allSchedule[0]
 
+}
+catch(error) {
+  return []
+  }
+},
 //donut
 getEachAgentSale:async(parent,args,context)=>{
   try{

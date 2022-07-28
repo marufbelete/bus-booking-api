@@ -8,7 +8,7 @@ const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;
 let unlockSit=()=>{};
-let isTimerGone=false;
+let isSitReserved=false;
 exports.addSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
   try {
@@ -78,33 +78,39 @@ exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
    const sit =req.body.sits
-   isTimerGone=false
-    console.log(sit)
+   console.log(sit)
+   isSitReserved=true
    const isSitFree=await Schedule.findById(id)
    if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
    {
-    return res.json({message:"sit already reserved before, please try another sit"});
+    const error=new Error("sit already reserved before, please try another sit")
+    error.statusCode=400
+    throw error
    }
    else{
-    const bus= await Schedule.findByIdAndUpdate(id,{
+    const reserve= await Schedule.findByIdAndUpdate(id,{
       $addToSet:{
        occupiedSitNo:{$each:sit}
       }
-    }
-    ,{new:true})
-    console.log(bus)
-   unlockSit=async()=>{ 
-    isTimerGone=true
-     await Schedule.findByIdAndUpdate(id,{
+    },{new:true,useFindAndModify:false})
+
+    console.log(reserve)
+    unlockSit=async()=>{ 
+    isSitReserved=false
+    console.log("unlock")
+    console.log(sit)
+    const unlocking= await Schedule.findByIdAndUpdate(id,{
        $pullAll:{
          occupiedSitNo:sit
         }
     },{new:true,useFindAndModify:false})
+    console.log("unlock done")
+    return unlocking
  }
     //socket io 
-    sitTimer=setTimeout(unlockSit,30000)
+    sitTimer=setTimeout(unlockSit,300000)
     req.sitlock=sitTimer
-    return res.json(bus)
+    return res.json(reserve)
    }
    
   }
@@ -115,10 +121,11 @@ exports.lockSit = async (req, res, next) => {
 //book ticket use io
 exports.bookTicketFromSchedule = async (req, res, next) => {
   try {
-    if(isTimerGone)
+    if(isSitReserved)
     {
     clearTimeout(sitTimer)
-    unlockSit()
+    await unlockSit()
+    console.log("returning from unlock")
    const id=req.params.id
    let passlength=req.body.length
    console.log(req.body)
@@ -130,9 +137,12 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     const booked_by = req.userinfo.sub;
     const uid = new ShortUniqueId({ length: 12 });
     const isSitFree=await Schedule.findById(id)
+    console.log(isSitFree.occupiedSitNo)
     if(isSitFree.occupiedSitNo.includes(psss_ocupied_sit_no))
     {
-     return res.json({message:`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`});
+     const error=new Error(`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`)
+     error.statusCode=400
+     throw error
     }
     await Schedule.findByIdAndUpdate(id,{
       $push:{passangerInfo:{passangerName:passange_name,
@@ -146,7 +156,9 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    return res.json("done")
   }
   else{
-    return res.json("Your Sit Reservation Already Expired Please Try Again")
+    const error=new Error("Your Sit Reservation Already Expired Please Try Again")
+    error.statusCode=400
+    throw error
   }
   }
   catch(error) {

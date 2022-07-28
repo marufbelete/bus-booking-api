@@ -8,8 +8,8 @@ const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;
 let unlockSit=()=>{};
+let isTimerGone=false;
 exports.addSchedule = async (req, res, next) => {
-  console.log(req.body)
   const session=await mongoose.startSession()
   try {
     session.startTransaction()  
@@ -56,8 +56,6 @@ exports.addSchedule = async (req, res, next) => {
       }
       ,{new:true,session})
     }
-   
-
     session.commitTransaction()
     return res.json(savedSchedule)
   }  
@@ -71,7 +69,6 @@ exports.addSchedule = async (req, res, next) => {
   }
 catch(error) {
   console.log(error)
-
   await session.abortTransaction();
 next(error);
   }
@@ -81,6 +78,7 @@ exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
    const sit =req.body.sits
+   isTimerGone=false
     console.log(sit)
    const isSitFree=await Schedule.findById(id)
    if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
@@ -96,6 +94,7 @@ exports.lockSit = async (req, res, next) => {
     ,{new:true})
     console.log(bus)
    unlockSit=async()=>{ 
+    isTimerGone=true
      await Schedule.findByIdAndUpdate(id,{
        $pullAll:{
          occupiedSitNo:sit
@@ -113,6 +112,48 @@ exports.lockSit = async (req, res, next) => {
     next(error)
   }
 }
+//book ticket use io
+exports.bookTicketFromSchedule = async (req, res, next) => {
+  try {
+    if(isTimerGone)
+    {
+    clearTimeout(sitTimer)
+    unlockSit()
+   const id=req.params.id
+   let passlength=req.body.length
+   console.log(req.body)
+   for(let i=0;i<passlength;i++)
+     {
+    const passange_name = req.body[i].passname;
+    const pass_phone_number = req.body[i].passphone;
+    const psss_ocupied_sit_no= req.body[i].sits
+    const booked_by = req.userinfo.sub;
+    const uid = new ShortUniqueId({ length: 12 });
+    const isSitFree=await Schedule.findById(id)
+    if(isSitFree.occupiedSitNo.includes(psss_ocupied_sit_no))
+    {
+     return res.json({message:`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`});
+    }
+    await Schedule.findByIdAndUpdate(id,{
+      $push:{passangerInfo:{passangerName:passange_name,
+       passangerPhone:pass_phone_number,
+       passangerOccupiedSitNo:psss_ocupied_sit_no,
+       uniqueId:uid(),
+       bookedBy:booked_by}},
+       $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
+   },{new:true})
+   }
+   return res.json("done")
+  }
+  else{
+    return res.json("Your Sit Reservation Already Expired Please Try Again")
+  }
+  }
+  catch(error) {
+    console.log(error)
+    next(error)
+  }
+};
 exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
@@ -186,42 +227,7 @@ return res.json(schedule)
   }
 }
 
-//book ticket use io
-exports.bookTicketFromSchedule = async (req, res, next) => {
-  try {
-    clearTimeout(sitTimer)
-    unlockSit()
-   const id=req.params.id
-   let passlength=req.body.length
-   console.log(req.body)
-   for(let i=0;i<passlength;i++)
-     {
-    const passange_name = req.body[i].passname;
-    const pass_phone_number = req.body[i].passphone;
-    const psss_ocupied_sit_no= req.body[i].sits
-    const booked_by = req.userinfo.sub;
-    const uid = new ShortUniqueId({ length: 12 });
-    const isSitFree=await Schedule.findById(id)
-    if(isSitFree.occupiedSitNo.includes(psss_ocupied_sit_no))
-    {
-     return res.json({message:`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`});
-    }
-    await Schedule.findByIdAndUpdate(id,{
-      $push:{passangerInfo:{passangerName:passange_name,
-       passangerPhone:pass_phone_number,
-       passangerOccupiedSitNo:psss_ocupied_sit_no,
-       uniqueId:uid(),
-       bookedBy:booked_by}},
-       $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
-   },{new:true})
-   }
-   return res.json("done")
-  }
-  catch(error) {
-    console.log(error)
-    next(error)
-  }
-};
+
 //by route
 exports.getActiveScheduleByRoute = async (req, res, next) => {
   try {

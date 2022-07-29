@@ -79,6 +79,11 @@ exports.lockSit = async (req, res, next) => {
    const id=req.params.id
    const sit =req.body.sits
    console.log(sit)
+   if(isSitReserved)
+   {
+    await unlockSit()
+    console.log("the privious clear")
+   }
    isSitReserved=true
    const isSitFree=await Schedule.findById(id)
    if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))

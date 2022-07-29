@@ -81,10 +81,10 @@ exports.lockSit = async (req, res, next) => {
    console.log(sit)
    if(isSitReserved)
    {
+    clearTimeout(sitTimer)
     await unlockSit()
     console.log("the privious clear")
    }
-   isSitReserved=true
    const isSitFree=await Schedule.findById(id)
    if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
    {
@@ -98,8 +98,7 @@ exports.lockSit = async (req, res, next) => {
        occupiedSitNo:{$each:sit}
       }
     },{new:true,useFindAndModify:false})
-
-    console.log(reserve)
+    isSitReserved=true
     unlockSit=async()=>{ 
     isSitReserved=false
     console.log("unlock")
@@ -113,7 +112,7 @@ exports.lockSit = async (req, res, next) => {
     return unlocking
  }
     //socket io 
-    sitTimer=setTimeout(unlockSit,300000)
+    sitTimer=setTimeout(unlockSit,150000)
     req.sitlock=sitTimer
     return res.json(reserve)
    }
@@ -133,7 +132,6 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     console.log("returning from unlock")
    const id=req.params.id
    let passlength=req.body.length
-   console.log(req.body)
    for(let i=0;i<passlength;i++)
      {
     const passange_name = req.body[i].passname;
@@ -156,7 +154,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
        uniqueId:uid(),
        bookedBy:booked_by}},
        $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
-   },{new:true})
+   },{new:true,useFindAndModify:false})
    }
    return res.json("done")
   }

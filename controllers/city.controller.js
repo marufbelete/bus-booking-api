@@ -40,8 +40,12 @@ exports.getAllOrganizationCity = async (req, res, next) => {
 //dep.place
 exports.getAllDepPlace = async (req, res, next) => {
   try {
+  let query={}
+  req.query.source?query={cityName:req.query.source}:query=query
+  console.log(query)
   const orgcode =req.userinfo.organization_code;
-  const allcity= await City.find({organizationCode:orgcode},{departurePlace:1})
+  const allcity= await City.find({organizationCode:orgcode,...query},{departurePlace:1})
+  console.log(allcity)
   return res.json(allcity)
   }
   catch(error) {

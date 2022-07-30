@@ -64,19 +64,34 @@ exports.updateRouteInfo = async (req, res, next) => {
    const distance = req.body.distance;
    const estimated_hour = req.body.estimatedHour;
    const max_trip=req.body.maxtrip//array of bus
-   const dep_plcae=req.body.departureplace
-   const createdby =req.userinfo.sub;
-
+   const dep_plcae=req.body.departureplace;
    const bus= await Route.findByIdAndUpdate(id,{
      $set:{
       tarif:tarif,
       distance:distance,
       estimatedHour:estimated_hour,
       maximumTrip:max_trip,
-      createdBy:createdby,
       departurePlace:dep_plcae,
       bus:assignedbus
 
+     }
+   })
+   res.json(bus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//update bud and depPlace
+exports.updateRouteInfoBusAndPlace = async (req, res, next) => {
+  try {
+   const assignedbus=req.body.bus
+   const id=req.params.id
+   const dep_plcae=req.body.departureplace;
+   const bus= await Route.findByIdAndUpdate(id,{
+     $set:{
+      departurePlace:dep_plcae,
+      bus:assignedbus
      }
    })
    res.json(bus)

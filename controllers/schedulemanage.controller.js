@@ -276,14 +276,32 @@ exports.assignBusToSchedule = async (req, res, next) => {
   try {
    const id=req.params.id
    const bus= req.body.bus;
-   const departurePlace=req.body.departurePlace
-   const departureDateAndTime=req.body.departureDateAndTime
+   const departurePlace=req.body.departureplace
+   console.log(bus)
+   console.log(departurePlace)
    const timenow=Date.now()
    const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
      $set:{
       assignedBus:bus,
       departurePlace,
-      departureDateAndTime
+     }
+   },{useFindAndModify:false})
+   return res.json(buses)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//update date and time
+exports.updateScheduleDateAndTime = async (req, res, next) => {
+  try {
+   const id=req.params.id
+   const departureDateAndTime=req.body.departureDateAndTime
+   console.log(departureDateAndTime)
+   const timenow=Date.now()
+   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
+     $set:{
+      departureDateAndTime:departureDateAndTime
      }
    })
    return res.json(buses)
@@ -302,7 +320,7 @@ exports.updatePassinfo = async (req, res, next) => {
    const passangerPhone=req.body.phoneNumber;
    await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
-   return res.json("done")
+      return res.json("done")
   }
   catch(error) {
     next(error)

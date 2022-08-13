@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const beautifyUnique = require('mongoose-beautiful-unique-validation');
+const mongoosePaginate = require('mongoose-paginate-v2');
 mongoose.plugin(beautifyUnique);
+mongoose.plugin(mongoosePaginate);
+
 const UserSchema = new mongoose.Schema({
 firstName:{
     type: String,

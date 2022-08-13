@@ -4,6 +4,8 @@ exports.registerCity = async (req, res, next) => {
   try {
     const cityname = Load.capitalize(req.body.cityName);
     const departureplace= req.body.departurePlace.map(e=>Load.capitalize(e));
+    console.log(cityname)
+    console.log(departureplace)
     const orgcode =req.userinfo.organization_code;
 
     const newbus= new City({
@@ -67,8 +69,10 @@ exports.getCityNameOnly = async (req, res, next) => {
 exports.updateCityInfo = async (req, res, next) => {
   try {
    const id=req.params.id
-   const city_name = Load.capitalize(req.body.cityName);
-   const departure_place= req.body.departurePlace.map(e=>Load.capitalize(e));
+   const city_name = Load.startCase(req.body.cityName);
+   const departure_place= req.body.departurePlace.map(e=>Load.startCase(e));
+   console.log(city_name)
+   console.log(departure_place)
    const org_code =req.userinfo.organization_code;
    const bus= await City.findByIdAndUpdate(id,{
      $set:{

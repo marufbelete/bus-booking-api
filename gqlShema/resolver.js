@@ -305,7 +305,7 @@ $lookup:{
 },
 {
   $project:{
-    "_id":0,"totalTicket":1,"agentName":1
+    "_id":0,"totalTicket":1,"agentName":{ $arrayElemAt:[ "$agentName", 0 ] }
   }
 }
 

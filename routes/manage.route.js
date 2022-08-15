@@ -94,7 +94,5 @@ router.get('/getorganizationactivebus',userauth,authaAdminCasher,getOrganization
 router.put('/updatebusstatus/:id',userauth,authaAdminCasher,updateBusStatus,errorHandler)
 router.delete('/deletebus/:id',userauth,authaAdminCasher,deleteBus,errorHandler)
 
-
-
 module.exports = router
 

@@ -295,7 +295,7 @@ $lookup:{
 }
 },
 {
-  $project:{"_id":0,"agentName":"$user.firstName","userID":"user._id","isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
+  $project:{"_id":0,"agentName":"$user.firstName","userID":"$user._id","isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
 },
 {
   $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}

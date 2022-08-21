@@ -10,6 +10,7 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     const now=new Date()
     let today =moment(now).dayOfYear();
     const {source,destination,departureDate,organization}=req.query
+    console.log(departureDate)
     if(!source||!destination)
     {
       return res.json({message:"please fill both source and destination field"})
@@ -19,7 +20,7 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     destination?filter.destination=destination:filter=filter
     departureDate?departure_date=departureDate:departure_date=today+1
     const schedule=await Schedule.aggregate([
-      {$match:{...filter,$expr: { $eq: [ {$dayOfYear:"$departureDateAndTime"},] },$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
+      {$match:{...filter,$expr: { $eq: [{$dayOfYear:"$departureDateAndTime"},departure_date] },$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
       {
         $lookup:{
           from:'organizations',

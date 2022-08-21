@@ -6,7 +6,9 @@ const mongoose = require("mongoose");
 exports.getMobileSchgedule=async(req,res,next)=>{
   try{
     let filter={}
-    const {source,destination,organization}=req.query
+    let departure_date
+    let today =moment(now).dayOfYear();
+    const {source,destination,departureDate,organization}=req.query
     if(!source||!destination)
     {
       return res.json({message:"please fill both source and destination field"})
@@ -14,9 +16,10 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     organization?filter.organizationCode=organization:filter=filter
     source?filter.source=source:filter=filter
     destination?filter.destination=destination:filter=filter
+    departureDate?departure_date=departureDate:departure_date=today+1
     const now =new Date()
     const schedule=await Schedule.aggregate([
-      {$match:{...filter,$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
+      {$match:{...filter,$expr: { $eq: [ {$dayOfYear:"$departureDateAndTime"},] },$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
       {
         $lookup:{
           from:'organizations',

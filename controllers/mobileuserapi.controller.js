@@ -18,9 +18,10 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     organization?filter.organizationCode=organization:filter=filter
     source?filter.source=source:filter=filter
     destination?filter.destination=destination:filter=filter
-    departureDate?departure_date=departureDate:departure_date=today+1
+    departureDate?departure_date=departureDate:departure_date=today+10
+    console.log(departure_date)
     const schedule=await Schedule.aggregate([
-      {$match:{...filter,$expr: { $eq: [{$dayOfYear:"$departureDateAndTime"},departure_date] },$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
+      {$match:{...filter,$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date] }}},
       {
         $lookup:{
           from:'organizations',

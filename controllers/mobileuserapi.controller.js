@@ -44,9 +44,8 @@ exports.updateMobilePassinfo = async (req, res, next) => {
    const ticket_id= req.body.ticketId;
    const passangerName=req.body.passangerName;
    const passangerPhone=req.body.phoneNumber;
-   await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
-     {arrayFilters:[{"el.uniqueId":ticket_id}],new:true,useFindAndModify:false})
-      return res.json("done")
+   await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},{arrayFilters:[{"el.uniqueId":ticket_id}],new:true,useFindAndModify:false})
+     return res.json({message:"done"})
   }
   catch(error) {
     next(error)
@@ -55,6 +54,7 @@ exports.updateMobilePassinfo = async (req, res, next) => {
 
 exports.getTicketHistory=async(req,res,next)=>{
   try{
+    console.log('hist')
     const user_id=req.params.id
     const schedule=await Schedule.aggregate([
 {
@@ -77,7 +77,7 @@ exports.getTicketHistory=async(req,res,next)=>{
     }
     },
 {
-  $match:{"$passangerInfo.bookedBy":user_id}
+  $match:{"passangerInfo.bookedBy":user_id}
 },
 {
   $project:{"_id":0,"busNo":{$arrayElemAt:["$bus.busPlateNo",0]},"organizationName":{$arrayElemAt:["$organization.organizationName",0]},"passangerName":"$passangerInfo.passangerName","passangerPhone":"$passangerInfo.passangerPhone","ticketId":"$passangerInfo.uniqueId","bookedAt":"$passangerInfo.bookedAt","passangerSit":"$passangerInfo.passangerOccupiedSitNo","source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1,}

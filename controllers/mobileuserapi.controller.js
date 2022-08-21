@@ -55,7 +55,8 @@ exports.updateMobilePassinfo = async (req, res, next) => {
 exports.getTicketHistory=async(req,res,next)=>{
   try{
     console.log('hist')
-    const user_id=req.params.id
+    const user_id=mongoose.Types.ObjectId(req.params.id)
+    console.log(user_id)
     const schedule=await Schedule.aggregate([
 {
     $unwind:"$passangerInfo"

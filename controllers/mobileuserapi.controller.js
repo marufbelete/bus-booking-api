@@ -90,7 +90,7 @@ exports.getTicketHistory=async(req,res,next)=>{
     next(error)
   }
 }
-//cancel sit
+//cancel mastermind sort
 exports.cancelTicket = async (req, res, next) => {
   try {
     const schedule_id=req.params.id

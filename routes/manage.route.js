@@ -99,7 +99,7 @@ router.get('/getorganizationlist',getAllOrganization,errorHandler)
 router.get('/getschedule',getMobileSchgedule,errorHandler)
 router.put('/updatepassangerinfo/:id',updateMobilePassinfo,errorHandler)
 router.get('/getmytickethistory/:id',getTicketHistory,errorHandler)
-router.put('/cancelticket',cancelTicket,errorHandler)
+router.put('/cancelticket/:id',cancelTicket,errorHandler)
 router.get('/getmypassanger/:id',getMyPassanger,errorHandler)
 
 

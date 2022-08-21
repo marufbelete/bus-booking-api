@@ -3,7 +3,6 @@ const Bus = require("../models/bus.model");
 const moment=require('moment')
 const mongoose = require("mongoose");
 const Load= require('lodash');
-
 const ShortUniqueId = require('short-unique-id');
 //create schedules need io here
 let sitTimer;
@@ -173,7 +172,7 @@ exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
     const now =new Date()
-    const schedule=await Schedule.find({organizationCode:orgcode,isTripCanceled:false,departureDateAndTime:{$gte:now}})
+    const schedule=await Schedule.find({organizationCode:orgcode,isTripCanceled:false,departureDateAndTime:{$gte:now},$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }})
     return res.json(schedule)
   }
   catch(error) {
@@ -205,7 +204,10 @@ exports.getSchgeduleById=async(req,res,next)=>{
         $unwind:"$passangerInfo"
       },
       {
-        $project:{"passangerName":"$passangerInfo.passangerName","tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"To Be Departed","Departed"]}}
+        $project:{"passangerName":"$passangerInfo.passangerName","tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTripCanceled":1,"isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"To Be Departed","Departed"]}}
+      },
+      {
+        $project:{"passangerName":1,"tarif":1,"sit":1,"isTicketCanceled":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled Trip","$status"]}}
       },
       {
         $project:{"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
@@ -262,7 +264,7 @@ exports.getRiservedSit = async (req, res, next) => {
   try {
    const id=req.params.id
    const bus= await Schedule.findById(id,{
-    occupiedSitNo:1
+    occupiedSitNo:1,totalNoOfSit:1
    })
    return res.json(bus)
   }

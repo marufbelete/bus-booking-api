@@ -2,14 +2,13 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
 
-
 //signup for mobile user
 exports.saveMobileUser = async (req, res, next) => {
   try {
     const phone_number = req.body.phonenumber;
     const password=req.body.password;
     const confirmpassword=req.body.confirmpassword;
-    if (!!!phone_number || !!!password) {
+    if (!phone_number || !password) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
@@ -55,7 +54,7 @@ exports.loginMobileUser = async (req, res, next) => {
   try {
     const phone_number  = req.body.phonenumber;
     const password=req.body.password
-    if (!!!phone_number || !!!password) {
+    if (!phone_number || !password) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
@@ -85,31 +84,31 @@ exports.loginMobileUser = async (req, res, next) => {
 //update mobile user info
 exports.updateMobileUser = async (req, res, next) => {
   try {
-    const name = req.body.name;
-    const phone_number = req.body.phoneNumber;
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
     const password=req.body.password;
-    const confirm_password=req.body.confirmPassword;
-    if (!!!phone_number || !!!password) {
-      const error = new Error("Please fill all field.")
-      error.statusCode = 400
-      throw error;
-    }
-    if (password.length < 5) {
+    const change={}
+    if (password&&password.length < 5) {
       const error = new Error("the password need to be atleast 5 charcter long.")
       error.statusCode = 400
       throw error;
     }
-    if (password != confirm_password) {
-      const error = new Error("password doesn't match. please try again.")
-      error.statusCode = 400
-      throw error;
+    else{
+      const salt = await bcrypt.genSalt();
+      const passwordHash = await bcrypt.hash(password, salt);
+      change.password=passwordHash
     }
-    const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(password, salt);
-  const updateduser=await User.findOneAndUpdate({phoneNumber:phone_number},{
+    if(firstName)
+    {
+      change.firstName=firstName
+    }
+    if(lastName)
+    {
+      change.lastName=lastName
+    }
+  const updateduser=await User.findOneAndUpdate({_id:req.user.sub},{
   $set:{
-  name:name,
-  password:passwordHash,
+ ...change
 }
   })
   return res.json(updateduser)

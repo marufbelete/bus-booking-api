@@ -10,7 +10,7 @@ const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByC
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
 const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace, getCityNameOnly}=require("../controllers/city.controller")
 const {registerBus,getAllOrganizationBus,updateBusStatus,updateBusInfo,deleteBus, getAllOrganizationBusByState, getDetailOrganizationBus, getOrganizationActiveBus}=require("../controllers/bus.controller")
-
+const {getMobileSchgedule,updateMobilePassinfo,getTicketHistory,cancelTicket,getMyPassanger}=require("../controllers/mobileuserapi.controller")
 const {errorHandler} = require('../middleware/errohandling.middleware')
 
 const multer=require("multer");
@@ -93,6 +93,17 @@ router.get('/getorganizationbusbystate',userauth,authaAdminCasher,getAllOrganiza
 router.get('/getorganizationactivebus',userauth,authaAdminCasher,getOrganizationActiveBus,errorHandler)
 router.put('/updatebusstatus/:id',userauth,authaAdminCasher,updateBusStatus,errorHandler)
 router.delete('/deletebus/:id',userauth,authaAdminCasher,deleteBus,errorHandler)
+
+//mobile
+router.get('/getorganizationlist',getAllOrganization,errorHandler)
+router.get('/getschedule',getMobileSchgedule,errorHandler)
+router.put('/updatepassangerinfo',updateMobilePassinfo,errorHandler)
+router.get('/getmytickethistory',getTicketHistory,errorHandler)
+router.put('/cancelticket',cancelTicket,errorHandler)
+router.get('/getmypassanger/:id',getMyPassanger,errorHandler)
+
+
+
 
 module.exports = router
 

@@ -7,6 +7,7 @@ const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent
 const {errorHandler} = require('../middleware/errohandling.middleware')
 const router = express.Router();
 
+router.get('/checkauth',checkAuth,errorHandler)
 // owner
 router.post('/registerowner',saveOwner,errorHandler)
 router.post('/loginowner',loginOnwer,errorHandler)
@@ -16,7 +17,6 @@ router.post('/registersuperadmin',userauth,authOwner,saveSuperadmin,errorHandler
 
 //mobile user 
 router.post('/registermobileuser', saveMobileUser,errorHandler)
-router.get('/checkauth',checkAuth,errorHandler)
 router.post('/loginmobileuser',loginMobileUser,errorHandler)
 router.put('/updatemobileuser/:id',userauth, updateMobileUser,errorHandler)
 

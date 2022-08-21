@@ -158,15 +158,13 @@ exports.postPoneTrip = async (req, res, next) => {
     next(error)
   }
 }
-//refund
+//refund we can use for mobile too
 exports.refundRequest = async (req, res, next) => {
   try {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
     const pass_sit=req.body.passsit
     const timenow = new Date
-    console.log(req.body)
-    console.log(schedule_id)
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 

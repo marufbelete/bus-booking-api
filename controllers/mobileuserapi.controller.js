@@ -155,7 +155,7 @@ exports.getMyPassanger=async(req,res,next)=>{
   $match:{"bus.driverId":driver_id}
 },
 {
-  $project:{"_id":0,"generalInfo":{"busPlateNo":{$arrayElemAt:["$bus.busPlateNo",0]},"organizationName":{$arrayElemAt:["$organization.organizationName",0]}},"passangerName":"$passangerInfo.passangerName","passangerPhone":"$passangerInfo.passangerPhone","ticketId":"$passangerInfo.uniqueId","bookedAt":"$passangerInfo.bookedAt","passangerSit":"$passangerInfo.passangerOccupiedSitNo","source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1}
+  $project:{"_id":0,"busPlateNo":{$arrayElemAt:["$bus.busPlateNo",0]},"organizationName":{$arrayElemAt:["$organization.organizationName",0]},"passangerName":"$passangerInfo.passangerName","passangerPhone":"$passangerInfo.passangerPhone","ticketId":"$passangerInfo.uniqueId","bookedAt":"$passangerInfo.bookedAt","passangerSit":"$passangerInfo.passangerOccupiedSitNo","source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1}
 },
 
 ])

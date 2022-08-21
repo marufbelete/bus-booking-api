@@ -11,12 +11,12 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     {
       return res.json({message:"please fill both source and destination field"})
     }
-    organization?filter.organization=organization:filter=filter
+    organization?filter.organizationCode=organization:filter=filter
     source?filter.source=source:filter=filter
     destination?filter.destination=destination:filter=filter
     const now =new Date()
     const schedule=await Schedule.aggregate([
-      {$match:{...filter,isTripCanceled:false,departureDateAndTime:{$gte:now},$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
+      {$match:{...filter,$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
       {
         $lookup:{
           from:'organizations',

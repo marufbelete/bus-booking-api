@@ -7,6 +7,7 @@ exports.getMobileSchgedule=async(req,res,next)=>{
   try{
     let filter={}
     let departure_date
+    const now=new Date()
     let today =moment(now).dayOfYear();
     const {source,destination,departureDate,organization}=req.query
     if(!source||!destination)
@@ -17,7 +18,6 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     source?filter.source=source:filter=filter
     destination?filter.destination=destination:filter=filter
     departureDate?departure_date=departureDate:departure_date=today+1
-    const now =new Date()
     const schedule=await Schedule.aggregate([
       {$match:{...filter,$expr: { $eq: [ {$dayOfYear:"$departureDateAndTime"},] },$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}},
       {
@@ -54,7 +54,6 @@ exports.updateMobilePassinfo = async (req, res, next) => {
 
 exports.getTicketHistory=async(req,res,next)=>{
   try{
-    console.log('hist')
     const user_id=mongoose.Types.ObjectId(req.params.id)
     console.log(user_id)
     const schedule=await Schedule.aggregate([

@@ -5,9 +5,9 @@ const jwt = require('jsonwebtoken');
 //signup for mobile user
 exports.saveMobileUser = async (req, res, next) => {
   try {
-    const phone_number = req.body.phonenumber;
+    const phone_number = req.body.phoneNumber;
     const password=req.body.password;
-    const confirmpassword=req.body.confirmpassword;
+    const confirmpassword=req.body.confirmPassword;
     if (!phone_number || !password) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400

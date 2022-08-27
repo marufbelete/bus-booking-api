@@ -8,16 +8,17 @@ exports.saveMobileUser = async (req, res, next) => {
     const phone_number = req.body.phoneNumber;
     const password=req.body.password;
     const confirmpassword=req.body.confirmPassword;
-    if (!phone_number || !password) {
+    console.log("in")
+    if (!phone_number || !password||!confirmpassword) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
     }
-    const anyphone_number = await User.find({
-      phone_number: phone_number,
-      user_type: user_type,
+    const anyphone_number = await User.findOne({
+      phoneNumber: phone_number,
     });
-    if (anyphone_number.length>0) {
+    console.log(anyphone_number)
+    if (anyphone_number) {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
       throw error;
@@ -35,14 +36,14 @@ exports.saveMobileUser = async (req, res, next) => {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
     const newuser = new User({
-      phone_number: phone_number,
+      phoneNumber: phone_number,
       password: passwordHash,
       isMobileUser:true,    
     })
     const user=await newuser.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, process.env.SECRET);
     res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'})
-    return res.json({auth:true})
+    return res.json({auth:true,token:token})
   }
 catch(error) {
  next(error)
@@ -52,17 +53,16 @@ catch(error) {
 //log in mobile user
 exports.loginMobileUser = async (req, res, next) => {
   try {
-    const phone_number  = req.body.phonenumber;
-    const password=req.body.password
-    if (!phone_number || !password) {
+    const {phoneNumber,password}  = req.body;
+    if (!phoneNumber || !password) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
     }
-    const user = await User.find({
-      phone_number: phone_number
+    const user = await User.findOne({
+      phoneNumber: phoneNumber
     });
-    if (user.length===0) {
+    if (!user) {
       const error = new Error("No account with this Phone exist.")
       error.statusCode = 400
       throw error;
@@ -75,7 +75,7 @@ exports.loginMobileUser = async (req, res, next) => {
     }
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number},process.env.SECRET);
     res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'})
-    return res.json({auth:true})
+    return res.json({auth:true,token:token})
   }
   catch(error) {
     next(error)
@@ -84,9 +84,7 @@ exports.loginMobileUser = async (req, res, next) => {
 //update mobile user info
 exports.updateMobileUser = async (req, res, next) => {
   try {
-    const firstName = req.body.firstName;
-    const lastName = req.body.lastName;
-    const password=req.body.password;
+    const {firstName,lastName,password} = req.body;
     const change={}
     if (password&&password.length < 5) {
       const error = new Error("the password need to be atleast 5 charcter long.")
@@ -98,20 +96,14 @@ exports.updateMobileUser = async (req, res, next) => {
       const passwordHash = await bcrypt.hash(password, salt);
       change.password=passwordHash
     }
-    if(firstName)
-    {
-      change.firstName=firstName
-    }
-    if(lastName)
-    {
-      change.lastName=lastName
-    }
-  const updateduser=await User.findOneAndUpdate({_id:req.user.sub},{
+    if(firstName){ change.firstName=firstName}
+    if(lastName){change.lastName=lastName}
+   await User.findOneAndUpdate({_id:req.user.sub},{
   $set:{
  ...change
 }
   })
-  return res.json(updateduser)
+  return res.json({message:"success",status:true})
   }
   catch(error) {
    next(error)

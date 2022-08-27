@@ -18,7 +18,7 @@ router.post('/registersuperadmin',userauth,authOwner,saveSuperadmin,errorHandler
 //mobile user 
 router.post('/registermobileuser', saveMobileUser,errorHandler)
 router.post('/loginmobileuser',loginMobileUser,errorHandler)
-router.put('/updatemobileuser/:id',userauth, updateMobileUser,errorHandler)
+router.put('/updatemyinfo',updateMobileUser,errorHandler)
 
 //organization user 
 router.post('/registerorganizationuser',userauth,authAdmin,saveOrganizationUser,errorHandler)

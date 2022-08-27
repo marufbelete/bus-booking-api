@@ -98,10 +98,12 @@ router.delete('/deletebus/:id',userauth,authaAdminCasher,deleteBus,errorHandler)
 router.get('/getorganizationlist',getAllOrganization,errorHandler)
 router.get('/getschedule',getMobileSchgedule,errorHandler)
 router.put('/updatepassangerinfo/:id',updateMobilePassinfo,errorHandler)
-router.get('/getmytickethistory/:id',getTicketHistory,errorHandler)
+router.get('/getmytickethistory',getTicketHistory,errorHandler)
 router.put('/cancelticket/:id',cancelTicket,errorHandler)
 router.get('/getmypassanger/:id',getMyPassanger,errorHandler)
-
+router.put('/locksitmobile/:id',lockSit,errorHandler)
+router.put('/bookticket/:id',bookTicketFromSchedule,errorHandler)
+router.get('/getsitreserved/:id',getRiservedSit,errorHandler)
 
 
 

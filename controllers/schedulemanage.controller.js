@@ -155,7 +155,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
        $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
    },{new:true,useFindAndModify:false})
    }
-   return res.json("done")
+   return res.json({message:"success",status:true})
   }
   else{
     const error=new Error("Your Sit Reservation Already Expired Please Try Again")

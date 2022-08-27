@@ -113,8 +113,7 @@ exports.cancelTicket = async (req, res, next) => {
 //driver get my pass
 exports.getMyPassanger=async(req,res,next)=>{
   try{
-    console.log("driver")
-    const driver_id=mongoose.Types.ObjectId(req.params.id)
+    const driver_id=mongoose.Types.ObjectId(req.user.sub)
     const now =new Date()
     const schedule=await Schedule.aggregate([
 {

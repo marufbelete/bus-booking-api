@@ -1,13 +1,33 @@
 const Organization = require("../models/organization.model");
-
+const fs=require('fs')
+const sharp=require('sharp')
 //signup for mobile user
 exports.createOrganization = async (req, res, next) => {
   try {
-    const orgname = req.body.organizationname;
-    const orgcode= req.body.organizationcode;
+const {organizationName,organizationCode,tin,organizationNameAmharic,funding}=req.body
+let imgurl
+if (req.file)
+    {
+        if (!fs.existsSync(`${process.cwd()}/images`)){
+            fs.mkdirSync(`${process.cwd()}/images`);
+        }
+    const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const imagetype=(req.file.mimetype).split("/")[1];
+    const path=req.file.originalname;
+    const fullpath=uniquePrefix+'-'+path;
+           sharp(req.file.buffer)
+          .resize({ width:600, fit: 'contain', })
+    .toFormat(imagetype)
+    .toFile(`${process.cwd()}/images/${fullpath}`);
+    imgurl=fullpath
+}
     const organization = new Organization({
-      organizationName:orgname,
-      organizationCode:orgcode  
+      organizationCode,
+      organizationName,
+      organizationNameAmharic,
+      rulesAndRegulation:{funding},
+      tin,
+      logo:imgurl
     })
     const savedorg=await organization.save()
     res.json(savedorg)
@@ -60,15 +80,47 @@ exports.getOrganizationByCode = async (req, res, next) => {
 exports.updateOrganization = async (req, res, next) => {
   try {
    const id=req.params.id
-   const org_name=req.body.organizationname
+   let updateObj = {};
+
+for(let [key, value] of Object.entries(req.body)){
+    if(value !== undefined){
+        updateObj[key] = value;
+    }
+}
+
+  let imgurl
+if (req.file)
+    {
+        if (!fs.existsSync(`${process.cwd()}/images`)){
+            fs.mkdirSync(`${process.cwd()}/images`);
+        }
+    const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const imagetype=(req.file.mimetype).split("/")[1];
+    const path=req.file.originalname;
+    const fullpath=uniquePrefix+'-'+path;
+           sharp(req.file.buffer)
+          .resize({ width:600, fit: 'contain', })
+    .toFormat(imagetype)
+    .toFile(`${process.cwd()}/images/${fullpath}`);
+    imgurl=fullpath
+}
+if(updateObj.funding){
+  updateObj.rulesAndRegulation={funding:updateObj.funding}
+  delete updateObj.funding
+}
+console.log(imgurl)
+if(imgurl){updateObj.logo=imgurl}
    const organization= await Organization.findByIdAndUpdate(id,
     { 
       $set:{
-        organizaitonName:org_name}
-    },{new:true})
+        ...updateObj,
+      
+      }
+    },{new:true,useFindAndModify:false})
    res.json(organization)
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 };

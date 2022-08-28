@@ -65,11 +65,11 @@ router.get('/getpolicy',userauth,authaAdminCasher,getPolicy,errorHandler)
 router.put('/updatepolicy/:id',userauth,authaAdminCasher,updatePolicyInfo,errorHandler)
 router.delete('/deletepolicy/:id',userauth,authaAdminCasher,deletePolicy,errorHandler)
 //organization
-router.post('/createorganization',userauth,authOwner,createOrganization,errorHandler)
+router.post('/createorganization',upload.single('logo'),createOrganization,errorHandler)
 router.get('/getallorganization',userauth,authOwner,getAllOrganization,errorHandler)
 router.get('/getorganizationbyid/:id',userauth,authOwner,getOrganizationById,errorHandler)
 router.post('/getorganizationbycode',getOrganizationByCode,errorHandler)
-router.put('/updateorganization/:id',userauth,authOwner,updateOrganization,errorHandler)
+router.put('/updateorganization/:id',upload.single('logo'),updateOrganization,errorHandler)
 router.delete('/deleteorganization/:id',userauth,authOwner,deleteOrganization,errorHandler)
 //hotel and pension
 router.post('/addhotelorpension',userauth,authaAdminCasher,registerHotelOrPension,errorHandler)

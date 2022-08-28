@@ -4,15 +4,29 @@ mongoose.plugin(beautifyUnique);
 const OrganizationSchema = new mongoose.Schema({
   organizationName: {
     type: String,
-    trim: true,
     required: true,
-    unique: [true,"this organization name already exist"]
+  },
+  organizationNameAmharic: {
+    type: String,
+    required: true,
+
   },
   organizationCode:{
     type: String,
-    trim: true,
     required: true,
-    unique: [true,"this organization code already exist"]
+},
+tin: {
+  type: String,
+  required: true,
+  unique: [true,"this organization tin already exist"]
+},
+logo: {
+  type: String,
+},
+rulesAndRegulation: {
+  funding:{
+    type: String,
+  },
 }
 },
   {

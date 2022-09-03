@@ -257,7 +257,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
       throw error;
     }
     const user_role=user.userRole
-    const fullName=user.firstName||""+" "+user.lastName||""
+    const fullName=user.firstName+" "+user.lastName[0]+"."
 
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number,organization_code:organization_code,user_role:user_role,is_mobileuser:false }, process.env.SECRET);
     return res.status(202).cookie("access_token",token,{

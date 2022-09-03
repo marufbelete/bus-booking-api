@@ -123,6 +123,7 @@ exports.getOrganizationActiveBus = async (req, res, next) => {
     next(error)
   }
 };
+
 //get organization by id
 exports.updateBusInfo = async (req, res, next) => {
   const session=await mongoose.startSession()

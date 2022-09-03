@@ -54,25 +54,19 @@ exports.getOrganizationRoute = async (req, res, next) => {
     next(error)
   }
 };
-//get route
 exports.getOrganizationDetailRoute = async (req, res, next) => {
   try {
   
   const orgcode =req.userinfo.organization_code;
   const allroute= await Route.aggregate([
     {$match:{organizationCode:orgcode}},
-    { $unwind: "$bus" },
     {
       $lookup:{
         from:'buses',
         foreignField:"_id",
         localField:"bus",
-        as:"buse"
+        as:"busName"
       }},
-      { $group: {
-        "_id": "$_id","source":{$first:"$source"},"destination":{$first:"$destination"},"tarif":{$first:"$tarif"},"estimatedHour":{$first:"$estimatedHour"},"distance":{$first:"$distance"},"departurePlace":{$first:"$departurePlace"},"bus":{$push:"$buse"}
-    }}
-      // {$project:{"sorce":1,"destination":1,"tarif":1,"estimatedHour":1,"distance":1,"departurePlace":1,"bus.busPlateNo":1,"bus.busSideNo":1}}
   ])
   return res.json(allroute)
   }
@@ -102,6 +96,41 @@ exports.updateRouteInfo = async (req, res, next) => {
      }
    })
    res.json(bus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//bus in given route
+exports.getOrganizationBusByRoute = async (req, res, next) => {
+  try {
+    console.log("buse rote")
+  const orgcode =req.userinfo.organization_code;
+  const filter={}
+  const {source,destination}=req.query
+  if(source){filter.source=source}
+  if(destination){filter.destination=destination}
+  // {busPlateNo:1,busSideNo:1 }
+  const allbus= await Route.aggregate([
+    {
+      $match:{organizationCode:orgcode,...filter},
+    },
+    {$unwind:'$bus'},
+    {
+      $lookup:{
+        from:'buses',
+        foreignField:"_id",
+        localField:"bus",
+        as:"busName"
+      }
+    },
+    {
+      $project:{Bus:'$busName'}
+    }
+  ])
+  console.log(allbus)
+  console.log("end")
+  return res.json(allbus)
   }
   catch(error) {
     next(error)

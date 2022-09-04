@@ -14,6 +14,7 @@ const {getMobileSchgedule,updateMobilePassinfo,getTicketHistory,cancelTicket,get
 const {errorHandler} = require('../middleware/errohandling.middleware')
 
 const multer=require("multer");
+const { registerAgent, getAllAgent, getAgentWithNoAccount, updateAgentInfo, deleteAgent } = require('../controllers/agent.controller');
 const router = express.Router();
 const fileStorage = multer.memoryStorage()
 
@@ -67,6 +68,12 @@ router.get('/getpolicy',userauth,authaAdminCasher,getPolicy,errorHandler)
 router.put('/updatepolicy/:id',userauth,authaAdminCasher,updatePolicyInfo,errorHandler)
 router.delete('/deletepolicy/:id',userauth,authaAdminCasher,deletePolicy,errorHandler)
 //organization
+router.post('/addagent',userauth,authAdmin,registerAgent,errorHandler)
+router.get('/getallagent',userauth,authAdmin,getAllAgent,errorHandler)
+router.put('/updateagent/:id',userauth,authAdmin,getAgentWithNoAccount,errorHandler)
+router.delete('/getagentwithnoaccount',userauth,authAdmin,updateAgentInfo,errorHandler)
+router.delete('/deleteagent/:id',userauth,authAdmin,deleteAgent,errorHandler)
+//agent
 router.post('/createorganization',upload.single('logo'),createOrganization,errorHandler)
 router.get('/getallorganization',userauth,authOwner,getAllOrganization,errorHandler)
 router.get('/getorganizationbyid/:id',userauth,authOwner,getOrganizationById,errorHandler)

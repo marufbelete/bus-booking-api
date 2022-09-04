@@ -2,6 +2,7 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
 const Bus = require("../models/bus.model");
+const Agent = require("../models/agent.model");
 
 exports.checkAuth = (req, res, next) => {
   try{
@@ -172,6 +173,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const confirm_password=req.body.confirmpassword;
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
+    const user_role=req.userinfo.user_role
     const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?"1":"0"
     console.log(organization_code)
 if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
@@ -180,7 +182,7 @@ if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
   error.statusCode = 400
   throw error;
 }
-console.log(req.body)
+
 if (!first_name||!last_name || !phone_number || !password || !add_role) {
   const error = new Error("Please fill all field." )
   error.statusCode = 400
@@ -205,9 +207,22 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
       error.statusCode = 400
       throw error;
     }
+    if(user_role===process.env.AGENT)
+    {
+      const user= await user.findById(saved_by)
+      const max_user=await Agent.findById(user.agentId)
+      const totaluser=User.findAll({agentId:user.agentId})
+      if(!user.isMasterAgent)
+      {
+        return res.json({message:"you don't have access to register user!!"})
+      }
+      if(totaluser.length-1>=max_user.maxUser)
+      {
+        return res.json({message:"you reached maximum account creation limit. please contact your provider for more info"})
+      }
+    }
     const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(password, salt);
-    const user = new User({
+    const user_to_add={
       firstName:first_name,
       lastName:last_name,
       phoneNumber: phone_number,
@@ -218,8 +233,19 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
       password: passwordHash,
       createdBy:saved_by,
       gender:gender
-    })
-  const neworguser=await user.save()
+    }
+    if(user_role!==process.env.AGENT&&add_role===process.env.AGENT)
+    {
+      user_to_add.isMasterAgent=true
+    }
+    const passwordHash = await bcrypt.hash(password, salt);
+    const user = new User(user_to_add)
+    const neworguser=await user.save()
+  if(add_role===process.env.AGENT)
+{
+  const agentId=req.body.agentId
+  await Agent.findByIdAndUpdate(agentId,{set:{isAcountExist:true}})
+}
    return res.json(neworguser)
   }
   catch(error) {

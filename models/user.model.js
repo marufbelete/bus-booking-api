@@ -13,6 +13,10 @@ lastName:{
   type: String,
   trim: true,
 },
+agentId:{
+  type: mongoose.Schema.Types.ObjectId,  
+  ref: 'agent',
+},
 isAssigned:{
   type: String,
   enum:{
@@ -44,6 +48,10 @@ password: {
     } ,
     trim: true,
     toLowerCase:true,
+  },
+  isMasterAgent:{
+    type:Boolean,
+    default: false
   },
   isActive:{
     type:Boolean,

@@ -24,8 +24,7 @@ exports.registerCity = async (req, res, next) => {
     return res.json(savedbus)
   }
 catch(error) {
-  console.log(error)
-next()
+next(error)
   }
 };
 //get all city in organization
@@ -73,12 +72,10 @@ exports.updateCityInfo = async (req, res, next) => {
    const departure_place= req.body.departurePlace.map(e=>Load.startCase(e));
    console.log(city_name)
    console.log(departure_place)
-   const org_code =req.userinfo.organization_code;
    const bus= await City.findByIdAndUpdate(id,{
      $set:{
       cityName:city_name,
       departurePlace:departure_place,
-      organizationCode:org_code,
      }
    })
    res.json(bus)

@@ -1,5 +1,5 @@
 const Schedule = require("../models/schedule.model");
-const {milliSecond}=require("../reusable_logic/sit_generator")
+const {milliSecond}=require("../helpers/sit_generator")
 const moment=require("moment")
 //booked sit of each trip return sour,dest,totalsit,reservedsit we can time interval
 const todays=new Date()

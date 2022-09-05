@@ -24,7 +24,6 @@ exports.addSchedule = async (req, res, next) => {
     const number_of_schedule = req.body.numberofschedule?e.numberofschedule:1;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
-
     if(!!source && !!destination && !! tarif && !!departure_date_and_time)
    {
     const schedules=[]
@@ -48,13 +47,18 @@ exports.addSchedule = async (req, res, next) => {
     const savedSchedule=await Schedule.insertMany(schedules,{session})
     if(busid)
     {
-      await Bus.findByIdAndUpdate(busid,{
-        $set:{
-         onduty:true
-        }
+      const businfo=await Bus.findById(busid)
+      const is_not_free=businfo.assigneDate.includes(departure_date_and_time)
+      const nex_day=moment(departure_date_and_time).add(1,'d')
+      if(is_not_free)
+      {
+       return res.json({message:"this bus is alredy assigned for the given date"})
       }
-      ,{new:true,session})
+      await Bus.findByIdAndUpdate(busid,{set:{possibleLocation:
+        {info:{$push:{location:destination,date:nex_day}
+      }},assigneDate:{push:departure_date_and_time}}})
     }
+    
     session.commitTransaction()
     return res.json(savedSchedule)
   }  
@@ -274,20 +278,37 @@ exports.getRiservedSit = async (req, res, next) => {
 };
 
 //assign bus iopost
+// test
 exports.assignBusToSchedule = async (req, res, next) => {
   try {
    const id=req.params.id
    const bus= req.body.bus;
    const departurePlace=req.body.departureplace
-   console.log(bus)
-   console.log(departurePlace)
+   const businfo=await Bus.findById(bus)
+   const sheduleinfo=await Schedule.findById(id)
+   const is_not_free=businfo.assigneDate.includes(sheduleinfo.departureDateAndTime)
    const timenow=Date.now()
-   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
+   const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
+   const is_bus_assigned_before=sheduleinfo.assignedBus
+   if(is_not_free)
+   {
+    return res.json({message:"this bus is alredy assigned for the given date"})
+   }
+   if(is_bus_assigned_before){
+    await Bus.findByIdAndUpdate(is_bus_assigned_before,{set:{possibleLocation:
+      {info:{$pull:{location:sheduleinfo.destination,date:nex_day}
+    }},assigneDate:{pull:sheduleinfo.departureDateAndTime}}})
+   }
+   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
+    {$gte:timenow}},{
      $set:{
       assignedBus:bus,
       departurePlace,
      }
    },{useFindAndModify:false})
+   await Bus.findByIdAndUpdate(bus,{set:{possibleLocation:
+    {info:{$push:{location:sheduleinfo.destination,date:nex_day}
+  }},assigneDate:{push:sheduleinfo.departureDateAndTime}}})
    return res.json(buses)
   }
   catch(error) {
@@ -301,8 +322,8 @@ exports.updateScheduleDateAndTime = async (req, res, next) => {
    const departureDateAndTime=req.body.departureDateAndTime
    console.log(departureDateAndTime)
    const timenow=Date.now()
-   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{
-     $set:{
+   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
+    {$gte:timenow}},{$set:{
       departureDateAndTime:departureDateAndTime
      }
    })
@@ -330,16 +351,26 @@ exports.updatePassinfo = async (req, res, next) => {
 };
 
 //cancel schedule io
+//test
 exports.cancelSchedule= async (req, res, next) => {
   try {
   //find and copmare the date if pass dont cancel
    const id=req.params.id
    const canceler_id=req.userinfo.sub
    const timenow=Date.now()
-   await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
+   const sheduleinfo=await Schedule.findById(id)
+   const bus_id=sheduleinfo.assignedBus
+  await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isTripCanceled:true,
   canceledBy:canceler_id
    }})
+   if(bus_id)
+   {
+    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
+    await Bus.findByIdAndUpdate(bus_id,{set:{possibleLocation:
+     {info:{$pull:{location:sheduleinfo.destination,date:nex_day}
+   }},assigneDate:{pull:sheduleinfo.departureDateAndTime}}})
+   }
   return res.json("deleted successfully")
   }
   catch(error) {

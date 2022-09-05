@@ -90,7 +90,7 @@ exports.getDetailOrganizationBus = async (req, res, next) => {
     }
   },
   {
-    $project:{"_id":1,"busState":1,"onDuty":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverId":1,"redatId":1,"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"redatPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
+    $project:{"_id":1,"busState":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverId":1,"redatId":1,"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"redatPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
   },
 ])
   res.json(allbus)
@@ -116,8 +116,22 @@ exports.getAllOrganizationBusByState = async (req, res, next) => {
 exports.getOrganizationActiveBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active",onDuty:false},{busPlateNo:1,busSideNo:1 })
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"},{busPlateNo:1,busSideNo:1 })
   return res.json(allbus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//get free bus for given Date
+//test
+exports.getOrganizationFreeBus = async (req, res, next) => {
+  try {
+  const orgcode =req.userinfo.organization_code;
+  const departure_date=req.query.departureDate
+  const all_free_bus= await Bus.find({organizationCode:orgcode,assigneDate:{$ne:departure_date},
+    busState:"Active"},{busPlateNo:1,busSideNo:1 })
+   return res.json(all_free_bus)
   }
   catch(error) {
     next(error)

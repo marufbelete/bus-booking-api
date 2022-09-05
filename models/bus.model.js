@@ -36,15 +36,20 @@ createdBy:{
   type: mongoose.Schema.Types.ObjectId, ref: 'user', 
   required: true,
 },
-onDuty:{
-  type:Boolean,
-  default:false,
-},
 busState:{
   type:String,
   enum:["Active","Inactive","On-Repair","Damaged"],
   default:"Active",
   required: true,
+},
+assigneDate:{
+type:[Date]
+},
+possibleLocation:{
+info:[{
+location:{type:String},
+date:{type:Date}
+  }]
 },
 organizationCode:{
     type: String,

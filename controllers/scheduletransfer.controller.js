@@ -1,5 +1,5 @@
 const Schedule = require("../models/schedule.model");
-const {sit_gene}=require("../reusable_logic/sit_generator")
+const {sit_gene}=require("../helpers/sit_generator")
 const moment=require('moment')
 //transfer schedule request will send request notification to other org nothing more
 exports.scheduleTransferRequest = async (req, res, next) => {

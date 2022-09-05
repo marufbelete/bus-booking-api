@@ -9,7 +9,7 @@ const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganiz
 const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
 const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace, getCityNameOnly}=require("../controllers/city.controller")
-const {registerBus,getAllOrganizationBus,updateBusStatus,updateBusInfo,deleteBus, getAllOrganizationBusByState, getDetailOrganizationBus, getOrganizationActiveBus}=require("../controllers/bus.controller")
+const {registerBus,getAllOrganizationBus,updateBusStatus,updateBusInfo,deleteBus, getAllOrganizationBusByState, getDetailOrganizationBus, getOrganizationActiveBus, getOrganizationFreeBus}=require("../controllers/bus.controller")
 const {getMobileSchgedule,updateMobilePassinfo,getTicketHistory,cancelTicket,getMyPassanger}=require("../controllers/mobileuserapi.controller")
 const {errorHandler} = require('../middleware/errohandling.middleware')
 
@@ -70,8 +70,8 @@ router.delete('/deletepolicy/:id',userauth,authaAdminCasher,deletePolicy,errorHa
 //organization
 router.post('/addagent',userauth,authAdmin,registerAgent,errorHandler)
 router.get('/getallagent',userauth,authAdmin,getAllAgent,errorHandler)
-router.put('/updateagent/:id',userauth,authAdmin,getAgentWithNoAccount,errorHandler)
-router.delete('/getagentwithnoaccount',userauth,authAdmin,updateAgentInfo,errorHandler)
+router.put('/updateagent/:id',userauth,authAdmin,updateAgentInfo,errorHandler)
+router.get('/getagentwithnoaccount',userauth,authAdmin,getAgentWithNoAccount,errorHandler)
 router.delete('/deleteagent/:id',userauth,authAdmin,deleteAgent,errorHandler)
 //agent
 router.post('/createorganization',upload.single('logo'),createOrganization,errorHandler)
@@ -95,6 +95,7 @@ router.put('/updatecityinfo/:id',userauth,authaAdminCasher,updateCityInfo,errorH
 router.delete('/deletecity/:id',userauth,authaAdminCasher,deleteCity,errorHandler)
 //bus
 router.post('/registerbus',userauth,authaAdminCasher,registerBus,errorHandler)
+router.get('/getorganizationfreebusbydate',userauth,authAdmin,getOrganizationFreeBus,errorHandler)
 router.get('/getallorganizationbus',userauth,authaAdminCasher,getAllOrganizationBus,errorHandler)
 router.get('/getdetailorganizationbus',userauth,authaAdminCasher,getDetailOrganizationBus,errorHandler)
 router.put('/updatebusinfo/:id',userauth,authaAdminCasher,updateBusInfo,errorHandler)

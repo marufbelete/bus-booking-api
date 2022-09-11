@@ -8,7 +8,7 @@ exports.saveMobileUser = async (req, res, next) => {
     const phone_number = req.body.phoneNumber;
     const password=req.body.password;
     const confirmpassword=req.body.confirmPassword;
-    console.log("in")
+    console.log(req.body)
     if (!phone_number || !password||!confirmpassword) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
@@ -17,7 +17,6 @@ exports.saveMobileUser = async (req, res, next) => {
     const anyphone_number = await User.findOne({
       phoneNumber: phone_number,
     });
-    console.log(anyphone_number)
     if (anyphone_number) {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
@@ -43,9 +42,10 @@ exports.saveMobileUser = async (req, res, next) => {
     const user=await newuser.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, process.env.SECRET);
     res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'})
-    return res.json({auth:true,token:token})
+    return res.status(200).json({auth:true,token:token})
   }
 catch(error) {
+  console.log(error)
  next(error)
   }
 };
@@ -109,4 +109,9 @@ exports.updateMobileUser = async (req, res, next) => {
    next(error)
   }
 };
+
+exports.deleteMobileUser=async(req,res,next)=>{
+     await User.deleteMany({isMobileUser:true})
+     res.json("done")
+}
 

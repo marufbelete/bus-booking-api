@@ -150,16 +150,18 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
      error.statusCode=400
      throw error
     }
+    const new_ticket={
+      passangerName:passange_name,
+      passangerPhone:pass_phone_number,
+      passangerOccupiedSitNo:psss_ocupied_sit_no,
+      uniqueId:uid(),
+      bookedBy:booked_by}
     await Schedule.findByIdAndUpdate(id,{
-      $push:{passangerInfo:{passangerName:passange_name,
-       passangerPhone:pass_phone_number,
-       passangerOccupiedSitNo:psss_ocupied_sit_no,
-       uniqueId:uid(),
-       bookedBy:booked_by}},
+      $push:{passangerInfo:new_ticket},
        $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
    },{new:true,useFindAndModify:false})
+   return res.json({message:"success",ticket:new_ticket,status:true})
    }
-   return res.json({message:"success",status:true})
   }
   else{
     const error=new Error("Your Sit Reservation Already Expired Please Try Again")
@@ -277,7 +279,7 @@ exports.getRiservedSit = async (req, res, next) => {
   }
 };
 
-//assign bus iopost
+//assign bus iopost add transaction
 // test
 exports.assignBusToSchedule = async (req, res, next) => {
   try {
@@ -285,6 +287,7 @@ exports.assignBusToSchedule = async (req, res, next) => {
    const bus= req.body.bus;
    const departurePlace=req.body.departureplace
    const businfo=await Bus.findById(bus)
+   console.log(departurePlace)
    const sheduleinfo=await Schedule.findById(id)
    const is_not_free=businfo.assigneDate.includes(sheduleinfo.departureDateAndTime)
    const timenow=Date.now()
@@ -297,7 +300,7 @@ exports.assignBusToSchedule = async (req, res, next) => {
    if(is_bus_assigned_before){
     await Bus.findByIdAndUpdate(is_bus_assigned_before,{set:{possibleLocation:
       {info:{$pull:{location:sheduleinfo.destination,date:nex_day}
-    }},assigneDate:{pull:sheduleinfo.departureDateAndTime}}})
+    }},assigneDate:{pull:sheduleinfo.departureDateAndTime}}},{useFindAndModify:false})
    }
    const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
     {$gte:timenow}},{
@@ -308,7 +311,7 @@ exports.assignBusToSchedule = async (req, res, next) => {
    },{useFindAndModify:false})
    await Bus.findByIdAndUpdate(bus,{set:{possibleLocation:
     {info:{$push:{location:sheduleinfo.destination,date:nex_day}
-  }},assigneDate:{push:sheduleinfo.departureDateAndTime}}})
+  }},assigneDate:{push:sheduleinfo.departureDateAndTime}}},{useFindAndModify:false})
    return res.json(buses)
   }
   catch(error) {

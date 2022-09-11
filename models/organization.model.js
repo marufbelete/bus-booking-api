@@ -14,11 +14,7 @@ const OrganizationSchema = new mongoose.Schema({
   organizationCode:{
     type: String,
     required: true,
-},
-tin: {
-  type: String,
-  required: true,
-  unique: [true,"this organization tin already exist"]
+    unique: [true,"this organization tin already exist"]
 },
 logo: {
   type: String,

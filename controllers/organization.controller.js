@@ -4,7 +4,7 @@ const sharp=require('sharp')
 //signup for mobile user
 exports.createOrganization = async (req, res, next) => {
   try {
-const {organizationName,organizationCode,tin,organizationNameAmharic,funding}=req.body
+const {organizationName,organizationCode,organizationNameAmharic,funding}=req.body
 let imgurl
 if (req.file)
     {
@@ -26,7 +26,6 @@ if (req.file)
       organizationName,
       organizationNameAmharic,
       rulesAndRegulation:{funding},
-      tin,
       logo:imgurl
     })
     const savedorg=await organization.save()

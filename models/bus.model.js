@@ -45,12 +45,10 @@ busState:{
 assigneDate:{
 type:[Date]
 },
-possibleLocation:{
-info:[{
+possibleLocation:[{
 location:{type:String},
 date:{type:Date}
-  }]
-},
+  }],
 organizationCode:{
     type: String,
     trim: true,

@@ -386,7 +386,7 @@ exports.getAllActiveSchedule = async (req, res, next) => {
   try {
     
   const orgcode =req.params.organizationcode;
-  const timenow=Date.now();
+  const timenow=new Date();
   const allSchedule= await Schedule.find({organizationCode:orgcode,isCanceled:false,departureTDateAndTime:{$gte:timenow}}).limit(pagesize).skip(skip).sort({datefield:-1})
   return res.json(allSchedule)
   }
@@ -398,7 +398,7 @@ exports.getAllActiveSchedule = async (req, res, next) => {
 exports.getAllActiveScheduleInRoute = async (req, res, next) => {
   try {
   const orgcode =req.params.organizationcode;
-  const timenow=Date.now();
+  const timenow=new Date();
   const source=req.query.source;
   const destination=req.query.destination;
   const allSchedule= await Schedule.find({organizationCode:orgcode,source:source,destination:destination,isCanceled:false,departureDate:{$gte:timenow}})
@@ -428,7 +428,7 @@ exports.getAllActiveScheduleInRouteForMobileUser = async (req, res, next) => {
     if (orgcode.toLowerCase()!=="all") {
       conditions.push({ organizationCode:orgcode});
   }
-  const timenow=Date.now();
+  const timenow=new Date();
   conditions.push({source:source,destination:destination,isCanceled:false,departureDate:{$gte:timenow}})
   const final_condtion={$and:conditions}
  
@@ -461,12 +461,9 @@ exports.myBookedTicketList = async (req, res, next) => {
 // can be accessed by driver
 exports.myPassangerList = async (req, res, next) => {
   try {
-  //selecte the field in all api
-  // for departure date lethan now
    const username=req.userinfo.phone_number;
    const addHour=2;
-   const addMilisecond=milliSecond(addHour);
-   const timenow = Date.now()+addMilisecond
+   const timenow = moment(Date.now()).add(addHour,'h')
    const my_booking=await Schedule.findOne({driverUserName:username,departureDate:{$lte:timenow}}).sort({datefield:-1})
    res.json(my_booking)
   }

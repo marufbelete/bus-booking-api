@@ -1,10 +1,10 @@
 const Schedule = require("../models/schedule.model");
 const Bus = require("../models/bus.model");
+const Location=require('../models/Date_Location.model')
 const moment=require('moment')
 const mongoose = require("mongoose");
 const Load= require('lodash');
 const ShortUniqueId = require('short-unique-id');
-//create schedules need io here
 let sitTimer;
 let unlockSit=()=>{};
 let isSitReserved=false;
@@ -48,17 +48,21 @@ exports.addSchedule = async (req, res, next) => {
     if(busid)
     {
       const businfo=await Bus.findById(busid)
-      const is_not_free=businfo.assigneDate.includes(departure_date_and_time)
+      const is_not_free=businfo.assigneDate.map(e=>e.getDate()).includes(departure_date_and_time.getDate())
       const nex_day=moment(departure_date_and_time).add(1,'d')
       if(is_not_free)
       {
        return res.json({message:"this bus is alredy assigned for the given date"})
       }
-      await Bus.findByIdAndUpdate(busid,{set:{possibleLocation:
-        {info:{$push:{location:destination,date:nex_day}
-      }},assigneDate:{push:departure_date_and_time}}})
+      await Location.create({
+        location:destination,
+        date:nex_day,
+        busId:busid,
+        assigneDate:departure_date_and_time,
+        organizationCode:orgcode
+      },{session})
     }
-    
+  
     session.commitTransaction()
     return res.json(savedSchedule)
   }  
@@ -71,9 +75,8 @@ exports.addSchedule = async (req, res, next) => {
 
   }
 catch(error) {
-  console.log(error)
   await session.abortTransaction();
-next(error);
+  next(error);
   }
 };
 //lock sit 
@@ -280,42 +283,55 @@ exports.getRiservedSit = async (req, res, next) => {
 };
 
 //assign bus iopost add transaction
-// test
 exports.assignBusToSchedule = async (req, res, next) => {
+  const session=await mongoose.startSession()
   try {
    const id=req.params.id
    const bus= req.body.bus;
    const departurePlace=req.body.departureplace
-   const businfo=await Bus.findById(bus)
+   const orgcode =req.userinfo.organization_code;
+   const assign_date=await Location.find({busId:bus})
    const sheduleinfo=await Schedule.findById(id)
-   const is_not_free=businfo.assigneDate.includes(sheduleinfo.departureDateAndTime)
-   console.log(is_not_free)
-   const timenow=Date.now()
+   const businfo=assign_date?.map(e=>e?.assigneDate)
+   const is_not_free=businfo.map(e=>e.getDate()).includes(sheduleinfo.departureDateAndTime.getDate())
+   const timenow=new Date()
    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
    const is_bus_assigned_before=sheduleinfo.assignedBus
-   console.log(is_bus_assigned_before)
+   session.startTransaction()
    if(is_not_free)
    {
     return res.json({message:"this bus is alredy assigned for the given date"})
    }
-   if(is_bus_assigned_before){
-    await Bus.findByIdAndUpdate(is_bus_assigned_before,{set:{possibleLocation:
-      {info:{$pull:{location:sheduleinfo.destination,date:nex_day}
-    }},assigneDate:{pull:sheduleinfo.departureDateAndTime}}},{useFindAndModify:false})
+   if(is_bus_assigned_before)
+   {
+      await Location.deleteOne({
+        date:nex_day,
+        assigneDate:sheduleinfo.departureDateAndTime,
+        busId:is_bus_assigned_before,
+        organizationCode:orgcode
+      },{session})
    }
+   
    const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
     {$gte:timenow}},{
      $set:{
       assignedBus:bus,
       departurePlace,
      }
-   },{useFindAndModify:false})
-   await Bus.findByIdAndUpdate(bus,{set:{possibleLocation:
-    {info:{$push:{location:sheduleinfo.destination,date:nex_day}
-  }},assigneDate:{push:sheduleinfo.departureDateAndTime}}},{useFindAndModify:false})
+   },{useFindAndModify:false,session})
+  const location=new Location({
+    date:nex_day,
+    location:sheduleinfo.destination,
+    busId:bus,
+    organizationCode:orgcode,
+    assigneDate:sheduleinfo.departureDateAndTime,
+  })  
+   await location.save({session})
+   session.commitTransaction()
    return res.json({_id:buses._id,assignedBus:buses.assignedBus,departurePlace:buses.departurePlace})
   }
   catch(error) {
+    session.abortTransaction()
     next(error)
   }
 };
@@ -325,7 +341,7 @@ exports.updateScheduleDateAndTime = async (req, res, next) => {
    const id=req.params.id
    const departureDateAndTime=req.body.departureDateAndTime
    console.log(departureDateAndTime)
-   const timenow=Date.now()
+   const timenow=new Date()
    const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
     {$gte:timenow}},{$set:{
       departureDateAndTime:departureDateAndTime
@@ -355,29 +371,36 @@ exports.updatePassinfo = async (req, res, next) => {
 };
 
 //cancel schedule io
-//test
 exports.cancelSchedule= async (req, res, next) => {
+  const session=await mongoose.startSession()
   try {
   //find and copmare the date if pass dont cancel
    const id=req.params.id
    const canceler_id=req.userinfo.sub
-   const timenow=Date.now()
+   const timenow=new Date()
    const sheduleinfo=await Schedule.findById(id)
    const bus_id=sheduleinfo.assignedBus
+   const orgcode =req.userinfo.organization_code;
+   session.startTransaction()
   await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isTripCanceled:true,
   canceledBy:canceler_id
-   }})
+   }},{session})
    if(bus_id)
    {
-    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
-    await Bus.findByIdAndUpdate(bus_id,{set:{possibleLocation:
-     {info:{$pull:{location:sheduleinfo.destination,date:nex_day}
-   }},assigneDate:{pull:sheduleinfo.departureDateAndTime}}})
+   const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
+    await Location.deleteOne({
+      date:nex_day,
+      busId:bus_id,
+      organizationCode:orgcode,
+      assigneDate:sheduleinfo.departureDateAndTime
+    },{session})
    }
-  return res.json("deleted successfully")
+   session.commitTransaction()
+  return res.json({message:"schedule canceled successfully",status:true})
   }
   catch(error) {
+    session.abortTransaction()
     next(error)
   }
 };
@@ -388,7 +411,7 @@ exports.undoCanceldSchedule= async (req, res, next) => {
   //find and copmare the date if pass dont cancel
    const id=req.params.id
    const canceler_id=req.userinfo.sub
-   const timenow=Date.now()
+   const timenow=new Date()
    await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isCanceled:false,
   canceledBy:canceler_id

@@ -1,11 +1,10 @@
 const Bus = require("../models/bus.model");
+const Location=require('../models/Date_Location.model')
 const User = require("../models/user.model");
 const mongoose = require("mongoose");
-
 exports.registerBus = async (req, res, next) => {
   const session=await mongoose.startSession()
   try {
-    console.log(req.body)
     const busplateno = req.body.busplateno;
     const bussideno= req.body.bussideno;
     const redat_id =req.body.redatid;
@@ -47,6 +46,7 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
   }
 catch(error) {
 await session.abortTransaction();
+console.log(error)
 next(error);
   }
 };
@@ -127,10 +127,31 @@ exports.getOrganizationActiveBus = async (req, res, next) => {
 exports.getOrganizationFreeBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const departure_date=req.query.departureDate
-  const all_free_bus= await Bus.find({organizationCode:orgcode,assigneDate:{$ne:departure_date},
-    busState:"Active"},{busPlateNo:1,busSideNo:1 })
-   return res.json(all_free_bus)
+  const today=new Date()
+  const departure_date=req.query?.departureDate?.getDate()||today.getDate()+1
+  console.log(departure_date)
+  const free_bus=await Location.aggregate([
+    {
+      $match:{organizationCode:orgcode}
+    },
+    {
+      $lookup:{
+        from:'buses',
+        foreignField:"_id",
+        localField:"busId",
+        as:"bus"
+      }
+      },
+      {$project:{location:1,assigneDate:1,day:{$dayOfMonth:"$assigneDate"},date:1,busPlateNo:{$arrayElemAt:["$bus.busPlateNo",0]},busSideNo:{$arrayElemAt:["$bus.busSideNo",0]},redatId:{$arrayElemAt:["$bus.redatId",0]},driverId:{$arrayElemAt:["$bus.driverId",0]},serviceYear:{$arrayElemAt:["$bus.serviceYear",0]}}},
+      {
+       $match:{day:{$ne:departure_date}}
+      } ,
+      {
+        $project:{day:0}
+      }
+    ])
+
+     return res.json(free_bus)
   }
   catch(error) {
     next(error)

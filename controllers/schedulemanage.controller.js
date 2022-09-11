@@ -287,12 +287,13 @@ exports.assignBusToSchedule = async (req, res, next) => {
    const bus= req.body.bus;
    const departurePlace=req.body.departureplace
    const businfo=await Bus.findById(bus)
-   console.log(departurePlace)
    const sheduleinfo=await Schedule.findById(id)
    const is_not_free=businfo.assigneDate.includes(sheduleinfo.departureDateAndTime)
+   console.log(is_not_free)
    const timenow=Date.now()
    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
    const is_bus_assigned_before=sheduleinfo.assignedBus
+   console.log(is_bus_assigned_before)
    if(is_not_free)
    {
     return res.json({message:"this bus is alredy assigned for the given date"})
@@ -312,7 +313,7 @@ exports.assignBusToSchedule = async (req, res, next) => {
    await Bus.findByIdAndUpdate(bus,{set:{possibleLocation:
     {info:{$push:{location:sheduleinfo.destination,date:nex_day}
   }},assigneDate:{push:sheduleinfo.departureDateAndTime}}},{useFindAndModify:false})
-   return res.json(buses)
+   return res.json({_id:buses._id,assignedBus:buses.assignedBus,departurePlace:buses.departurePlace})
   }
   catch(error) {
     next(error)

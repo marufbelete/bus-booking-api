@@ -1,7 +1,6 @@
 const Bus = require("../models/bus.model");
 const User = require("../models/user.model");
 const mongoose = require("mongoose");
-const { update } = require("lodash");
 
 exports.registerBus = async (req, res, next) => {
   const session=await mongoose.startSession()
@@ -15,6 +14,7 @@ exports.registerBus = async (req, res, next) => {
     const totalsit =req.body.totalsit;
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
+    session.startTransaction()  
 if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
 { 
     const newbus= new Bus({
@@ -27,7 +27,6 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
       createdBy:createdby,
       organizationCode:orgcode,
     })
-    session.startTransaction()  
     const savedbus=await newbus.save({session})
     await User.findByIdAndUpdate(driver_id,{
       $set:{

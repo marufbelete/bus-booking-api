@@ -13,8 +13,6 @@ exports.addRoute = async (req, res, next) => {
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
     const assignedbus=req.body.bus
-    console.log(departure_place)
-    console.log(assignedbus)
     const newroute= new Route({
       source:source,
       destination:destination,
@@ -28,7 +26,6 @@ exports.addRoute = async (req, res, next) => {
       bus:assignedbus
     })
     const isRouteExist=await Route.findOne({organizationCode:orgcode,source,destination})
-    console.log(isRouteExist)
     if(isRouteExist)
     {
   const error = new Error("This Route Already Exist. Please Check The Route List")
@@ -39,7 +36,6 @@ exports.addRoute = async (req, res, next) => {
     return res.json(savedroute)
   }
 catch(error) {
-console.log(error)
 next(error);
   }
 };
@@ -104,7 +100,6 @@ exports.updateRouteInfo = async (req, res, next) => {
 //bus in given route
 exports.getOrganizationBusByRoute = async (req, res, next) => {
   try {
-    console.log("buse rote")
   const orgcode =req.userinfo.organization_code;
   const filter={}
   const {source,destination}=req.query
@@ -128,8 +123,6 @@ exports.getOrganizationBusByRoute = async (req, res, next) => {
       $project:{Bus:'$busName'}
     }
   ])
-  console.log(allbus)
-  console.log("end")
   return res.json(allbus)
   }
   catch(error) {

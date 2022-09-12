@@ -4,7 +4,7 @@ const sharp=require('sharp')
 //signup for mobile user
 exports.createOrganization = async (req, res, next) => {
   try {
-const {organizationName,organizationCode,organizationNameAmharic,funding}=req.body
+const {organizationName,organizationCode,branchName,organizationNameAmharic,funding}=req.body
 let imgurl
 if (req.file)
     {
@@ -26,6 +26,7 @@ if (req.file)
       organizationName,
       organizationNameAmharic,
       rulesAndRegulation:{funding},
+      $push:{branch:branchName},
       logo:imgurl
     })
     const savedorg=await organization.save()
@@ -60,9 +61,24 @@ exports.getOrganizationById = async (req, res, next) => {
 exports.getOrganizationByCode = async (req, res, next) => {
   try {
    const code=req.body.code
-   console.log(code)
    const organization= await Organization.findOne({organizationCode:code})
-   console.log(organization)
+   if(organization)
+   {
+    return res.json(organization)
+   }
+   const error = new Error("This organization code does not exist.")
+   error.statusCode = 400
+   throw error;
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//get my organization
+exports.getMyOrganization = async (req, res, next) => {
+  try {
+    const orgcode =req.userinfo.organization_code;
+    const organization= await Organization.findOne({organizationCode:orgcode})
    if(organization)
    {
     return res.json(organization)
@@ -86,7 +102,6 @@ for(let [key, value] of Object.entries(req.body)){
         updateObj[key] = value;
     }
 }
-
   let imgurl
 if (req.file)
     {
@@ -107,7 +122,6 @@ if(updateObj.funding){
   updateObj.rulesAndRegulation={funding:updateObj.funding}
   delete updateObj.funding
 }
-console.log(imgurl)
 if(imgurl){updateObj.logo=imgurl}
    const organization= await Organization.findByIdAndUpdate(id,
     { 
@@ -119,7 +133,6 @@ if(imgurl){updateObj.logo=imgurl}
    res.json(organization)
   }
   catch(error) {
-    console.log(error)
     next(error)
   }
 };

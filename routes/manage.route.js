@@ -5,7 +5,7 @@ const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiserve
 const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute, updateRouteInfoBusAndPlace, getOrganizationDetailRoute, getOrganizationBusByRoute}=require("../controllers/route.controller")
 const {createRole,getRole,deleteRole}=require("../controllers/manageRole.controller")
 const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controllers/policy.controller")
-const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganization,deleteOrganization, getOrganizationById}=require("../controllers/organization.controller")
+const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganization,deleteOrganization, getOrganizationById, getMyOrganization}=require("../controllers/organization.controller")
 const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
 const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace, getCityNameOnly}=require("../controllers/city.controller")
@@ -67,15 +67,16 @@ router.post('/addpolicy',userauth,authaAdminCasher,addPolicy,errorHandler)
 router.get('/getpolicy',userauth,authaAdminCasher,getPolicy,errorHandler)
 router.put('/updatepolicy/:id',userauth,authaAdminCasher,updatePolicyInfo,errorHandler)
 router.delete('/deletepolicy/:id',userauth,authaAdminCasher,deletePolicy,errorHandler)
-//organization
+//agent
 router.post('/addagent',userauth,authAdmin,registerAgent,errorHandler)
 router.get('/getallagent',userauth,authAdmin,getAllAgent,errorHandler)
 router.put('/updateagent/:id',userauth,authAdmin,updateAgentInfo,errorHandler)
 router.get('/getagentwithnoaccount',userauth,authAdmin,getAgentWithNoAccount,errorHandler)
 router.delete('/deleteagent/:id',userauth,authAdmin,deleteAgent,errorHandler)
-//agent
+//organization
 router.post('/createorganization',upload.single('logo'),createOrganization,errorHandler)
 router.get('/getallorganization',userauth,authOwner,getAllOrganization,errorHandler)
+router.get('/getmyorganization',userauth,authaAdminCasher,getMyOrganization,errorHandler)
 router.get('/getorganizationbyid/:id',userauth,authOwner,getOrganizationById,errorHandler)
 router.post('/getorganizationbycode',getOrganizationByCode,errorHandler)
 router.put('/updateorganization/:id',upload.single('logo'),updateOrganization,errorHandler)

@@ -4,8 +4,6 @@ exports.registerCity = async (req, res, next) => {
   try {
     const cityname = Load.capitalize(req.body.cityName);
     const departureplace= req.body.departurePlace.map(e=>Load.capitalize(e));
-    console.log(cityname)
-    console.log(departureplace)
     const orgcode =req.userinfo.organization_code;
 
     const newbus= new City({
@@ -43,10 +41,8 @@ exports.getAllDepPlace = async (req, res, next) => {
   try {
   let query={}
   req.query.source?query={cityName:req.query.source}:query=query
-  console.log(query)
   const orgcode =req.userinfo.organization_code;
   const allcity= await City.find({organizationCode:orgcode,...query},{departurePlace:1})
-  console.log(allcity)
   return res.json(allcity)
   }
   catch(error) {
@@ -70,8 +66,6 @@ exports.updateCityInfo = async (req, res, next) => {
    const id=req.params.id
    const city_name = Load.startCase(req.body.cityName);
    const departure_place= req.body.departurePlace.map(e=>Load.startCase(e));
-   console.log(city_name)
-   console.log(departure_place)
    const bus= await City.findByIdAndUpdate(id,{
      $set:{
       cityName:city_name,

@@ -9,21 +9,23 @@ const OrganizationSchema = new mongoose.Schema({
   organizationNameAmharic: {
     type: String,
     required: true,
-
   },
   organizationCode:{
     type: String,
     required: true,
     unique: [true,"this organization tin already exist"]
-},
-logo: {
-  type: String,
-},
-rulesAndRegulation: {
-  funding:{
-    type: String,
-  },
-}
+     },
+    logo: {
+      type: String,
+    },
+    branch:{
+      type:[String],
+    },
+    rulesAndRegulation: {
+      funding:{
+        type: String,
+      },
+    }
 },
   {
     timestamps: true,

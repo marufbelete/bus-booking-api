@@ -84,12 +84,10 @@ exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
    const sit =req.body.sits
-   console.log(sit)
    if(isSitReserved)
    {
     clearTimeout(sitTimer)
     await unlockSit()
-    console.log("the privious clear")
    }
    const isSitFree=await Schedule.findById(id)
    if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
@@ -107,14 +105,11 @@ exports.lockSit = async (req, res, next) => {
     isSitReserved=true
     unlockSit=async()=>{ 
     isSitReserved=false
-    console.log("unlock")
-    console.log(sit)
     const unlocking= await Schedule.findByIdAndUpdate(id,{
        $pullAll:{
          occupiedSitNo:sit
         }
     },{new:true,useFindAndModify:false})
-    console.log("unlock done")
     return unlocking
  }
     //socket io 
@@ -135,7 +130,6 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     {
     clearTimeout(sitTimer)
     await unlockSit()
-    console.log("returning from unlock")
    const id=req.params.id
    let passlength=req.body.length
    for(let i=0;i<passlength;i++)
@@ -146,7 +140,6 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     const booked_by = req.userinfo.sub;
     const uid = new ShortUniqueId({ length: 12 });
     const isSitFree=await Schedule.findById(id)
-    console.log(isSitFree.occupiedSitNo)
     if(isSitFree.occupiedSitNo.includes(psss_ocupied_sit_no))
     {
      const error=new Error(`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`)
@@ -173,7 +166,6 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
   }
   }
   catch(error) {
-    console.log(error)
     next(error)
   }
 };
@@ -204,7 +196,6 @@ exports.getSchgeduleById=async(req,res,next)=>{
     const id=mongoose.Types.ObjectId(req.params.id)
     const orgcode =req.userinfo.organization_code;
     const now =new Date()
-    console.log(id)
     const schedule=await Schedule.aggregate([
       {
         $match:{organizationCode:orgcode,_id:id}
@@ -340,7 +331,6 @@ exports.updateScheduleDateAndTime = async (req, res, next) => {
   try {
    const id=req.params.id
    const departureDateAndTime=req.body.departureDateAndTime
-   console.log(departureDateAndTime)
    const timenow=new Date()
    const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
     {$gte:timenow}},{$set:{

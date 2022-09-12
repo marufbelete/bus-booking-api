@@ -58,7 +58,6 @@ exports.getTotalLocalSale = async (req, res, next) => {
   filter3=sort=="weeks"?{"year":"$year","week":"$week"}:filter3
   filter3=sort=="months"?{"year":"$year","month":"$month"}:filter3
  
-  console.log("ashjs",process.env.CASHER)
   const orgcode =req.userinfo.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
@@ -121,7 +120,6 @@ exports.getTotalAgentSale = async (req, res, next) => {
   filter3=sort=="weeks"?{"year":"$year","week":"$week"}:filter3
   filter3=sort=="months"?{"year":"$year","month":"$month"}:filter3
  
-  console.log("ashjs",process.env.CASHER)
   const orgcode =req.userinfo.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
@@ -184,7 +182,6 @@ exports.getTotalMobileSale = async (req, res, next) => {
   filter3=sort=="weeks"?{"year":"$year","week":"$week"}:filter3
   filter3=sort=="months"?{"year":"$year","month":"$month"}:filter3
  
-  console.log("ashjs",process.env.CASHER)
   const orgcode =req.userinfo.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {

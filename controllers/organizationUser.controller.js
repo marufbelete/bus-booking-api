@@ -7,7 +7,6 @@ const Agent = require("../models/agent.model");
 exports.checkAuth = (req, res, next) => {
   try{
   const token =req.cookies.access_token;
-  console.log(token)
   if (token) {
     jwt.verify(token,process.env.SECRET, (err, user) => {
       if (err) {
@@ -95,7 +94,6 @@ exports.saveOwner = async (req, res, next) => {
       }
       
       const isMatch = await bcrypt.compare(password, user.password)
-      console.log(user)
       if (!isMatch) {
         const error = new Error("Invalid credential.")
         error.statusCode = 400
@@ -126,7 +124,6 @@ exports.saveOwner = async (req, res, next) => {
       const anyphone_number = await User.findOne({
         phoneNumber: phone_number,
       });
-      console.log(anyphone_number)
       if(anyphone_number) {
         const error = new Error("User with this phone number already exist!!!")
         error.statusCode = 400
@@ -175,7 +172,6 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const saved_by=req.userinfo.sub
     const user_role=req.userinfo.user_role
     const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?"1":"0"
-    console.log(organization_code)
 if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
 { 
  const error = new Error("You don't have access to add super admin or owner, please contact your provider" )
@@ -191,7 +187,6 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
     const anyphone_number = await User.findOne({
       phoneNumber: phone_number,
     });
-    console.log(anyphone_number)
     if(anyphone_number)  {
       const error = new Error("User with this phone number already exist!!!")
       error.statusCode = 400
@@ -249,7 +244,6 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
    return res.json(neworguser)
   }
   catch(error) {
-    console.log(error)
     next(error)
      }
 };
@@ -371,7 +365,6 @@ exports.updateOrganizationUser = async (req, res, next) => {
     const organization_code=req.userinfo.organization_code;
     const user_role=req.userinfo.user_role;
     const user_id=req.userinfo.sub;
-    console.log("in")
     if (!first_name||!last_name ) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
@@ -389,10 +382,7 @@ if(user_role===process.env.SUPERADMIN)
     let setVal={}
     u_user.userRole==process.env.DRIVER?filter={driverId:updateduserid}:filter={redatId:updateduserid}
     u_user.userRole==process.env.DRIVER?setVal={driverId:null}:setVal={redatId:null}
-    console.log(u_user.userRole)
-    console.log(setVal)
-    const updatebus=await Bus.findOneAndUpdate({...filter,organizationCode:organization_code},{$set:{...setVal}})
-    console.log(updatebus)
+    await Bus.findOneAndUpdate({...filter,organizationCode:organization_code},{$set:{...setVal}})
     }
   const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
   $set:{
@@ -524,7 +514,6 @@ exports.getAssignedUserByRole=async(req,res,next)=>{
 exports.getUserByRoleWithEdit=async(req,res,next)=>{
   const role=req.query.role
   const current_user=req.query.current
-  console.log(role,current_user)
   const organization_code=req.userinfo.organization_code;
   const user=await User.find({$or:[{_id:current_user},{userRole:role,organizationCode:organization_code,isAssigned:'1'}]})
   return res.json(user)
@@ -566,7 +555,6 @@ exports.changePassword = async (req, res, next) => {
     const oldPasswrod=req.body.oldPassword
     let passwordHash
     const id=req.userinfo.sub;
-    console.log(id,password,oldPasswrod)
     const user = await User.findById(id);
     const isMatch = await bcrypt.compare(oldPasswrod, user.password)
     if (!isMatch) {
@@ -622,7 +610,6 @@ if(role==process.env.ADMIN)
 
   }
   catch(err){
-    console.log(err)
     next(err)
   }
 }

@@ -8,7 +8,6 @@ exports.saveMobileUser = async (req, res, next) => {
     const phone_number = req.body.phoneNumber;
     const password=req.body.password;
     const confirmpassword=req.body.confirmPassword;
-    console.log(req.body)
     if (!phone_number || !password||!confirmpassword) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
@@ -45,7 +44,6 @@ exports.saveMobileUser = async (req, res, next) => {
     return res.status(200).json({auth:true,token:token})
   }
 catch(error) {
-  console.log(error)
  next(error)
   }
 };

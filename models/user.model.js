@@ -25,13 +25,13 @@ isAssigned:{
   },
   default:"0"
 },
-phoneNumber:{
+  phoneNumber:{
     type: String,
     trim: true,
     required: true,
     unique: [true,"phone number must be unique"]
 },
-password: {
+  password: {
     type: String,
     trim: true,
     required: true,
@@ -49,6 +49,9 @@ password: {
     trim: true,
     toLowerCase:true,
   },
+  branch:{
+      type: String,
+    },
   isMasterAgent:{
     type:Boolean,
     default: false

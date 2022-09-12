@@ -46,16 +46,13 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
   }
 catch(error) {
 await session.abortTransaction();
-console.log(error)
 next(error);
   }
 };
 //get all organizaton bus organization
 exports.getAllOrganizationBus = async (req, res, next) => {
   try {
-    console.log(req.userinfo)
   const orgcode =req.userinfo.organization_code;
-  console.log(orgcode)
   const allbus= await Bus.find({organizationCode:orgcode})
   res.json(allbus)
   }
@@ -129,7 +126,6 @@ exports.getOrganizationFreeBus = async (req, res, next) => {
   const orgcode =req.userinfo.organization_code;
   const today=new Date()
   const departure_date=req.query?.departureDate?.getDate()||today.getDate()+1
-  console.log(departure_date)
   const free_bus=await Location.aggregate([
     {
       $match:{organizationCode:orgcode}
@@ -207,7 +203,6 @@ exports.updateBusInfo = async (req, res, next) => {
   }
   catch(error) {
     await session.abortTransaction()
-    console.log(error)
     next(error)
   }
 };

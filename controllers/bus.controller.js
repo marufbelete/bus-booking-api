@@ -1,6 +1,7 @@
 const Bus = require("../models/bus.model");
 const Location=require('../models/Date_Location.model')
 const User = require("../models/user.model");
+const Route = require("../models/route.model");
 const mongoose = require("mongoose");
 exports.registerBus = async (req, res, next) => {
   const session=await mongoose.startSession()
@@ -112,7 +113,8 @@ exports.getAllOrganizationBusByState = async (req, res, next) => {
 exports.getOrganizationActiveBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"},{busPlateNo:1,busSideNo:1 })
+  const allbus= await Bus.find({organizationCode:orgcode,busState:"Active"},
+  {busPlateNo:1,busSideNo:1 })
   return res.json(allbus)
   }
   catch(error) {
@@ -120,7 +122,6 @@ exports.getOrganizationActiveBus = async (req, res, next) => {
   }
 };
 //get free bus for given Date
-//test
 exports.getOrganizationFreeBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
@@ -148,6 +149,51 @@ exports.getOrganizationFreeBus = async (req, res, next) => {
     ])
 
      return res.json(free_bus)
+  }
+  catch(error) {
+    next(error)
+  }
+};
+//in given route
+//get free bus for given Date
+exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
+  try {
+  const {source,destination}=req.query
+  const orgcode =req.userinfo.organization_code;
+  const today=new Date()
+  if(!source||!destination)
+  {
+    const error = new Error("source and destination field are required")
+    error.statusCode = 400
+    throw error;
+  }
+  const departure_date=req.query?.departureDate?.getDate()||today.getDate()+1
+  const bus_in_route=await Route.findOne({source,destination},{bus:1})
+  console.log(bus_in_route?.bus)
+  const free_bus=await Location.aggregate([
+    {
+      $match:{organizationCode:orgcode,busId:{$in:bus_in_route?.bus}}
+    },
+    {
+      $lookup:{
+        from:'buses',
+        foreignField:"_id",
+        localField:"busId",
+        as:"bus"
+      }
+      },
+      {$project:{location:1,busId:1,assigneDate:1,day:{$dayOfMonth:"$assigneDate"},date:1,busPlateNo:{$arrayElemAt:["$bus.busPlateNo",0]},busSideNo:{$arrayElemAt:["$bus.busSideNo",0]},redatId:{$arrayElemAt:["$bus.redatId",0]},driverId:{$arrayElemAt:["$bus.driverId",0]},serviceYear:{$arrayElemAt:["$bus.serviceYear",0]}}},
+      {
+       $match:{day:{$ne:departure_date}}
+      } ,
+      {
+        $project:{day:0}
+      }
+    ])
+    const ree_bus_withlocation=free_bus.map(x=>String(x.busId))
+    const bus_without_location=bus_in_route?.bus.filter(x=>!ree_bus_withlocation.includes(String(x)))
+    const buswl=await Bus.find({_id:{$in:bus_without_location}})
+     return res.json([...free_bus,...buswl])
   }
   catch(error) {
     next(error)

@@ -11,7 +11,7 @@ const {ApolloServer}=require('apollo-server-express')
 const resolvers =require('./gqlShema/resolver')
 const typeDefs =require('./gqlShema/typedefs')
 const jwt = require("jsonwebtoken");
-const responseTime=require('response-time')
+// const responseTime=require('response-time')
 require('dotenv').config()
 
 // const socketio=require("./socket/socketio")
@@ -20,9 +20,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
 //log response time
-app.use(responseTime((req, res, time) => {
-  console.log(`${req.method} ${req.url} ${time}ms`);
-}))
+// app.use(responseTime((req, res, time) => {
+//   console.log(`${req.method} ${req.url} ${time}ms`);
+// }))
 //routes
 app.use(userroute)
 app.use(manageroute)

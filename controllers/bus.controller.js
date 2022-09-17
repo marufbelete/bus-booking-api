@@ -159,7 +159,9 @@ exports.getOrganizationFreeBus = async (req, res, next) => {
 exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
   try {
   const {source,destination}=req.query
+  console.log(req.query)
   const orgcode =req.userinfo.organization_code;
+  const final_result=[]
   const today=new Date()
   if(!source||!destination)
   {
@@ -167,10 +169,16 @@ exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
     error.statusCode = 400
     throw error;
   }
-  const departure_date=req.query?.departureDate?.getDate()||today.getDate()+1
+  const departure_date=req.query?.departureDate?.getDate()||today.getDate()+10
+  const departure_month=req.query?.departureDate?.getMonth()+1||today.getMonth()+1
+  const departure_year=req.query?.departureDate?.getFullYear()||today.getFullYear()
   const bus_in_route=await Route.findOne({source,destination},{bus:1})
-  console.log(bus_in_route?.bus)
-  const free_bus=await Location.aggregate([
+  if(bus_in_route?.bus?.length<1)
+  {
+    console.log("res")
+    return res.json([])
+  }
+  const not_free_bus=await Location.aggregate([
     {
       $match:{organizationCode:orgcode,busId:{$in:bus_in_route?.bus}}
     },
@@ -182,20 +190,55 @@ exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
         as:"bus"
       }
       },
-      {$project:{location:1,busId:1,assigneDate:1,day:{$dayOfMonth:"$assigneDate"},date:1,busPlateNo:{$arrayElemAt:["$bus.busPlateNo",0]},busSideNo:{$arrayElemAt:["$bus.busSideNo",0]},redatId:{$arrayElemAt:["$bus.redatId",0]},driverId:{$arrayElemAt:["$bus.driverId",0]},serviceYear:{$arrayElemAt:["$bus.serviceYear",0]}}},
       {
-       $match:{day:{$ne:departure_date}}
-      } ,
+      $project:{busId:1,day:{$dayOfMonth:"$assigneDate"}}
+      },
       {
-        $project:{day:0}
+       $match:{day:departure_date}
+      },
+      {
+        $project:{busId:1}
       }
     ])
-    const ree_bus_withlocation=free_bus.map(x=>String(x.busId))
-    const bus_without_location=bus_in_route?.bus.filter(x=>!ree_bus_withlocation.includes(String(x)))
-    const buswl=await Bus.find({_id:{$in:bus_without_location}})
-     return res.json([...free_bus,...buswl])
+    const not_freeBus_ids=not_free_bus.map(e=>e.busId)
+    const free_bus_id=bus_in_route?.bus.filter(e=>!(not_freeBus_ids.includes(e)))
+for(let bus_id of free_bus_id)
+{
+  console.log(bus_id)
+  const push_bus=await Location.aggregate([
+    {
+      $match:{organizationCode:orgcode,busId:bus_id}
+    },
+    {
+      $lookup:{
+        from:'buses',
+        foreignField:"_id",
+        localField:"busId",
+        as:"bus"
+             }
+    },
+      {
+      $project:{location:1,busId:1,assigneDate:1,
+      day:{$dayOfMonth:"$assigneDate"},date:1,
+      month:{$month:"$assigneDate"},
+      year:{$year:"$assigneDate"},
+      busPlateNo:{$arrayElemAt:["$bus.busPlateNo",0]},
+      busSideNo:{$arrayElemAt:["$bus.busSideNo",0]},
+      redatId:{$arrayElemAt:["$bus.redatId",0]},
+      driverId:{$arrayElemAt:["$bus.driverId",0]},
+      serviceYear:{$arrayElemAt:["$bus.serviceYear",0]}}},
+      {
+       $match:{day:{$lt:departure_date},month:departure_month,year:departure_year}
+      },
+      {$sort:{day:-1}},
+      {$limit:1},
+    ])
+    final_result.push(...push_bus)
+}
+     return res.json(final_result)
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 };

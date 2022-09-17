@@ -57,7 +57,8 @@ const StartServer=async()=>{
   },
 })
 await apolloServer.start()
-apolloServer.applyMiddleware({app:app,cors: false })
+apolloServer.applyMiddleware({app:app,cors:{origin: 'http://localhost:3000',
+credentials: true}})
 mongoose.connect("mongodb+srv://maruf:maruf@cluster0.zrkgb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
   useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true
 })

@@ -28,6 +28,10 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
       organizationCode:orgcode,
     })
     const savedbus=await newbus.save({session})
+    const location=new Location({        
+      busId:savedbus._id,
+      organizationCode:orgcode})
+    await location.save({session})
     await User.findByIdAndUpdate(driver_id,{
       $set:{
        isAssigned:"2"

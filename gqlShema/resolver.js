@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const Schedule = require("../models/schedule.model");
+const mongoose = require("mongoose");
 const moment=require("moment")
 const dayY={ $dayOfYear:"$passangerInfo.bookedAt"}
 const dayM={ $dayOfMonth:"$passangerInfo.bookedAt"}
@@ -78,6 +79,73 @@ Query:{
         return []
         }
     },
+    getLocalSpecificTotalSale:async(parent,args,context)=>{
+      try{
+      const now=new Date()
+      let currentYear=now.getFullYear()
+      let currentMonth=moment(now).month()+1;
+      let currentWeek=moment(now).weeks()-1;
+      let today =moment(now).dayOfYear();
+      const sort=args.input.filter
+      console.log(sort)
+      let filter1
+      filter1=sort=="day"?{"day":dayY}:filter1
+      filter1=sort=="week"?{"week":week}:filter1
+      filter1=sort=="month"?{"month":month}:filter1
+      let filter2={"year":currentYear}
+      filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+      filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+      filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+      let filter3={"year":"$year"}
+      filter3=sort=="day"?{"year":"$year","day":"$day"}:filter3
+      filter3=sort=="week"?{"year":"$year","week":"$week"}:filter3
+      filter3=sort=="month"?{"year":"$year","month":"$month"}:filter3
+      const orgcode =context.organization_code;
+      const sales=context.sub
+      const sales_id=mongoose.Types.ObjectId(sales)
+      console.log(sales_id)
+      const allSchedule= await Schedule.aggregate( [
+    {
+        $match:{organizationCode:orgcode}
+    },
+    {
+      $unwind:"$passangerInfo"
+    },
+    {
+      $match:{"passangerInfo.bookedBy":sales_id}
+    },
+      {
+    $lookup:{
+      from:'users',
+      foreignField:"_id",
+      localField:"passangerInfo.bookedBy",
+      as:"user"
+    }
+    },
+    {
+      $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
+    },
+    {
+      $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+    },
+    {
+      $group:{_id:filter3,"totalTicket":{$sum:1}}
+    },
+    {
+      $project:{
+        "_id":0,"year":"$_id.year","totalTicket":1
+      }
+    },
+      ] )
+      console.log(allSchedule)
+      return allSchedule[0]
+
+    }
+  
+    catch(error) {
+      return []
+      }
+  },
 
     getAgentTotalSale:async(parent,args,context)=>{
       try{
@@ -532,6 +600,78 @@ $lookup:{
   $sort:{"label":1}
 }
   ] )
+  console.log(allSchedule)
+  return allSchedule
+
+}
+catch(error) {
+  console.log(error)
+  return []
+  }
+},
+getGroupLocalSpecfcificTicketInbr:async(parent,args,context)=>{
+  try{
+  // const orgcode ='001000';
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const sales=context.sub
+  const sales_id=mongoose.Types.ObjectId(sales)
+  const sort=args.input.filter
+  let filter1
+  filter1=sort=="day"?{"day":dayY}:filter1
+  filter1=sort=="week"?{"week":week,"day":dayW}:filter1
+  filter1=sort=="month"?{"month":month,"day":dayM}:filter1
+  filter1=sort=="year"?{"month":month,"day":dayY}:filter1
+
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3={"year":"$year","day":"$day"}
+  filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
+  const orgcode =context.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+{
+  $match:{"passangerInfo.bookedBy":sales_id}
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif"}
+},
+{
+  $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+},
+{
+  $group:{_id:filter3,"totalPrice":{$sum:"$price"},...filter31}
+},
+{
+  $project:{
+    "_id":0,"label":1,"totalPrice":1
+  }
+},
+{
+  $sort:{"label":1}
+}
+  ] )
+  console.log("check")
   console.log(allSchedule)
   return allSchedule
 

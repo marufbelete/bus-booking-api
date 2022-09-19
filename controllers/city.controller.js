@@ -36,6 +36,21 @@ exports.getAllOrganizationCity = async (req, res, next) => {
     next(error)
   }
 };
+//get city for mobile
+exports.getCity = async (req, res, next) => {
+  try {
+  const orgcode =req.query.organizationCode;
+  let option={}
+  if(orgcode){
+    option={organizationCode:orgcode}
+  }
+  const allcity= await City.find(option,{cityName:1}).distinct('cityName').sort('cityName')
+  return res.json(allcity)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 //dep.place
 exports.getAllDepPlace = async (req, res, next) => {
   try {

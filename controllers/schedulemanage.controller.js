@@ -54,13 +54,13 @@ exports.addSchedule = async (req, res, next) => {
       {
        return res.json({message:"this bus is alredy assigned for the given date"})
       }
-      await Location.create({
+      const location=new Location({        
         location:destination,
         date:nex_day,
         busId:busid,
         assigneDate:departure_date_and_time,
-        organizationCode:orgcode
-      },{session})
+        organizationCode:orgcode})
+      await location.save({session})
     }
   
     session.commitTransaction()

@@ -217,6 +217,7 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
       }
     }
     const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
     const user_to_add={
       firstName:first_name,
       lastName:last_name,
@@ -233,7 +234,6 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
     {
       user_to_add.isMasterAgent=true
     }
-    const passwordHash = await bcrypt.hash(password, salt);
     const user = new User(user_to_add)
     const neworguser=await user.save()
   if(add_role===process.env.AGENT)

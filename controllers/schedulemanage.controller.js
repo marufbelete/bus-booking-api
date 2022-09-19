@@ -18,7 +18,7 @@ exports.addSchedule = async (req, res, next) => {
     const tarif= req.body.tarif;
     const distance = req.body.distance;
     const estimated_hour = req.body.estimatedhour;
-    const departure_date_and_time= req.body.depdateandtime;
+    const departure_date_and_time= new Date(req.body.depdateandtime);
     const departure_place = req.body.depplace?req.body.depplace:null;
     const busid=req.body.assignedbus?req.body.assignedbus:null
     const number_of_schedule = req.body.numberofschedule?e.numberofschedule:1;
@@ -48,7 +48,7 @@ exports.addSchedule = async (req, res, next) => {
     if(busid)
     {
       const businfo=await Bus.findById(busid)
-      const is_not_free=businfo.assigneDate.map(e=>e.getDate()).includes(departure_date_and_time.getDate())
+      const is_not_free=businfo.assigneDate?.map(e=>e.getDate()).includes(departure_date_and_time?.getDate())
       const nex_day=moment(departure_date_and_time).add(1,'d')
       if(is_not_free)
       {

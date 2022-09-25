@@ -79,15 +79,21 @@ exports.getMyOrganization = async (req, res, next) => {
   try {
     const orgcode =req.userinfo.organization_code;
     const organization= await Organization.findOne({organizationCode:orgcode})
-   if(organization)
-   {
     return res.json(organization)
-   }
-   const error = new Error("This organization code does not exist.")
-   error.statusCode = 400
-   throw error;
   }
   catch(error) {
+    next(error)
+  }
+};
+//get refund percent
+exports.getOrgRules = async (req, res, next) => {
+  try {
+    const orgcode =req.userinfo.organization_code;
+    const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
+    return res.json(org_rule)
+  }
+  catch(error) {
+    console.log(error)
     next(error)
   }
 };

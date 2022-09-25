@@ -3,8 +3,10 @@ const Location=require('../models/Date_Location.model')
 const User = require("../models/user.model");
 const Route = require("../models/route.model");
 const mongoose = require("mongoose");
+const moment=require('moment')
 exports.registerBus = async (req, res, next) => {
   const session=await mongoose.startSession()
+  session.startTransaction()  
   try {
     const busplateno = req.body.busplateno;
     const bussideno= req.body.bussideno;
@@ -14,7 +16,10 @@ exports.registerBus = async (req, res, next) => {
     const totalsit =req.body.totalsit;
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
-    session.startTransaction()  
+    const now=new Date()
+    const before_5=moment(now).subtract(5,'d')
+    const before_4=moment(now).subtract(4,'d')
+
 if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
 { 
     const newbus= new Bus({
@@ -30,6 +35,8 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
     const savedbus=await newbus.save({session})
     const location=new Location({        
       busId:savedbus._id,
+      date:before_4,
+      assigneDate:before_5,
       organizationCode:orgcode})
     await location.save({session})
     await User.findByIdAndUpdate(driver_id,{
@@ -179,7 +186,6 @@ exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
   const bus_in_route=await Route.findOne({source,destination},{bus:1})
   if(bus_in_route?.bus?.length<1)
   {
-    console.log("res")
     return res.json([])
   }
   const not_free_bus=await Location.aggregate([
@@ -206,6 +212,7 @@ exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
     ])
     const not_freeBus_ids=not_free_bus.map(e=>e.busId)
     const free_bus_id=bus_in_route?.bus.filter(e=>!(not_freeBus_ids.includes(e)))
+    console.log(free_bus_id)
 for(let bus_id of free_bus_id)
 {
   console.log(bus_id)
@@ -232,7 +239,7 @@ for(let bus_id of free_bus_id)
       driverId:{$arrayElemAt:["$bus.driverId",0]},
       serviceYear:{$arrayElemAt:["$bus.serviceYear",0]}}},
       {
-       $match:{day:{$lt:departure_date},month:departure_month,year:departure_year}
+       $match:{day:{$lt:departure_date},month:{$lte:departure_month},year:departure_year}
       },
       {$sort:{day:-1}},
       {$limit:1},

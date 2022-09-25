@@ -10,8 +10,8 @@ let unlockSit=()=>{};
 let isSitReserved=false;
 exports.addSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
+  session.startTransaction()  
   try {
-    session.startTransaction()  
     const description=req.body.description;
     const source=req.body.source;
     const destination=req.body.destination;
@@ -204,13 +204,13 @@ exports.getSchgeduleById=async(req,res,next)=>{
         $unwind:"$passangerInfo"
       },
       {
-        $project:{"passangerName":"$passangerInfo.passangerName","tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTripCanceled":1,"isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"To Be Departed","Departed"]}}
+        $project:{"departureDateAndTime":1,"passangerName":"$passangerInfo.passangerName","tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTripCanceled":1,"isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"To Be Departed","Departed"]}}
       },
       {
-        $project:{"passangerName":1,"tarif":1,"sit":1,"isTicketCanceled":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled Trip","$status"]}}
+        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"isTicketCanceled":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled Trip","$status"]}}
       },
       {
-        $project:{"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
+        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
       },
     
     ])
@@ -276,6 +276,7 @@ exports.getRiservedSit = async (req, res, next) => {
 //assign bus iopost add transaction
 exports.assignBusToSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
+  session.startTransaction()
   try {
    const id=req.params.id
    const bus= req.body.bus;
@@ -284,12 +285,12 @@ exports.assignBusToSchedule = async (req, res, next) => {
    const assign_date=await Location.find({busId:bus})
    const sheduleinfo=await Schedule.findById(id)
    const businfo=assign_date?.map(e=>e?.assigneDate)
-   const is_not_free=businfo.map(e=>e.getDate()).includes(sheduleinfo.departureDateAndTime.getDate())
+   const is_not_free=businfo.map(e=>new Date(e).getDate()).includes(new Date(sheduleinfo.departureDateAndTime).getDate())
    const timenow=new Date()
    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
    const is_bus_assigned_before=sheduleinfo.assignedBus
-   session.startTransaction()
-   if(is_not_free)
+   console.log(is_bus_assigned_before)
+   if(is_not_free&&is_bus_assigned_before!=bus)
    {
     return res.json({message:"this bus is alredy assigned for the given date"})
    }
@@ -303,9 +304,9 @@ exports.assignBusToSchedule = async (req, res, next) => {
       },{session})
    }
    
-   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
-    {$gte:timenow}},{
-     $set:{
+   const buses= await Schedule.findOneAndUpdate(
+    {_id:id,departureDateAndTime:{$gte:timenow}},
+    {$set:{
       assignedBus:bus,
       departurePlace,
      }
@@ -317,7 +318,7 @@ exports.assignBusToSchedule = async (req, res, next) => {
     organizationCode:orgcode,
     assigneDate:sheduleinfo.departureDateAndTime,
   })  
-   await location.save({session})
+   await location.save({session})//location save
    session.commitTransaction()
    return res.json({_id:buses._id,assignedBus:buses.assignedBus,departurePlace:buses.departurePlace})
   }
@@ -332,12 +333,20 @@ exports.updateScheduleDateAndTime = async (req, res, next) => {
    const id=req.params.id
    const departureDateAndTime=req.body.departureDateAndTime
    const timenow=new Date()
-   const buses= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
+   const schedule_info= await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:
     {$gte:timenow}},{$set:{
       departureDateAndTime:departureDateAndTime
      }
    })
-   return res.json(buses)
+   //change location info of bus
+   const next_date=moment(departureDateAndTime).add(1,'d')
+   await Location.findOneAndUpdate({busId:schedule_info.bus,date:schedule_info.departureDateAndTime},{
+    $set:{
+      date:departureDateAndTime,
+      assigneDate:next_date
+    }
+   })
+   return res.json({message:"success for departure date and time change"})
   }
   catch(error) {
     next(error)

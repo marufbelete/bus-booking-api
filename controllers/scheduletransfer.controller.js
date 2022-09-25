@@ -1,5 +1,6 @@
 const Schedule = require("../models/schedule.model");
 const {sit_gene}=require("../helpers/sit_generator")
+const Organization = require("../models/organization.model");
 const moment=require('moment')
 //transfer schedule request will send request notification to other org nothing more
 exports.scheduleTransferRequest = async (req, res, next) => {
@@ -165,7 +166,12 @@ exports.refundRequest = async (req, res, next) => {
     const pass_id=req.body.uniqueid
     const pass_sit=req.body.passsit
     const timenow = new Date
+    const orgcode =req.userinfo.organization_code;
     const schedule=await Schedule.findById(schedule_id)
+    const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
+    console.log(org_rule)
+    if(moment(schedule.departureDateAndTime).add(Number(org_rule?.rulesAndRegulation?.maxReturnDate),'d').isAfter(timenow))
+    {
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit},$pull:{occupiedSitNo: pass_sit }},
@@ -175,9 +181,13 @@ exports.refundRequest = async (req, res, next) => {
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit}},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
     }
-    return res.json("refund done")
+    return res.json({message:"refund done"})
+  }
+  console.log("not refunded")
+  return res.json({message:"ticket refund Date Exired"})
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 }

@@ -81,6 +81,10 @@ passangerInfo:[{
       type: Boolean,  
       default:false,
       },
+    canceledBy: {
+      type: mongoose.Schema.Types.ObjectId,  
+      ref: 'user', 
+      },
     sitCanceled: {
       type: Number,
       trim: true,

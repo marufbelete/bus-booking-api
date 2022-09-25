@@ -25,6 +25,12 @@ const OrganizationSchema = new mongoose.Schema({
       funding:{
         type: String,
       },
+      returnPercent:{
+        type: String,
+      },
+      maxReturnDate:{
+        type: String,
+      },
     }
 },
   {

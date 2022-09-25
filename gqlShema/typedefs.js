@@ -30,6 +30,7 @@ type DaysTicket{
 
 type Query{
 getLocalTotalSale(input:SaleInputFilter):Ticket
+getLocalSpecificCanceledSale(input:SaleInputFilter):Ticket
 getLocalSpecificTotalSale(input:SaleInputFilter):Ticket
 getAgentTotalSale(input:SaleInputFilter):Ticket
 getMobileTotalSale(input:SaleInputFilter):Ticket
@@ -43,6 +44,7 @@ getGroupMonthMobileTicket:[Ticket]
 getGroupAgentTicketInbr(input:SaleInputFilter):[Ticket]
 getGroupLocalTicketInbr(input:SaleInputFilter):[Ticket]
 getGroupLocalSpecfcificTicketInbr(input:SaleInputFilter):[Ticket]
+getGroupLocalSpecfcificCanceledTicketInbr(input:SaleInputFilter):[Ticket]
 getGroupMobileTicketInbr(input:SaleInputFilter):[Ticket]
 getGroupAllTicketInbr(input:SaleInputFilter):[Ticket]
 

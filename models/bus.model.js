@@ -42,13 +42,6 @@ busState:{
   default:"Active",
   required: true,
 },
-assigneDate:{
-type:[Date]
-},
-possibleLocation:[{
-location:{type:String},
-date:{type:Date}
-  }],
 organizationCode:{
     type: String,
     trim: true,

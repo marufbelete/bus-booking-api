@@ -178,15 +178,22 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
 exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
-    const option=[]
-    $and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date] }},
-    {$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}]
+    const option1={}
+    const option2={}
     const {freeSit,organization}=req.query
-    if(freeSit){option.push({freeSit:{$lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }})}
+    if(freeSit){option1={$and:[{$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}}]},
+      {$expr:{$gt: [ {$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},freeSit]}}
+  }
+    if(organization){
+      let orgarray=JSON.parse(organization)
+      option2={organizationCode:{$in:orgarray}}
+    }
     const now =new Date()
-    const schedule=await Schedule.find({organizationCode:orgcode,
-      isTripCanceled:false,departureDateAndTime:{$gte:now},
-      $expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }})
+    const schedule=await Schedule.aggregate([
+      {$match:{
+        organizationCode:orgcode,isTripCanceled:false,departureDateAndTime:{$gte:now},...option1,...option2
+      }}
+    ])
     return res.json(schedule)
   }
   catch(error) {

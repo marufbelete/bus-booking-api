@@ -24,6 +24,7 @@ exports.addSchedule = async (req, res, next) => {
     const number_of_schedule = req.body.numberofschedule?e.numberofschedule:1;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
+   
     if(!!source && !!destination && !! tarif && !!departure_date_and_time)
    {
     const schedules=[]
@@ -39,6 +40,11 @@ exports.addSchedule = async (req, res, next) => {
       createdBy:created_by,
       organizationCode:orgcode,
       assignedBus:busid
+    }
+    if(busid){
+      const busInfo=await Bus.findById(busid)
+      const number_sit=busInfo.totalNoOfSit
+      newschedule.totalNoOfSit=number_sit
     }
     for(let i=0;i<number_of_schedule;i++)
     {
@@ -172,8 +178,15 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
 exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
+    const option=[]
+    $and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date] }},
+    {$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}]
+    const {freeSit,organization}=req.query
+    if(freeSit){option.push({freeSit:{$lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }})}
     const now =new Date()
-    const schedule=await Schedule.find({organizationCode:orgcode,isTripCanceled:false,departureDateAndTime:{$gte:now},$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }})
+    const schedule=await Schedule.find({organizationCode:orgcode,
+      isTripCanceled:false,departureDateAndTime:{$gte:now},
+      $expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }})
     return res.json(schedule)
   }
   catch(error) {
@@ -303,12 +316,17 @@ exports.assignBusToSchedule = async (req, res, next) => {
         organizationCode:orgcode
       },{session})
    }
-   
+   const update_option={  assignedBus:bus,departurePlace}
+   if(is_bus_assigned_before!=bus)
+   {
+    const busInfo=await Bus.findById(bus)
+    const number_sit=busInfo.totalNoOfSit
+    update_option.totalNoOfSit=number_sit
+   }
    const buses= await Schedule.findOneAndUpdate(
     {_id:id,departureDateAndTime:{$gte:timenow}},
     {$set:{
-      assignedBus:bus,
-      departurePlace,
+     update_option
      }
    },{useFindAndModify:false,session})
   const location=new Location({

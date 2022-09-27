@@ -40,11 +40,19 @@ exports.getAllOrganizationCity = async (req, res, next) => {
 exports.getCity = async (req, res, next) => {
   try {
   const orgcode =req.query.organizationCode;
-  let option={}
+  const optarr=[{}]
+  let option={$or:optarr}
   if(orgcode){
-    option={organizationCode:orgcode}
+    const orgArr= JSON.parse(orgcode)
+    orgArr.forEach(e=>{optarr.push({organizationCode:e})})
   }
-  const allcity= await City.find(option,{cityName:1}).distinct('cityName').sort('cityName')
+  console.log(option)
+  const allcity= await City.aggregate(
+    [
+      {$match:option},
+      {$group:{_id:"$cityName","cityName":{$first:"$cityName"}}},
+      {$project:{"_id":0,"cityName":1}}
+    ])
   return res.json(allcity)
   }
   catch(error) {

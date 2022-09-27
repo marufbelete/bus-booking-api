@@ -505,6 +505,12 @@ exports.getUserByRole=async(req,res,next)=>{
   const user=await User.find({userRole:role,organizationCode:organization_code,isAssigned:'1'})
   return res.json(user)
 }
+exports.getUserById=async(req,res,next)=>{
+  const id=req.query.id
+  const organization_code=req.userinfo.organization_code;
+  const user=await User.find({_id:id,organizationCode:organization_code})
+  return res.json(user)
+}
 exports.getAssignedUserByRole=async(req,res,next)=>{
   const role=req.query.role
   const organization_code=req.userinfo.organization_code;

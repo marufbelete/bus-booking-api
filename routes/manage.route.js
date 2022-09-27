@@ -8,7 +8,7 @@ const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controller
 const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganization,deleteOrganization, getOrganizationById, getMyOrganization, getOrgRules}=require("../controllers/organization.controller")
 const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
-const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace, getCityNameOnly}=require("../controllers/city.controller")
+const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace, getCityNameOnly, getCity}=require("../controllers/city.controller")
 const {registerBus,getAllOrganizationBus,updateBusStatus,updateBusInfo,deleteBus, getAllOrganizationBusByState, getDetailOrganizationBus, getOrganizationActiveBus, getOrganizationFreeBus, getOrganizationFreeBusInRoute}=require("../controllers/bus.controller")
 const {getMobileSchgedule,updateMobilePassinfo,getTicketHistory,cancelTicket,getMyPassanger}=require("../controllers/mobileuserapi.controller")
 const {errorHandler} = require('../middleware/errohandling.middleware')
@@ -117,6 +117,7 @@ router.get('/getmypassanger',getMyPassanger,errorHandler)
 router.put('/locksitmobile/:id',lockSit,errorHandler)
 router.put('/bookticket/:id',bookTicketFromSchedule,errorHandler)
 router.get('/getsitreserved/:id',getRiservedSit,errorHandler)
+router.get('/getcity',userauth,authaAdminCasher,getCity,errorHandler)//mobile
 
 
 

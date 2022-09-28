@@ -39,6 +39,17 @@ catch(error) {
 next(error);
   }
 };
+exports.getOrganizationRoute = async (req, res, next) => {
+  try {
+  
+  const orgcode =req.userinfo.organization_code;
+  const allroute= await Route.find({organizationCode:orgcode})
+  return res.json(allroute)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 exports.getOrganizationRouteById = async (req, res, next) => {
   try {
   const id=req.query.id

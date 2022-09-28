@@ -119,6 +119,7 @@ router.put('/locksitmobile/:id',lockSit,errorHandler)
 router.put('/bookticket/:id',bookTicketFromSchedule,errorHandler)
 router.get('/getsitreserved/:id',getRiservedSit,errorHandler)
 router.get('/getcity',userauth,authaAdminCasher,getCity,errorHandler)//mobile
+//qr code 
 
 
 

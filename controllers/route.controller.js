@@ -54,7 +54,7 @@ exports.getOrganizationRouteById = async (req, res, next) => {
   try {
   const id=req.params.id
   const orgcode =req.userinfo.organization_code;
-  const allroute= await Route.find({organizationCode:orgcode,_id:id})
+  const allroute= await Route.findOne({organizationCode:orgcode,_id:id})
   return res.json(allroute)
   }
   catch(error) {

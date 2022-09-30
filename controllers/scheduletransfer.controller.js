@@ -159,6 +159,66 @@ exports.postPoneTrip = async (req, res, next) => {
     next(error)
   }
 }
+//canccel ticket
+exports.cancelTicket = async (req, res, next) => {
+  try {
+    const schedule_id=req.params.id
+    const pass_id=req.body.uniqueid
+    const pass_sit=req.body.passsit
+    const timenow = new Date
+    const orgcode =req.userinfo.organization_code;
+    const schedule=await Schedule.findById(schedule_id)
+    const cancelr_id=req.userinfo.sub
+    const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
+    if(schedule&&moment(schedule.departureDateAndTime).add(Number(org_rule?.rulesAndRegulation?.maxReturnDate),'d').isAfter(timenow))
+    {
+      const {isPassangerDeparted,isTiacketRefunded,isTiacketCanceled}=schedule.passangerInfo.filter(e=>e.uniqueId==pass_id)[0]
+      if(isPassangerDeparted)
+      {
+        const error=new Error("this passanger already departed")
+        error.statusCode=401
+        throw error
+      }
+      if(isTiacketRefunded)
+      {
+        const error=new Error("this ticket already refunded")
+        error.statusCode=401
+        throw error
+      }
+      if(isTiacketCanceled)
+      {
+        const error=new Error("this ticket already canceled")
+        error.statusCode=401
+        throw error
+      }
+    if(moment(schedule.departureDateAndTime).isAfter(timenow))
+    { 
+      await Schedule.findByIdAndUpdate(schedule_id,
+      {$set:{"passangerInfo.$[el].isTiacketCanceled":true,
+      "passangerInfo.$[el].canceledBy":cancelr_id,
+      "passangerInfo.$[el].sitCanceled":pass_sit},
+      $pull:{occupiedSitNo: pass_sit }},
+      {arrayFilters:[{"el.uniqueId":pass_id}],
+      new:true,useFindAndModify:false})
+
+    }
+    else{
+      await Schedule.findByIdAndUpdate(schedule_id,
+      {$set:{"passangerInfo.$[el].isTiacketCanceled":true,
+      "passangerInfo.$[el].canceledBy":cancelr_id,
+      "passangerInfo.$[el].sitCanceled":pass_sit}},
+      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,
+      useFindAndModify:false})
+    }
+    return res.json({message:"refund done"})
+  }
+  return res.json({message:"ticket refund Date Exired"})
+  }
+  catch(error) {
+    console.log(error)
+    next(error)
+  }
+}
 //refund we can use for mobile too
 exports.refundRequest = async (req, res, next) => {
   try {
@@ -168,22 +228,39 @@ exports.refundRequest = async (req, res, next) => {
     const timenow = new Date
     const orgcode =req.userinfo.organization_code;
     const schedule=await Schedule.findById(schedule_id)
+    const refunder_id=req.userinfo.sub
     const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
-    console.log(org_rule)
-    if(moment(schedule.departureDateAndTime).add(Number(org_rule?.rulesAndRegulation?.maxReturnDate),'d').isAfter(timenow))
+    if(schedule&&moment(schedule.departureDateAndTime).add(Number(org_rule?.rulesAndRegulation?.maxReturnDate),'d').isAfter(timenow))
     {
+      const {isPassangerDeparted,isTiacketRefunded}=schedule.passangerInfo.filter(e=>e.uniqueId==pass_id)[0]
+      if(isPassangerDeparted)
+      {
+        const error=new Error("this passanger already departed")
+        error.statusCode=401
+        throw error
+      }
+      if(isTiacketRefunded)
+      {
+        const error=new Error("this ticket already refunded")
+        error.statusCode=401
+        throw error
+      }
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit},$pull:{occupiedSitNo: pass_sit }},
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,
+      "passangerInfo.$[el].isTiacketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
+      "passangerInfo.$[el].sitCanceled":pass_sit},$pull:{occupiedSitNo: pass_sit }},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
+
     }
     else{
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,"passangerInfo.$[el].sitCanceled":pass_sit}},
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,
+      "passangerInfo.$[el].isTiacketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
+      "passangerInfo.$[el].sitCanceled":pass_sit}},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
     }
     return res.json({message:"refund done"})
   }
-  console.log("not refunded")
   return res.json({message:"ticket refund Date Exired"})
   }
   catch(error) {

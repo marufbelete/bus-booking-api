@@ -81,7 +81,19 @@ passangerInfo:[{
       type: Boolean,  
       default:false,
       },
+    isTiacketRefunded: {
+      type: Boolean,  
+      default:false,
+      },
+    isPassangerDeparted: {
+      type: Boolean,  
+      default:false,
+      },
     canceledBy: {
+      type: mongoose.Schema.Types.ObjectId,  
+      ref: 'user', 
+      },
+    refundedBy: {
       type: mongoose.Schema.Types.ObjectId,  
       ref: 'user', 
       },

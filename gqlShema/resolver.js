@@ -771,7 +771,7 @@ getGroupLocalSpecfcificCanceledTicketInbr:async(parent,args,context)=>{
   $unwind:"$passangerInfo"
 },
 {
-  $match:{"passangerInfo.isTiacketCanceled":true,"passangerInfo.canceledBy":sales_id}
+  $match:{"passangerInfo.isTiacketRefunded":true,"passangerInfo.canceledBy":sales_id}
 },
 {
   $project:{"_id":0,"year":{$year:"$passangerInfo.bookedAt"},...filter1,"price":"$tarif"}

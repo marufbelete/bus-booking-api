@@ -1,7 +1,7 @@
 const express = require('express');
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
-const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiservedSit,cancelSchedule,undoCanceldSchedule,getActiveScheduleByRoute, getAllSchgedule, getAllSpecialSchgedule,getAllFilterSchgedule,getSchgeduleById, updatePassinfo, updateScheduleDateAndTime}= require("../controllers/schedulemanage.controller")
+const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiservedSit,cancelSchedule,undoCanceldSchedule,getActiveScheduleByRoute, getAllSchgedule, getAllSpecialSchgedule,getAllFilterSchgedule,getSchgeduleById, updatePassinfo, updateScheduleDateAndTime, checkTicketExist}= require("../controllers/schedulemanage.controller")
 const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute, updateRouteInfoBusAndPlace, getOrganizationDetailRoute, getOrganizationBusByRoute, getOrganizationRouteById}=require("../controllers/route.controller")
 const {createRole,getRole,deleteRole}=require("../controllers/manageRole.controller")
 const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controllers/policy.controller")
@@ -118,9 +118,10 @@ router.get('/getmypassanger',getMyPassanger,errorHandler)
 router.put('/locksitmobile/:id',lockSit,errorHandler)
 router.put('/bookticket/:id',bookTicketFromSchedule,errorHandler)
 router.get('/getsitreserved/:id',getRiservedSit,errorHandler)
-router.get('/getcity',userauth,authaAdminCasher,getCity,errorHandler)//mobile
+router.get('/getcity',getCity,errorHandler)//mobile
 //qr code 
-
+router.get('/checkticket',checkTicketExist,errorHandler)//mobile
+router.get('/cancelticket',userauth,cancelTicket,errorHandler)//mobile
 
 
 module.exports = router

@@ -178,22 +178,11 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
 exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
-    const option1={$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}}
-    const option2={}
-    const {freeSit,organization}=req.query
-    if(freeSit){option1={$and:[{$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}},
-     {$expr:{$gt: [ {$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},freeSit]}}]}}
-    if(organization){
-      let orgarray=JSON.parse(organization)
-      option2={organizationCode:{$in:orgarray}}
-    }
     const now =new Date()
-    const schedule=await Schedule.aggregate([
-      {$match:{
+    const schedule=await Schedule.find({
         organizationCode:orgcode,isTripCanceled:false,
-        departureDateAndTime:{$gte:now},...option1,...option2
-      }}
-    ])
+        departureDateAndTime:{$gte:now}
+  })
     return res.json(schedule)
   }
   catch(error) {
@@ -230,7 +219,7 @@ exports.getSchgeduleById=async(req,res,next)=>{
         $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"isTicketCanceled":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled Trip","$status"]}}
       },
       {
-        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},"Refunded","$status"]}}
+        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTiacketRefunded"]},"Refunded","$status"]}}
       },
     
     ])
@@ -446,4 +435,27 @@ exports.undoCanceldSchedule= async (req, res, next) => {
     next(error)
   }
 };
-
+exports.checkTicketExist=async(req,res,next)=>{
+  try{
+  const schedule_id=req.query.scheduleId
+  const ticket_id=req.query.ticketId
+  if(!(schedule_id&&ticket_id))
+  {
+    const error=new Error("plsease set all field")
+    error.statusCode=401
+    throw error
+  }
+  const isTicketExist=await Schedule.findOne({_id:schedule_id,"passangerInfo.uniqueId":ticket_id}) 
+  if(isTicketExist)
+  {
+  await Schedule.findByIdAndUpdate(schedule_id,
+  {$set:{"passangerInfo.$[el].isPassangerDeparted":true}},
+  {arrayFilters:[{"el.uniqueId":ticket_id}],new:true,useFindAndModify:false})
+   return res.json({message:"Ticket Exist",status:true})
+  }
+  return res.json({message:"No Ticket Found",status:false})
+  }
+  catch(error) {
+    next(error)
+  }
+}

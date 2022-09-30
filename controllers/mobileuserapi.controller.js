@@ -7,19 +7,29 @@ exports.getMobileSchgedule=async(req,res,next)=>{
   try{
     let filter={}
     let departure_date
+    let orgarray
     const now=new Date()
+    let option1={}
+    const {freeSit,source,destination,departureDate,organization}=req.query
+    if(freeSit){
+      option1={"sitLeft":{$gte:Number(freeSit)}}
+     }
+  console.log(option1)
+    if(organization){
+      orgarray=JSON.parse(organization)
+    }
     let today =moment(now).dayOfYear();
-    const {source,destination,departureDate,organization}=req.query
     if(!source||!destination)
     {
       return res.json({message:"please fill both source and destination field"})
     }
-    organization?filter.organizationCode=organization:filter=filter
+    organization?filter.organizationCode={$in:orgarray}:filter=filter
     source?filter.source=source:filter=filter
     destination?filter.destination=destination:filter=filter
     departureDate?departure_date=departureDate:departure_date=today+1
     const schedule=await Schedule.aggregate([
-      {$match:{...filter,$and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date] }},{$expr: { $lt: [ {$size:"$occupiedSitNo"},"$totalNoOfSit" ] }}]}},
+      {$match:{...filter,$and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date]}},
+      {$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}}]}},
       {
         $lookup:{
           from:'organizations',
@@ -28,7 +38,11 @@ exports.getMobileSchgedule=async(req,res,next)=>{
           as:"organization"
         }
         },
-        {$project:{"organizationName":"$organization.organizationName","source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1,"sitLeft":{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]}}}
+        {$project:{"organizationName":{$arrayElemAt:["$organization.organizationName",0]},"source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1,"sitLeft":{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]}}},
+        {
+          $match:option1
+        }
+
     ])
     return res.json(schedule)
   }

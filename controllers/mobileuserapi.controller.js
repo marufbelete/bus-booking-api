@@ -60,14 +60,27 @@ exports.getMobileSchgedule=async(req,res,next)=>{
 //update passanger info
 exports.updateMobilePassinfo = async (req, res, next) => {
   try {
+    console.log("change")
    const schedule_id=req.params.id
+   console.log(schedule_id)
    const ticket_id= req.body.ticketId;
+   console.log(req.body)
    const passangerName=req.body.passangerName;
-   const passangerPhone=req.body.phoneNumber;
-   await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},{arrayFilters:[{"el.uniqueId":ticket_id}],new:true,useFindAndModify:false})
+   const passangerPhone=req.body.passangerPhone;
+   const change=await Schedule.findOneAndUpdate({_id:schedule_id},
+    {$set:{"passangerInfo.$[el].passangerName":passangerName,
+   "passangerInfo.$[el].passangerPhone":passangerPhone}},
+   {arrayFilters:[{"el.uniqueId":ticket_id}],
+    new:true,useFindAndModify:false})
+    console.log(change)
+   if((change?.passangerInfo.filter(e=>e.uniqueId==ticket_id)).length==0)
+   {
+    return res.json({message:"passanger not found"})
+   }
      return res.json({message:"done"})
   }
   catch(error) {
+    console.log("error")
     next(error)
   }
 };
@@ -118,7 +131,10 @@ exports.cancelTicket = async (req, res, next) => {
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].sitCanceled":pass_sit},$pull:{occupiedSitNo: pass_sit }},
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].sitCanceled":pass_sit,
+      "passangerInfo.$[el].isTiacketCanceled":true
+      // ,"passangerInfo.$[el].canceledBy":userid
+    },$pull:{occupiedSitNo: pass_sit }},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
       return res.json({meaage:"sit canceled. please contact bus ticket office for your refund"})
     }

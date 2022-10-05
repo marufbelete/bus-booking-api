@@ -121,7 +121,7 @@ router.get('/getsitreserved/:id',getRiservedSit,errorHandler)
 router.get('/getcity',getCity,errorHandler)//mobile
 //qr code 
 router.get('/checkticket',checkTicketExist,errorHandler)//mobile
-router.get('/cancelticket',userauth,cancelTicket,errorHandler)//mobile
+// router.get('/cancelticket',userauth,cancelTicket,errorHandler)//mobile
 
 
 module.exports = router

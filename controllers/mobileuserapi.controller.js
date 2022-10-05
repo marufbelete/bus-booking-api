@@ -11,11 +11,12 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     const now=new Date()
     let option1={}
     const {freeSit,source,destination,departureDate,organization}=req.query
-    let dep_date=new Date(departureDate)
+    let dep_date=moment(new Date(departureDate)).dayOfYear()
+    console.log("date ")
+    console.log(dep_date)
     if(freeSit){
       option1={"sitLeft":{$gte:Number(freeSit)}}
      }
-  console.log(option1)
     if(organization){
       orgarray=JSON.parse(organization)
     }
@@ -29,22 +30,26 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     destination?filter.destination=destination:filter=filter
     departureDate?departure_date=dep_date:departure_date=today+1
     const schedule=await Schedule.aggregate([
-      {$match:{...filter,$and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date]}},
-      {$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}}]}},
-      {
-        $lookup:{
-          from:'organizations',
-          foreignField:"organizationCode",
-          localField:"organizationCode",
-          as:"organization"
-        }
-        },
-        {$project:{"organizationName":{$arrayElemAt:["$organization.organizationName",0]},"source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1,"sitLeft":{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]}}},
-        {
-          $match:option1
-        }
+      // {$match:{source:source,destination:destination}},
+      {$match:{...filter
+        ,$and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date]}},
+      {$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}}]
+  }},
+  {
+    $lookup:{
+      from:'organizations',
+      foreignField:"organizationCode",
+      localField:"organizationCode",
+      as:"organization"
+    }
+    },
+    {$project:{"day":{$dayOfYear:"$departureDateAndTime"},"organizationName":{$arrayElemAt:["$organization.organizationName",0]},"source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1,"sitLeft":{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]}}},
+    {
+      $match:option1
+    }
 
     ])
+    console.log(schedule)
     return res.json(schedule)
   }
   catch(error) {

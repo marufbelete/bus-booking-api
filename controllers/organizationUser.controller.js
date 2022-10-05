@@ -161,6 +161,8 @@ exports.saveOwner = async (req, res, next) => {
   }
 exports.saveOrganizationUser = async (req, res, next) => {
   try {
+    console.log("save")
+  
     const first_name = req.body.firstname;
     const last_name = req.body.lastname;
     const phone_number = req.body.phonenumber;
@@ -172,6 +174,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const saved_by=req.userinfo.sub
     const user_role=req.userinfo.user_role
     const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?"1":"0"
+
 if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
 { 
  const error = new Error("You don't have access to add super admin or owner, please contact your provider" )
@@ -202,20 +205,6 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
       error.statusCode = 400
       throw error;
     }
-    if(user_role===process.env.AGENT)
-    {
-      const user= await user.findById(saved_by)
-      const max_user=await Agent.findById(user.agentId)
-      const totaluser=User.findAll({agentId:user.agentId})
-      if(!user.isMasterAgent)
-      {
-        return res.json({message:"you don't have access to register user!!"})
-      }
-      if(totaluser.length-1>=max_user.maxUser)
-      {
-        return res.json({message:"you reached maximum account creation limit. please contact your provider for more info"})
-      }
-    }
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
     const user_to_add={
@@ -230,13 +219,54 @@ if (!first_name||!last_name || !phone_number || !password || !add_role) {
       createdBy:saved_by,
       gender:gender
     }
-    if(user_role!==process.env.AGENT&&add_role===process.env.AGENT)
+    if(add_role===process.env.CASHERAGENT||add_role===process.env.SUPERAGENT)
     {
-      user_to_add.isMasterAgent=true
+      const user= await User.findById(saved_by)
+      let agent_obj
+      let totaluser
+      if(add_role===process.env.SUPERAGENT)
+      {
+      const {agentName,phoneNumber,tin,maxUser,location,isActive}=req.body;
+      const newagent= new Agent({
+          agentName,
+          phoneNumber,
+          tin,
+          maxUser,
+          location,
+          isActive,
+          organizationCode:organization_code,
+      })
+      const isAgentExist=await Agent.findOne({tin:tin})
+      if(isAgentExist)
+      {
+    const error = new Error("Agent with is tin already exist.")
+    error.statusCode = 400
+    throw error;
+      }
+      const newAgent=await newagent.save()
+      user_to_add.agentId=newAgent._id
+
     }
+    else{
+      agent_obj=await Agent.findById(user.agentId)
+      totaluser=User.find({agentId:user.agentId})
+      user_to_add.agentId=user.agentId
+
+    }
+
+      if(add_role===process.env.CASHERAGENT&&!(user_role===process.env.SUPERAGENT))
+      {
+        return res.json({message:"you don't have access to register casher agent!!"})
+      }
+      if(add_role===process.env.CASHERAGENT&&totaluser.length-1>=agent_obj.maxUser)
+      {
+        return res.json({message:"you reached maximum account creation limit. please contact your provider for more info"})
+      }
+    }
+   
     const user = new User(user_to_add)
     const neworguser=await user.save()
-  if(add_role===process.env.AGENT)
+  if(add_role===process.env.SUPERAGENT)
 {
   const agentId=req.body.agentId
   await Agent.findByIdAndUpdate(agentId,{set:{isAcountExist:true}})
@@ -300,9 +330,10 @@ exports.getAllOrganizationUser= async(req,res,next) =>{
 try{
   const organization_code=req.userinfo.organization_code;
   const user_role=req.userinfo.user_role
+  console.log(user_role)
   if(user_role===process.env.SUPERADMIN)
   {
-    const alluser=await User.find({organizationCode:organization_code,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER]},isMobileUser:false})
+   const alluser=await User.find({organizationCode:organization_code,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER,process.env.CASHERAGENT]},isMobileUser:false})
    return res.json(alluser)
   //  User.paginate({organizationCode:organization_code,...search,...filter,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER]},isMobileUser:false}, options, function (err, result) {
   //   console.log(result)
@@ -332,6 +363,19 @@ try{
     // return;
     const all=await User.find({userRole:{$in:[process.env.DRIVER,process.env.REDAT]},
     organizationCode:organization_code,isMobileUser:false})
+    return res.json(all)
+  }
+  if(user_role===process.env.SUPERAGENT)
+  {
+    // User.paginate({userRole:{$in:[process.env.DRIVER,process.env.REDAT]},
+    //   organizationCode:organization_code,...search,...filter,isMobileUser:false}, options, function (err, result) {
+    //   console.log(result)
+    //   return res.json(result)
+    // });
+    // return;
+    const all=await User.find({userRole:process.env.CASHERAGENT,
+    organizationCode:organization_code,isMobileUser:false})
+    console.log(all)
     return res.json(all)
   }
 }

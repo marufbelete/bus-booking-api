@@ -11,6 +11,7 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     const now=new Date()
     let option1={}
     const {freeSit,source,destination,departureDate,organization}=req.query
+    let dep_date=new Date(departureDate)
     if(freeSit){
       option1={"sitLeft":{$gte:Number(freeSit)}}
      }
@@ -26,7 +27,7 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     organization?filter.organizationCode={$in:orgarray}:filter=filter
     source?filter.source=source:filter=filter
     destination?filter.destination=destination:filter=filter
-    departureDate?departure_date=departureDate:departure_date=today+1
+    departureDate?departure_date=dep_date:departure_date=today+1
     const schedule=await Schedule.aggregate([
       {$match:{...filter,$and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date]}},
       {$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}}]}},

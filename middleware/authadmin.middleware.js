@@ -43,7 +43,7 @@ exports.authaAdminCasher = (req, res, next) => {
 
 exports.authaAdminCasherAgent = (req, res, next) => {
   const userrole=req.userinfo.user_role;
-  if (userrole===process.env.ADMIN  || userrole===process.env.SUPERADMIN||userrole===process.env.CASHER||userrole===process.env.AGENT) {
+  if (userrole===process.env.ADMIN  || userrole===process.env.SUPERADMIN||userrole===process.env.CASHER||userrole===process.env.SUPERAGENT) {
     next()
     return;
       }

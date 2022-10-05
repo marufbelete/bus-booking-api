@@ -59,7 +59,7 @@ Query:{
         $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
       },
       {
-        $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+        $match:{"userRole":{$nin:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
       },
       {
         $group:{_id:filter3,"totalTicket":{$sum:1}}
@@ -103,7 +103,6 @@ Query:{
       const orgcode =context.organization_code;
       const sales=context.sub
       const sales_id=mongoose.Types.ObjectId(sales)
-      console.log(sales_id)
       const allSchedule= await Schedule.aggregate( [
     {
         $match:{organizationCode:orgcode}
@@ -126,7 +125,7 @@ Query:{
       $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
     },
     {
-      $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+      $match:{"userRole":{$nin:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
     },
     {
       $group:{_id:filter3,"totalTicket":{$sum:1}}
@@ -146,6 +145,71 @@ Query:{
       return []
       }
   },
+  getAgenTotalTicket:async(parent,args,context)=>{
+    try{
+    const now=new Date()
+    let currentYear=now.getFullYear()
+    let currentMonth=moment(now).month()+1;
+    let currentWeek=moment(now).weeks()-1;
+    let today =moment(now).dayOfYear();
+    const sort=args.input.filter
+    console.log(sort)
+    let filter1
+    filter1=sort=="day"?{"day":dayY}:filter1
+    filter1=sort=="week"?{"week":week}:filter1
+    filter1=sort=="month"?{"month":month}:filter1
+    let filter2={"year":currentYear}
+    filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+    filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+    filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+    let filter3={"year":"$year"}
+    filter3=sort=="day"?{"year":"$year","day":"$day"}:filter3
+    filter3=sort=="week"?{"year":"$year","week":"$week"}:filter3
+    filter3=sort=="month"?{"year":"$year","month":"$month"}:filter3
+    const orgcode =context.organization_code;
+    const user=await User.findById(context.sub)
+    const agent_id=mongoose.Types.ObjectId(user.agentId)
+    const allSchedule= await Schedule.aggregate( [
+  {
+      $match:{organizationCode:orgcode}
+  },
+  {
+    $unwind:"$passangerInfo"
+  },
+    {
+  $lookup:{
+    from:'users',
+    foreignField:"_id",
+    localField:"passangerInfo.bookedBy",
+    as:"user"
+  }
+  },
+  {
+    $project:{"_id":0,"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"agentId":{$arrayElemAt:["$user.agentId",0]}}
+  },
+  {
+    $match:{"agentId":agent_id,"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},...filter2}
+  },
+  {
+    $group:{_id:filter3,"totalTicket":{$sum:1}}
+  },
+  {
+    $project:{
+      "_id":0,"year":"$_id.year","totalTicket":1
+    }
+  },
+    ] )
+    console.log(agent_id)
+    console.log("agent ticket")
+    console.log(allSchedule)
+    return allSchedule[0]
+
+  }
+
+  catch(error) {
+    return []
+    }
+},
   getLocalSpecificCanceledSale:async(parent,args,context)=>{
     try{
     const now=new Date()
@@ -178,7 +242,7 @@ Query:{
     $unwind:"$passangerInfo"
   },
   {
-    $match:{"passangerInfo.isTiacketCanceled":true,"passangerInfo.canceledBy":sales_id}
+    $match:{"passangerInfo.isTiacketRefunded":true,"passangerInfo.canceledBy":sales_id}
   },
   {
   $lookup:{
@@ -192,7 +256,7 @@ Query:{
     $project:{"_id":0,"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
   },
   {
-    $match:{"userRole":{$ne:process.env.AGENT},...filter2}
+    $match:{"userRole":{$nin:[process.env.CASHERAGENT,process.env.SUPERAGENT]},...filter2}
   },
   {
     $group:{_id:filter3,"totalTicket":{$sum:1}}
@@ -213,7 +277,74 @@ Query:{
     return []
     }
 },
-    getAgentTotalSale:async(parent,args,context)=>{
+//canceled by agent
+getAgentCanceledTicket:async(parent,args,context)=>{
+  try{
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const sort=args.input.filter
+  let filter1
+  filter1=sort=="day"?{"day":dayY}:filter1
+  filter1=sort=="week"?{"week":week}:filter1
+  filter1=sort=="month"?{"month":month}:filter1
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3={"year":"$year"}
+  filter3=sort=="day"?{"year":"$year","day":"$day"}:filter3
+  filter3=sort=="week"?{"year":"$year","week":"$week"}:filter3
+  filter3=sort=="month"?{"year":"$year","month":"$month"}:filter3
+  const orgcode =context.organization_code;
+  const user=await User.findById(context.sub)
+  const agent_id=mongoose.Types.ObjectId(user.agentId)
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+{
+  $match:{"passangerInfo.isTiacketRefunded":true,}
+},
+{
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"agentId":{$arrayElemAt:["$user.agentId",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
+},
+{
+  $match:{"agentId":agent_id,"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},...filter2}
+},
+{
+  $group:{_id:filter3,"totalTicket":{$sum:1}}
+},
+{
+  $project:{
+    "_id":0,"year":"$_id.year","totalTicket":1
+  }
+},
+  ] )
+  console.log("agent canceled")
+  console.log(allSchedule)
+  return allSchedule
+
+}
+
+catch(error) {
+  return []
+  }
+},
+getAgentTotalSale:async(parent,args,context)=>{
       try{
       const now=new Date()
       let currentYear=now.getFullYear()
@@ -253,7 +384,7 @@ Query:{
       $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
     },
     {
-      $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
+      $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
     },
     {
       $group:{_id:filter3,"totalTicket":{$sum:1}}
@@ -394,11 +525,81 @@ catch(error) {
 getEachAgentSale:async(parent,args,context)=>{
   try{
   const now=new Date()
-  console.log("startausdkjasbdfasjk")
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
   let currentWeek=moment(now).weeks()-1;
   let today =moment(now).dayOfYear();
+  const sort=args.input.filter
+  let filter1
+  filter1=sort=="day"?{"day":dayY}:filter1
+  filter1=sort=="week"?{"week":week}:filter1
+  filter1=sort=="month"?{"month":month}:filter1
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3={"year":"$year","agent":"$userID"}
+  filter3=sort=="day"?{"year":"$year","day":"$day","agent":"$agentId"}:filter3
+  filter3=sort=="week"?{"year":"$year","week":"$week","agent":"$agentId"}:filter3
+  filter3=sort=="month"?{"year":"$year","month":"$month","agent":"$agentId"}:filter3
+  const orgcode =context.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"agentId":{$arrayElemAt:["$user.agentId",0]},"userID":{$arrayElemAt:["$user._id",0]},"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
+},
+{
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
+},
+{
+  $group:{_id:filter3,"totalTicket":{$sum:1},"agentName":{$first:"$agentName"},"agentId":{$first:"$agentId"}}
+},
+{
+  $lookup:{
+    from:'agents',
+    foreignField:"_id",
+    localField:"agentId",
+    as:"agent"
+  }
+  },
+{
+  $project:{ "_id":0,"totalTicket":1,"agentName":{$arrayElemAt:["$agent.agentName",0]} }
+}
+
+  ] )
+  console.log("valauejsfaksd")
+  console.log(allSchedule)
+  return allSchedule
+
+}
+catch(error) {
+  console.log(error)
+  return []
+  }
+},
+//donut agent
+getOneAgentSale:async(parent,args,context)=>{
+  try{
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const user=await User.findById(context.sub)
+  const agent_id=mongoose.Types.ObjectId(user.agentId)
   const sort=args.input.filter
   let filter1
   filter1=sort=="day"?{"day":dayY}:filter1
@@ -420,7 +621,7 @@ getEachAgentSale:async(parent,args,context)=>{
 {
   $unwind:"$passangerInfo"
 },
-  {
+{
 $lookup:{
   from:'users',
   foreignField:"_id",
@@ -429,17 +630,14 @@ $lookup:{
 }
 },
 {
-  $project:{"_id":0,"agentName":{$arrayElemAt:["$user.firstName",0]},"userID":{$arrayElemAt:["$user._id",0]},"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
+  $project:{"_id":0,"casherName":{$arrayElemAt:["$user.firstName",0]},"agentId":{$arrayElemAt:["$user.agentId",0]},"userID":{$arrayElemAt:["$user._id",0]},"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
 },
 {
-  $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"agentId":agent_id,...filter2}
 },
 {
-  $group:{_id:filter3,"totalTicket":{$sum:1},"agentName":{$first:"$agentName"}}
+  $group:{_id:filter3,"totalTicket":{$sum:1},"agentName":{$first:"$casherName"}}
 },
-{
-  $project:{ "_id":0,"totalTicket":1,"agentName":1 }
-}
 
   ] )
   console.log("valauejsfaksd")
@@ -476,7 +674,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"month":{$month:"$passangerInfo.bookedAt"},"userRole":{$arrayElemAt:["$user.userRole",0]}}
 },
 {
-  $match:{"userRole":process.env.AGENT,"isMobileUser":false}
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false}
 },
 {
   $group:{_id:{"year":"$year","month":"$month"},"totalTicket":{$sum:1}}
@@ -488,6 +686,75 @@ $lookup:{
 }
 
   ] )
+  return allSchedule
+
+}
+catch(error) {
+  return []
+  }
+},
+getAgentTicketInbr:async(parent,args,context)=>{
+  try{
+  // const orgcode ='001000';
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const sort=args.input.filter
+  let filter1
+  const user=await User.findById(context.sub)
+  const agent_id=mongoose.Types.ObjectId(user.agentId)
+  filter1=sort=="day"?{"day":dayY}:filter1
+  filter1=sort=="week"?{"week":week,"day":dayW}:filter1
+  filter1=sort=="month"?{"month":month,"day":dayM}:filter1
+  filter1=sort=="year"?{"month":month,"day":dayY}:filter1
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3={"year":"$year","day":"$day"}
+  filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
+  const orgcode =context.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+  {
+$lookup:{
+  from:'users',
+  foreignField:"_id",
+  localField:"passangerInfo.bookedBy",
+  as:"user"
+}
+},
+{
+  $project:{"_id":0,"agentId":{$arrayElemAt:["$user.agentId",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif"}
+},
+{
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"agentId":agent_id,...filter2}
+},
+{
+  $group:{_id:filter3,"totalPrice":{$sum:"$price"},...filter31}
+},
+{
+  $project:{
+    "_id":0,"label":1,"totalPrice":1
+  }
+},
+{
+  $sort:{"label":1}
+}
+
+
+  ] )
+  console.log("agent sale in birr")
+  console.log(allSchedule)
   return allSchedule
 
 }
@@ -539,7 +806,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif"}
 },
 {
-  $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
 },
 {
   $group:{_id:filter3,"totalPrice":{$sum:"$price"},...filter31}
@@ -587,7 +854,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"month":{$month:"$passangerInfo.bookedAt"},"userRole":{$arrayElemAt:["$user.userRole",0]}}
 },
 {
-  $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false}
+  $match:{"userRole":{$nin:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false}
 },
 {
   $group:{_id:{"year":"$year","month":"$month"},"totalTicket":{$sum:1}}
@@ -652,7 +919,74 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif"}
 },
 {
-  $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+  $match:{"userRole":{$nin:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
+},
+{
+  $group:{_id:filter3,"totalPrice":{$sum:"$price"},...filter31}
+},
+{
+  $project:{
+    "_id":0,"label":1,"totalPrice":1
+  }
+},
+{
+  $sort:{"label":1}
+}
+  ] )
+  return allSchedule
+
+}
+catch(error) {
+  console.log(error)
+  return []
+  }
+},
+//specific cashersale in birr
+getCasherTicketInbr:async(parent,args,context)=>{
+  try{
+  // const orgcode ='001000';
+  console.log("check point")
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const booker_id=mongoose.Types.ObjectId(context.sub)
+  const sort=args.input.filter
+  let filter1
+  filter1=sort=="day"?{"day":dayY}:filter1
+  filter1=sort=="week"?{"week":week,"day":dayW}:filter1
+  filter1=sort=="month"?{"month":month,"day":dayM}:filter1
+  filter1=sort=="year"?{"month":month,"day":dayY}:filter1
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3={"year":"$year","day":"$day"}
+  filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
+  const orgcode =context.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+//   {
+// $lookup:{
+//   from:'users',
+//   foreignField:"_id",
+//   localField:"passangerInfo.bookedBy",
+//   as:"user"
+// }
+// },
+{
+  $project:{"_id":0,"bookedBy":"$passangerInfo.bookedBy","year":{$year:"$passangerInfo.bookedAt"},...filter1,"price":"$tarif"}
+},
+{
+  $match:{"bookedBy":booker_id,...filter2}
 },
 {
   $group:{_id:filter3,"totalPrice":{$sum:"$price"},...filter31}
@@ -667,6 +1001,7 @@ $lookup:{
 }
   ] )
   console.log(allSchedule)
+  console.log("end check")
   return allSchedule
 
 }
@@ -763,6 +1098,7 @@ getGroupLocalSpecfcificCanceledTicketInbr:async(parent,args,context)=>{
   filter3=sort=="week"?  {"week":"$week"}:filter3
   filter3=sort=="month"?  {"month":"$month"}:filter3
   const orgcode =context.organization_code;
+  console.log(sales_id)
   const allSchedule= await Schedule.aggregate( [
 {
     $match:{organizationCode:orgcode}
@@ -788,6 +1124,74 @@ getGroupLocalSpecfcificCanceledTicketInbr:async(parent,args,context)=>{
   }
 },
   ] )
+return allSchedule
+}
+catch(error) {
+  console.log(error)
+  return []
+  }
+},
+getAgentCanceledTicketBirr:async(parent,args,context)=>{
+  try{
+  // const orgcode ='001000';
+  const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const user=await User.findById(context.sub)
+  const agent_id=mongoose.Types.ObjectId(user.agentId)
+  const sort=args.input.filter
+  console.log(sort)
+  let filter1
+  filter1=sort=="day"?{"day":dayY}:filter1
+  filter1=sort=="week"?{"week":week,"day":dayW}:filter1
+  filter1=sort=="month"?{"month":month,"day":dayM}:filter1
+  filter1=sort=="year"?{"month":month,"day":dayY}:filter1
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let filter3={"year":"$year"}
+  filter3=sort=="day"?  {"day":"$day"}:filter3
+  filter3=sort=="week"?  {"week":"$week"}:filter3
+  filter3=sort=="month"?  {"month":"$month"}:filter3
+  const orgcode =context.organization_code;
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode}
+},
+{
+  $unwind:"$passangerInfo"
+},
+{
+  $match:{"passangerInfo.isTiacketRefunded":true}
+},
+{
+  $lookup:{
+    from:'users',
+    foreignField:"_id",
+    localField:"passangerInfo.bookedBy",
+    as:"user"
+  }
+  },
+{
+  $project:{"_id":0,"userRole":{$arrayElemAt:["$user.userRole",0]},"agentId":{$arrayElemAt:["$user.agentId",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"price":"$tarif"}
+},
+{
+  $match:{"agentId":agent_id,"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},...filter2}
+},
+{
+  $group:{_id:filter3,"totalPrice":{$sum:"$price"}}
+},
+{
+  $project:{
+    "_id":0,"totalPrice":1
+  }
+},
+  ] )
+  console.log("canceled refund")
+  console.log(allSchedule)
 return allSchedule
 }
 catch(error) {
@@ -941,7 +1345,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
 },
 {
-  $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
 },
 {
   $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:"$price"}}
@@ -997,7 +1401,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
 },
 {
-  $match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+  $match:{"userRole":{$nin:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
 },
 {
   $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:"$price"}}
@@ -1057,7 +1461,7 @@ $lookup:{
   $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
 },
 {
-  $match:{"userRole":process.env.AGENT,"isMobileUser":false,...filter2}
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
 },
 {
   $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:"$price"}}
@@ -1160,7 +1564,7 @@ as:"user"
 $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"day":dayY,...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]},"price":"$tarif","bookedAt":"$passangerInfo.bookedAt"}
 },
 {
-$match:{"userRole":{$ne:process.env.AGENT},"isMobileUser":false,...filter2}
+$match:{"userRole":{$nin:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
 },
 {
 $group:{_id:{"year":"$year","day":"$day"},"bookedAt":{$first:"$bookedAt"},"totalPrice":{$sum:"$price"}}

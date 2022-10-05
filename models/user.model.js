@@ -43,7 +43,7 @@ isAssigned:{
   userRole:{
     type: String,
     enum:{
-      values:['owner','superadmin','admin','casher','driver','agent','redat'],
+      values:['owner','superadmin','admin','casher','driver','superagent','casheragent','redat'],
       message: '{VALUE} is not supported'
     } ,
     trim: true,

@@ -565,7 +565,7 @@ $lookup:{
   $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false,...filter2}
 },
 {
-  $group:{_id:filter3,"totalTicket":{$sum:1},"agentName":{$first:"$agentName"},"agentId":{$first:"$agentId"}}
+  $group:{_id:filter3,"totalTicket":{$sum:1},"agentId":{$first:"$agentId"}}
 },
 {
   $lookup:{
@@ -575,9 +575,9 @@ $lookup:{
     as:"agent"
   }
   },
-{
-  $project:{ "_id":0,"totalTicket":1,"agentName":{$arrayElemAt:["$agent.agentName",0]} }
-}
+// {
+//   $project:{ "_id":0,"totalTicket":1,"agentName":{$arrayElemAt:["$agent.agentName",0]} }
+// }
 
   ] )
   console.log("valauejsfaksd")

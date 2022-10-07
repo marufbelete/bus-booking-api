@@ -137,7 +137,7 @@ exports.getOrganizationFreeBus = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
   const today=new Date()
-  const departure_date=req.query?.departureDate?.getDate()||today.getDate()+1
+  const departure_date=new Date(req.query?.departureDate)?.getDate()||today.getDate()+1
   const free_bus=await Location.aggregate([
     {
       $match:{organizationCode:orgcode}

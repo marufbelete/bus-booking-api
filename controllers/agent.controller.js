@@ -57,10 +57,10 @@ exports.updateAgentInfo = async (req, res, next) => {
   const update={}
   if(agentName){update.agentName=agentName}
   if(phoneNumber){update.phoneNumber=phoneNumber}
-  if(tin){update.agentName=tin}
-  if(maxUser){update.agentName=maxUser}
+  if(tin){update.tin=tin}
+  if(maxUser){update.maxUser=maxUser}
   if(location){update.location=location}
-  if(isActive){update.agentName=isActive}
+  if(isActive){update.isActive=isActive}
    const agent= await Agent.findByIdAndUpdate(id,{
      $set:{
       ...update

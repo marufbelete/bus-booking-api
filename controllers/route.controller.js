@@ -91,15 +91,17 @@ exports.updateRouteInfo = async (req, res, next) => {
    const estimated_hour = req.body.estimatedHour;
    const max_trip=req.body.maxtrip//array of bus
    const dep_plcae=req.body.departureplace;
+   let option={}
+   if(tarif){option.tarif=tarif}
+   if(distance){option.distance=distance}
+   if(estimated_hour){option.estimatedHour=estimated_hour}
+   if(max_trip){option.maximumTrip=max_trip}
+   if(dep_plcae){option.departurePlace=dep_plcae}
+   if(assignedbus){option.bus=assignedbus}
+   
    const bus= await Route.findByIdAndUpdate(id,{
      $set:{
-      tarif:tarif,
-      distance:distance,
-      estimatedHour:estimated_hour,
-      maximumTrip:max_trip,
-      departurePlace:dep_plcae,
-      bus:assignedbus
-
+    ...option
      }
    })
    res.json(bus)

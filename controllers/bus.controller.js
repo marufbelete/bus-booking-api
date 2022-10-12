@@ -114,9 +114,10 @@ exports.getAllOrganizationBusByState = async (req, res, next) => {
   const state=req.query.state
   const orgcode =req.userinfo.organization_code;
   const allbus= await Bus.find({organizationCode:orgcode,busState:state})
-  returnres.json(allbus)
+  return res.json(allbus)
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 };
@@ -267,6 +268,7 @@ exports.updateBusInfo = async (req, res, next) => {
    req.body.serviceYear?updated.serviceYear=req.body.serviceYear:updated
    session.startTransaction()  
    const bus_user= await Bus.findById(id)
+   console.log(bus_user)
    if(bus_user.driverId!=req.body.driverId)
    {
     await User.findByIdAndUpdate(bus_user.driverId,{
@@ -287,7 +289,7 @@ exports.updateBusInfo = async (req, res, next) => {
      $set:{
    ...updated
      }
-   })
+   },{new:true})
    await User.findByIdAndUpdate(req.body.driverId,{
      $set:{
       isAssigned:"2"
@@ -302,6 +304,7 @@ exports.updateBusInfo = async (req, res, next) => {
    return res.json(bus)
   }
   catch(error) {
+    console.log(error)
     await session.abortTransaction()
     next(error)
   }
@@ -311,11 +314,13 @@ exports.updateBusStatus = async (req, res, next) => {
   try {
    const id=req.params.id
    const bus_status = req.body.busstatus;
-   const bus= await Bus.findAndUpdateById(id,{
+   const bus= await Bus.findByIdAndUpdate(id,{
      $set:{
       busState:bus_status
      }
-   })
+   },{new:true})
+   console.log(bus)
+
    res.json(bus)
   }
   catch(error) {

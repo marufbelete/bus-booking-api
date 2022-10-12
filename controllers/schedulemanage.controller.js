@@ -388,6 +388,7 @@ exports.cancelSchedule= async (req, res, next) => {
   const session=await mongoose.startSession()
   try {
   //find and copmare the date if pass dont cancel
+  console.log("canceld")
    const id=req.params.id
    const canceler_id=req.userinfo.sub
    const timenow=new Date()
@@ -395,10 +396,15 @@ exports.cancelSchedule= async (req, res, next) => {
    const bus_id=sheduleinfo.assignedBus
    const orgcode =req.userinfo.organization_code;
    session.startTransaction()
-  await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
+  const update_schedule=await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isTripCanceled:true,
   canceledBy:canceler_id
    }},{session})
+   console.log(update_schedule)
+   if(!update_schedule)
+   {
+    return res.json({message:"schedule can't calceled, already departed",status:true})
+   }
    if(bus_id)
    {
    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')

@@ -6,6 +6,10 @@ exports.registerCity = async (req, res, next) => {
     const departureplace= req.body.departurePlace.map(e=>Load.capitalize(e));
     const orgcode =req.userinfo.organization_code;
 
+    let is_city_exist=await City.findOne({cityName:cityname})
+    if(is_city_exist){
+     return res.json({message:"this city already exist"})
+    }
     const newbus= new City({
       cityName:cityname,
       departurePlace:departureplace,
@@ -88,14 +92,19 @@ exports.updateCityInfo = async (req, res, next) => {
   try {
    const id=req.params.id
    const city_name = Load.startCase(req.body.cityName);
-   const departure_place= req.body.departurePlace.map(e=>Load.startCase(e));
-   const bus= await City.findByIdAndUpdate(id,{
+   const departure_place= req.body?.departurePlace?.map(e=>Load.startCase(e));
+   let option={}
+   let add={}
+   if(city_name){option.cityName=city_name}
+   if(departure_place){add={$addToSet:{departurePlace:departure_place}}}
+  //  if(city_name){option.}
+   const city= await City.findByIdAndUpdate(id,{
      $set:{
-      cityName:city_name,
-      departurePlace:departure_place,
-     }
-   })
-   res.json(bus)
+      ...option,
+     },
+     add
+   },{new:true})
+   return res.json(city)
   }
   catch(error) {
     next(error)

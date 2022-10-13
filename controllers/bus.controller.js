@@ -265,6 +265,8 @@ exports.updateBusInfo = async (req, res, next) => {
    req.body.totalNoOfSit?updated.totalNoOfSit=req.body.totalNoOfSit:updated
    req.body.driverId?updated.driverId=req.body.driverId:updated
    req.body.redatId?updated.redatId=req.body.redatId:updated
+   req.body.plateNo?updated.busPlateNo=req.body.plateNo:updated
+   req.body.sideNo?updated.busSideNo=req.body.sideNo:updated
    req.body.serviceYear?updated.serviceYear=req.body.serviceYear:updated
    session.startTransaction()  
    const bus_user= await Bus.findById(id)

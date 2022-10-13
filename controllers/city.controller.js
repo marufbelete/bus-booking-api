@@ -91,19 +91,13 @@ exports.getCityNameOnly = async (req, res, next) => {
 exports.updateCityInfo = async (req, res, next) => {
   try {
    const id=req.params.id
-   const city_name = Load.startCase(req.body.cityName);
    const departure_place= req.body?.departurePlace?.map(e=>Load.startCase(e));
-   let option={}
    let add={}
-   if(city_name){option.cityName=city_name}
    if(departure_place){add={$addToSet:{departurePlace:departure_place}}}
-  //  if(city_name){option.}
-   const city= await City.findByIdAndUpdate(id,{
-     $set:{
-      ...option,
-     },
-     add
-   },{new:true})
+   console.log(add)
+  const city= await City.findByIdAndUpdate(id,{
+     ...add
+   },{new:true,useFindAndModify:false})
    return res.json(city)
   }
   catch(error) {

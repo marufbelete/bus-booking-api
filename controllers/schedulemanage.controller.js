@@ -431,11 +431,15 @@ exports.undoCanceldSchedule= async (req, res, next) => {
    const id=req.params.id
    const canceler_id=req.userinfo.sub
    const timenow=new Date()
-   await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
-  isCanceled:false,
-  canceledBy:canceler_id
+   const undo_schedule=await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
+    isTripCanceled:false,
+    canceledBy:canceler_id
    }})
-   return res.json("deleted successfully")
+   if(!undo_schedule)
+   {
+    return res.json({message:"departure time expired can't undo this schedule",status:true})
+   }
+   return res.json({message:"schedule undo completed",status:true})
   }
   catch(error) {
     next(error)

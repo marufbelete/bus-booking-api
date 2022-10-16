@@ -41,12 +41,12 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
     await location.save({session})
     await User.findByIdAndUpdate(driver_id,{
       $set:{
-       isAssigned:"2"
+       isAssigned:process.env.ASSIGNEDUSER
       }
     },{session})
     await User.findByIdAndUpdate(redat_id,{
       $set:{
-       isAssigned:"2"
+       isAssigned:process.env.ASSIGNEDUSER
       }
     },{session})
     session.commitTransaction()
@@ -275,7 +275,7 @@ exports.updateBusInfo = async (req, res, next) => {
    {
     await User.findByIdAndUpdate(bus_user.driverId,{
       $set:{
-       isAssigned:"1"
+       isAssigned:process.env.UNASSIGNEDUSER
       }
     },{session})
    }
@@ -283,7 +283,7 @@ exports.updateBusInfo = async (req, res, next) => {
    {
     await User.findByIdAndUpdate(bus_user.redatId,{
       $set:{
-       isAssigned:"1"
+       isAssigned:process.env.UNASSIGNEDUSER
       }
     },{session})
    }
@@ -294,12 +294,12 @@ exports.updateBusInfo = async (req, res, next) => {
    },{new:true})
    await User.findByIdAndUpdate(req.body.driverId,{
      $set:{
-      isAssigned:"2"
+      isAssigned:process.env.ASSIGNEDUSER
      }
    },{session})
    await User.findByIdAndUpdate(req.body.redatId,{
      $set:{
-      isAssigned:"2"
+      isAssigned:process.env.ASSIGNEDUSER
      }
    },{session})
    session.commitTransaction()

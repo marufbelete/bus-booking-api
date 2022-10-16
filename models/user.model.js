@@ -20,10 +20,10 @@ agentId:{
 isAssigned:{
   type: String,
   enum:{
-    values:["1","0","2"],
+    values:[process.env.UNASSIGNEDUSER,process.env.DEFAULTUSER,process.env.ASSIGNEDUSER],
     message: '{VALUE} is not supported'
   },
-  default:"0"
+  default:process.env.DEFAULTUSER
 },
   phoneNumber:{
     type: String,

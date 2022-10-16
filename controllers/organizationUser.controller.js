@@ -173,7 +173,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
     const user_role=req.userinfo.user_role
-    const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?"1":"0"
+    const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?process.env.UNASSIGNEDUSER:process.env.DEFAULTUSER
 
 if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
 { 
@@ -419,7 +419,7 @@ if(user_role===process.env.SUPERADMIN)
 { 
   //for other
   if(updateduserid!==user_id){
-    if(is_assigned=="1")
+    if(is_assigned==process.env.UNASSIGNEDUSER)
     {
     const u_user=await User.findById(updateduserid)
     let filter={}
@@ -476,7 +476,7 @@ if(user_role===process.env.ADMIN ){
   }
 // for other than like casher
   else if(editeduser.userRole!==process.env.SUPERADMIN && editeduser.userRole!==process.env.ADMIN&&editeduser.userRole!==process.env.OWNER ){
-    if(is_assigned=="1")
+    if(is_assigned==process.env.UNASSIGNEDUSER)
     {
     const u_user=User.findById(updateduserid)
     let filter={}
@@ -546,7 +546,7 @@ throw error;
 exports.getUserByRole=async(req,res,next)=>{
   const role=req.query.role
   const organization_code=req.userinfo.organization_code;
-  const user=await User.find({userRole:role,organizationCode:organization_code,isAssigned:'1'})
+  const user=await User.find({userRole:role,organizationCode:organization_code})
   return res.json(user)
 }
 exports.getUserById=async(req,res,next)=>{
@@ -558,14 +558,14 @@ exports.getUserById=async(req,res,next)=>{
 exports.getAssignedUserByRole=async(req,res,next)=>{
   const role=req.query.role
   const organization_code=req.userinfo.organization_code;
-  const user=await User.find({userRole:role,organizationCode:organization_code,isAssigned:'2'})
+  const user=await User.find({userRole:role,organizationCode:organization_code,isAssigned:process.env.ASSIGNEDUSER})
   return res.json(user)
 }
 exports.getUserByRoleWithEdit=async(req,res,next)=>{
   const role=req.query.role
   const current_user=req.query.current
   const organization_code=req.userinfo.organization_code;
-  const user=await User.find({$or:[{_id:current_user},{userRole:role,organizationCode:organization_code,isAssigned:'1'}]})
+  const user=await User.find({$or:[{_id:current_user},{userRole:role,organizationCode:organization_code,isAssigned:process.env.UNASSIGNEDUSER}]})
   return res.json(user)
 }
 exports.activateOrganizationUser = async (req, res, next) => {

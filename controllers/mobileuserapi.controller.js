@@ -1,6 +1,7 @@
 const Schedule = require("../models/schedule.model");
 const moment =require("moment")
 const mongoose = require("mongoose");
+const { shuffle } = require("lodash");
 //create schedules need io here
 //mob
 exports.getMobileSchgedule=async(req,res,next)=>{
@@ -49,8 +50,8 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     }
 
     ])
-    console.log(schedule)
-    return res.json(schedule)
+    const shuffle_result=shuffle(schedule)
+    return res.json(shuffle_result)
   }
   catch(error) {
     next(error)

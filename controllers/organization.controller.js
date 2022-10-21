@@ -16,7 +16,7 @@ if (req.file)
     const path=req.file.originalname;
     const fullpath=uniquePrefix+'-'+path;
            sharp(req.file.buffer)
-          .resize({ width:600, fit: 'contain', })
+          .resize({ width:600, fit: 'contain' })
     .toFormat(imagetype)
     .toFile(`${process.cwd()}/images/${fullpath}`);
     imgurl=fullpath

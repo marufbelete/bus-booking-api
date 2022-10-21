@@ -384,7 +384,7 @@ exports.getAllActiveSchedule = async (req, res, next) => {
     
   const orgcode =req.params.organizationcode;
   const timenow=new Date();
-  const allSchedule= await Schedule.find({organizationCode:orgcode,isCanceled:false,departureTDateAndTime:{$gte:timenow}}).limit(pagesize).skip(skip).sort({datefield:-1})
+  const allSchedule= await Schedule.find({organizationCode:orgcode,isCanceled:false,departureTDateAndTime:{$gte:timenow}}).sort({datefield:-1})
   return res.json(allSchedule)
   }
   catch(error) {

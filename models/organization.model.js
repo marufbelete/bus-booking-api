@@ -18,17 +18,60 @@ const OrganizationSchema = new mongoose.Schema({
     logo: {
       type: String,
     },
-    branch:{
-      type:[String],
-    },
-    rulesAndRegulation: {
-      funding:{
-        type: String,
-      },
+    branch:[{
+        location:{
+          type: String,
+        },
+        location:{
+          type: String,
+        },
+        responsiblePerson:{
+          type: String,
+        },
+        contactInfo:{
+          type: String,
+        },
+        contactInfo:{
+          type: String,
+        },
+     }],
+     offering:{
+        type:[String]
+     },
+     setting:{
       returnPercent:{
         type: String,
       },
       maxReturnDate:{
+        type: String,
+      },
+      isSeparateBank:{
+        type: String,
+      },
+      prepareScheduleBefore:{
+        type:String
+      },
+      prepareScheduleBefore:{
+        type:String
+      },
+      isBusOnlyForOneRoute:{
+        type:Boolean
+      },
+      isDriverOnlyHasOneBus:{
+        type:Boolean
+      },
+      isBusOnlyHasOneDriver:{
+        type:Boolean
+      },
+      isBusMandatoryForSchedule:{
+        type:Boolean
+      },
+      isCasherCreateSchedule:{
+        type:Boolean
+      }
+     },
+    rulesAndRegulation: {
+      fundingInfo:{
         type: String,
       },
     }

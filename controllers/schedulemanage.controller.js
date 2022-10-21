@@ -291,14 +291,20 @@ exports.assignBusToSchedule = async (req, res, next) => {
    const bus= req.body.bus;
    const departurePlace=req.body.departureplace
    const orgcode =req.userinfo.organization_code;
-   const assign_date=await Location.find({busId:bus})
-   const sheduleinfo=await Schedule.findById(id)
-   const businfo=assign_date?.map(e=>e?.assigneDate)
-   const is_not_free=businfo.map(e=>new Date(e).getDate()).includes(new Date(sheduleinfo.departureDateAndTime).getDate())
    const timenow=new Date()
+   const sheduleinfo=await Schedule.findOne({_id:id,departureDateAndTime:{$gte:timenow}})
+   console.log(sheduleinfo)
+   if(!sheduleinfo)
+   {
+    return res.json({message:"trip departure time already expired"})
+   }
+   const assign_date=await Location.find({busId:bus})
+   const businfo=assign_date?.map(e=>e?.assigneDate)
+   const is_not_free=businfo.map(e=>moment(e).dayOfYear()).includes(moment(sheduleinfo.departureDateAndTime).dayOfYear())
    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
    const is_bus_assigned_before=sheduleinfo.assignedBus
-   console.log(is_bus_assigned_before)
+   console.log(is_not_free)
+   console.log(sheduleinfo)
    if(is_not_free&&is_bus_assigned_before!=bus)
    {
     return res.json({message:"this bus is alredy assigned for the given date"})
@@ -312,19 +318,21 @@ exports.assignBusToSchedule = async (req, res, next) => {
         organizationCode:orgcode
       },{session})
    }
-   const update_option={  assignedBus:bus,departurePlace}
+   const update_option={assignedBus:bus,departurePlace}
    if(is_bus_assigned_before!=bus)
    {
     const busInfo=await Bus.findById(bus)
     const number_sit=busInfo.totalNoOfSit
     update_option.totalNoOfSit=number_sit
    }
+   console.log(update_option)
    const buses= await Schedule.findOneAndUpdate(
     {_id:id,departureDateAndTime:{$gte:timenow}},
     {$set:{
-     update_option
+     ...update_option
      }
-   },{useFindAndModify:false,session})
+   },{new:true,useFindAndModify:false,session})
+   console.log(buses)
   const location=new Location({
     date:nex_day,
     location:sheduleinfo.destination,
@@ -374,6 +382,12 @@ exports.updatePassinfo = async (req, res, next) => {
    const pass_id= req.body.passangerId;
    const passangerName=req.body.passangerName;
    const passangerPhone=req.body.phoneNumber;
+   const timenow=new Date()
+   const sheduleinfo=await Schedule.findOne({_id:schedule_id,departureDateAndTime:{$gte:timenow}})
+   if(!sheduleinfo)
+   {
+    return res.json({message:"trip departure time already expired"})
+   }
    await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
       return res.json("done")

@@ -8,10 +8,14 @@ const UserSchema = new mongoose.Schema({
 firstName:{
     type: String,
     trim: true,
+    required: true,
+
 },
 lastName:{
   type: String,
   trim: true,
+  required: true,
+
 },
 agentId:{
   type: mongoose.Schema.Types.ObjectId,  
@@ -20,10 +24,10 @@ agentId:{
 isAssigned:{
   type: String,
   enum:{
-    values:[process.env.UNASSIGNEDUSER,process.env.DEFAULTUSER,process.env.ASSIGNEDUSER],
+    values:["0","1","2"],
     message: '{VALUE} is not supported'
   },
-  default:process.env.DEFAULTUSER
+  default:"0"
 },
   phoneNumber:{
     type: String,

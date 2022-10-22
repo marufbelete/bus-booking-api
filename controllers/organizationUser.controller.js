@@ -171,8 +171,9 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
     const user_role=req.userinfo.user_role
-    const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?process.env.UNASSIGNEDUSER:process.env.DEFAULTUSER
-
+    const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?
+    process.env.UNASSIGNEDUSER:process.env.DEFAULTUSER
+console.log(typeof isAssigned)
 if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
 { 
  const error = new Error("You don't have access to add super admin or owner, please contact your provider" )
@@ -180,7 +181,7 @@ if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
   throw error;
 }
 
-if (!first_name||!last_name || !phone_number || !password || !add_role) {
+if (!first_name||!last_name || !phone_number || !password || !confirm_password || !add_role) {
   const error = new Error("Please fill all field." )
   error.statusCode = 400
   throw error;

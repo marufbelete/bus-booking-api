@@ -34,7 +34,7 @@ const OrganizationSchema = new mongoose.Schema({
      offering:{
         type:[String]
      },
-     setting:{
+  setting:{
       funding:{
         returnPercent:{
           type: String,
@@ -43,31 +43,31 @@ const OrganizationSchema = new mongoose.Schema({
           type: String,
         },
     },
-    bank:{
-      isSeparateBank:{
-        type:Boolean
-      },
-    },
-    schedule:{
-      isBusMandatoryForSchedule:{
-        type:Boolean
-      },
-      isCasherCreateSchedule:{
-        type:Boolean
-      }
-    },
-    user:{
-      isDriverOnlyHasOneBus:{
-        type:Boolean
-      },
-      isBusOnlyHasOneDriver:{
-        type:Boolean
-      }
-    },
-    route:{
-      isBusOnlyForOneRoute:{
-        type:Boolean
-      },
+        bank:{
+          isSeparateBank:{
+            type:Boolean
+          },
+        },
+        schedule:{
+          isBusMandatoryForSchedule:{
+            type:Boolean
+          },
+          isCasherCreateSchedule:{
+            type:Boolean
+          }
+        },
+        user:{
+          isDriverOnlyHasOneBus:{
+            type:Boolean
+          },
+          isBusOnlyHasOneDriver:{
+            type:Boolean
+          }
+        },
+        route:{
+          isBusOnlyForOneRoute:{
+            type:Boolean
+          },
     }
      },
     rulesAndRegulation: {

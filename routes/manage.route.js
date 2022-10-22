@@ -83,7 +83,7 @@ router.get('/getallorganization',userauth,authOwner,getAllOrganization,errorHand
 router.get('/getmyorganization',userauth,authaAdminCasher,getMyOrganization,errorHandler)
 router.get('/getmyorgrules',userauth,authaAdminCasher,getOrgRules,errorHandler)
 router.get('/getorganizationbyid/:id',userauth,authOwner,getOrganizationById,errorHandler)
-router.post('/getorganizationbycode',userauth,authaAdminCasher,getOrganizationByCode,errorHandler)
+router.get('/getorganizationbycode/:code',userauth,authaAdminCasher,getOrganizationByCode,errorHandler)
 router.put('/updateorganization/:id',userauth,authSuperAdmin,upload.single('logo'),updateOrganization,errorHandler)
 router.delete('/deleteorganization/:id',userauth,authOwner,deleteOrganization,errorHandler)
 //hotel and pension

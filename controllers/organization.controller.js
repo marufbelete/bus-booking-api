@@ -1,10 +1,14 @@
 const Organization = require("../models/organization.model");
 const fs=require('fs')
-const sharp=require('sharp')
+const sharp=require('sharp');
+const { convertToDotNotation } = require("../helpers/todot");
 //signup for mobile user
 exports.createOrganization = async (req, res, next) => {
   try {
-const {organizationName,organizationCode,branchName,organizationNameAmharic,funding}=req.body
+const {organizationName,organizationCode,organizationNameAmharic,
+  branch,offering,setting,rulesAndRegulation
+}=req.body
+console.log(req.body)
 let imgurl
 if (req.file)
     {
@@ -25,14 +29,18 @@ if (req.file)
       organizationCode,
       organizationName,
       organizationNameAmharic,
-      rulesAndRegulation:{funding},
-      $push:{branch:branchName},
+      branch,
+      setting,
+      rulesAndRegulation,
+      offering,
       logo:imgurl
     })
+    console.log(organization)
     const savedorg=await organization.save()
     res.json(savedorg)
   }
 catch(error) {
+  console.log(error)
 next(error);
   }
 };
@@ -97,12 +105,12 @@ exports.getOrgRules = async (req, res, next) => {
     next(error)
   }
 };
-//update organization
+//update organization  //add here
 exports.updateOrganization = async (req, res, next) => {
   try {
-   const id=req.params.id
+    console.log("in")
+  const id=req.params.id
    let updateObj = {};
-
 for(let [key, value] of Object.entries(req.body)){
     if(value !== undefined){
         updateObj[key] = value;
@@ -124,17 +132,36 @@ if (req.file)
     .toFile(`${process.cwd()}/images/${fullpath}`);
     imgurl=fullpath
 }
+let branch_push={}
+let offer_push={}
+if(updateObj.branch){
+  delete updateObj.branch
+  branch_push={$push:{branch:req.body.branch}}
+}
+if(updateObj.offering){
+  delete updateObj.offering
+  offer_push={$addToSet:{offering:req.body.offering}}
+}
+
 if(updateObj.funding){
+  for(let [key, value] of Object.entries(updateObj.funding)){
+    if(value !== undefined){
+        updateObj.funding[key] = value;
+    }
+}
   updateObj.rulesAndRegulation={funding:updateObj.funding}
   delete updateObj.funding
 }
+updateObj=convertToDotNotation(updateObj)
 if(imgurl){updateObj.logo=imgurl}
+console.log(updateObj)
    const organization= await Organization.findByIdAndUpdate(id,
     { 
       $set:{
         ...updateObj,
       
-      }
+      },
+      ...branch_push,...offer_push
     },{new:true,useFindAndModify:false})
    res.json(organization)
   }
@@ -142,6 +169,7 @@ if(imgurl){updateObj.logo=imgurl}
     next(error)
   }
 };
+
 //delete role
 exports.deleteOrganization = async (req, res, next) => {
   try {

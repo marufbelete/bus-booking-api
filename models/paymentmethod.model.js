@@ -4,12 +4,18 @@ mongoose.plugin(beautifyUnique);
 const PaymentSchema = new mongoose.Schema({
 description: {
     type: String,
-    trim: true,
-    required: true,
 },
-
+type: {
+  type: String,
+  trim: true,
+  required: true,
+},
+accountId:{
+  type: mongoose.Schema.Types.ObjectId, ref: 'bank', 
+  required: true,
+},
 createdBy:{
-  type: Schema.Types.ObjectId, ref: 'user', 
+  type: mongoose.Schema.Types.ObjectId, ref: 'user', 
   required: true,
 },
 organizationCode:{

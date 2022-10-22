@@ -15,6 +15,9 @@ const {errorHandler} = require('../middleware/errohandling.middleware')
 
 const multer=require("multer");
 const { registerAgent, getAllAgent, getAgentWithNoAccount, updateAgentInfo, deleteAgent } = require('../controllers/agent.controller');
+const { registerAccount, getAllOrganizationAccount, updateAccountInfo } = require('../controllers/bank.controller');
+const { addPayment, getAllOrganizationPayment, updatePaymentInfo } = require('../controllers/payment.controller');
+const { addLookup, getAllOrganizationLookup, updateLookupInfo } = require('../controllers/lookup.controller');
 const router = express.Router();
 const fileStorage = multer.memoryStorage()
 
@@ -75,13 +78,13 @@ router.put('/updateagent/:id',userauth,authAdmin,updateAgentInfo,errorHandler)
 router.get('/getagentwithnoaccount',userauth,authAdmin,getAgentWithNoAccount,errorHandler)
 router.delete('/deleteagent/:id',userauth,authAdmin,deleteAgent,errorHandler)
 //organization
-router.post('/createorganization',upload.single('logo'),createOrganization,errorHandler)
+router.post('/createorganization',userauth,authOwner,upload.single('logo'),createOrganization,errorHandler)
 router.get('/getallorganization',userauth,authOwner,getAllOrganization,errorHandler)
 router.get('/getmyorganization',userauth,authaAdminCasher,getMyOrganization,errorHandler)
 router.get('/getmyorgrules',userauth,authaAdminCasher,getOrgRules,errorHandler)
 router.get('/getorganizationbyid/:id',userauth,authOwner,getOrganizationById,errorHandler)
-router.post('/getorganizationbycode',getOrganizationByCode,errorHandler)
-router.put('/updateorganization/:id',upload.single('logo'),updateOrganization,errorHandler)
+router.post('/getorganizationbycode',userauth,authaAdminCasher,getOrganizationByCode,errorHandler)
+router.put('/updateorganization/:id',userauth,authSuperAdmin,upload.single('logo'),updateOrganization,errorHandler)
 router.delete('/deleteorganization/:id',userauth,authOwner,deleteOrganization,errorHandler)
 //hotel and pension
 router.post('/addhotelorpension',userauth,authaAdminCasher,registerHotelOrPension,errorHandler)
@@ -89,6 +92,18 @@ router.get('/getallhotelorpension',userauth,authaAdminCasher,getGetAllHotelOrPen
 router.put('/getallpensionbycity',userauth,authaAdminCasher,getGetAllHotelOrPensionByCity,errorHandler)
 router.put('/updatehotelorpensioninfo/:id',userauth,authaAdminCasher,updateHotelOrPensionInfo,errorHandler)
 router.delete('/deletehotelorpension/:id',userauth,authaAdminCasher,deleteHotelOrPension,errorHandler)
+//bank
+router.post('/addaccount',userauth,authaAdminCasher,registerAccount,errorHandler)
+router.get('/getallorganizationaccount',userauth,authaAdminCasher,getAllOrganizationAccount,errorHandler)
+router.put('/updateaccount/:id',userauth,authaAdminCasher,updateAccountInfo,errorHandler)
+//payment
+router.post('/addpayment',userauth,authaAdminCasher,addPayment,errorHandler)
+router.get('/getallorganizationpayment',userauth,authaAdminCasher,getAllOrganizationPayment,errorHandler)
+router.put('/updatepayment/:id',userauth,authaAdminCasher,updatePaymentInfo,errorHandler)
+//lookup
+router.post('/addlookup',userauth,authaAdminCasher,addLookup,errorHandler)
+router.get('/getallorganizationlookup',userauth,authaAdminCasher,getAllOrganizationLookup,errorHandler)
+router.put('/updatelookup/:id',userauth,authaAdminCasher,updateLookupInfo,errorHandler)
 //city
 router.post('/registercity',userauth,authaAdminCasher,registerCity,errorHandler)
 router.get('/getallorganizationcity',userauth,authaAdminCasher,getAllOrganizationCity,errorHandler)

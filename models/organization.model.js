@@ -8,7 +8,6 @@ const OrganizationSchema = new mongoose.Schema({
   },
   organizationNameAmharic: {
     type: String,
-    required: true,
   },
   organizationCode:{
     type: String,
@@ -22,13 +21,7 @@ const OrganizationSchema = new mongoose.Schema({
         location:{
           type: String,
         },
-        location:{
-          type: String,
-        },
         responsiblePerson:{
-          type: String,
-        },
-        contactInfo:{
           type: String,
         },
         contactInfo:{

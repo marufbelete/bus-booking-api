@@ -1,9 +1,9 @@
 const Bank = require("../models/bank.model.js");
-exports.registerAgent = async (req, res, next) => {
+exports.registerAccount = async (req, res, next) => {
   try {
     const {description,bankName,accountNumber,type,remark}=req.body;
     const orgcode =req.userinfo.organization_code;
-    const newagent= new Agent({
+    const newAccount= new Bank({
       description,
       bankName,
       accountNumber,
@@ -12,74 +12,44 @@ exports.registerAgent = async (req, res, next) => {
       createdBy,
       organizationCode:orgcode,
     })
-    const isCityExist=await Agent.findOne({tin:tin})
-    if(isCityExist)
+    const isAccountNumberexist=await Bank.findOne({accountNumber})
+    if(isAccountNumberexist)
     {
-  const error = new Error("Agent with is tin already exist.")
+  const error = new Error("this account already exist.")
   error.statusCode = 400
   throw error;
     }
-    const savedagent=await newagent.save()
-    return res.json(savedagent)
+    const savedaccount=await newAccount.save()
+    return res.json(savedaccount)
   }
 catch(error) {
 next(error)
   }
 };
-//get all city in organization
-exports.getAllAgent = async (req, res, next) => {
+//get all account in organization
+exports.getAllOrganizationAccount = async (req, res, next) => {
   try {
   const orgcode =req.userinfo.organization_code;
-  const allagent= await Agent.find({organizationCode:orgcode})
-  return res.json(allagent)
+  const account= await Bank.find({organizationCode:orgcode})
+  return res.json(account)
   }
   catch(error) {
     next(error)
   }
 };
-//get agent with no account
-exports.getAgentWithNoAccount = async (req, res, next) => {
-    try {
-    const orgcode =req.userinfo.organization_code;
-    const allagent= await Agent.find({organizationCode:orgcode,isAcountExist:false})
-    return res.json(allagent)
-    }
-    catch(error) {
-      next(error)
-    }
-  };
 
 //get organization by id
-exports.updateAgentInfo = async (req, res, next) => {
+exports.updateAccountInfo = async (req, res, next) => {
   try {
-   const id=req.params.id
-   const {agentName,phoneNumber,tin,maxUser,location,isActive}=req.body;
-  const update={}
-  if(agentName){update.agentName=agentName}
-  if(phoneNumber){update.phoneNumber=phoneNumber}
-  if(tin){update.tin=tin}
-  if(maxUser){update.maxUser=maxUser}
-  if(location){update.location=location}
-  if(isActive){update.isActive=isActive}
-   const agent= await Agent.findByIdAndUpdate(id,{
+   const bank= await Bank.findByIdAndUpdate(id,{
      $set:{
-      ...update
+      ...req.body
      }
    })
-   res.json(agent)
+   res.json(bank)
   }
   catch(error) {
     next(error)
   }
 };
-//delete role
-exports.deleteAgent = async (req, res, next) => {
-  try {
-   const deleteid=req.params.id
-   await Agent.findByIdAndDelete(deleteid)
-   res.json({message:"deleted successfully"})
-  }
-  catch(error) {
-    next(error)
-  }
-};
+

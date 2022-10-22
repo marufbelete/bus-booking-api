@@ -8,6 +8,7 @@ bankName:{
 },
 accountNumber:{
   type: String,
+  required:true
 },
 type:{
   type: String,
@@ -16,7 +17,8 @@ remark:{
   type: String,
 },
 createdBy:{
-  type: Schema.Types.ObjectId, ref: 'user', 
+  type: mongoose.Schema.Types.ObjectId, 
+  ref: 'user', 
   required: true,
 },
 organizationCode:{

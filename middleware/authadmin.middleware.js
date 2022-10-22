@@ -1,6 +1,7 @@
 
 exports.authOwner = (req, res, next) => {
   const userrole=req.userinfo.user_role;
+  console.log(req.userinfo)
   console.log(userrole);
   console.log(process.env.OWNER)
   if (userrole===process.env.OWNER) {

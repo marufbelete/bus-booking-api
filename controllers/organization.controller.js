@@ -30,6 +30,7 @@ if (req.file)
       organizationName,
       organizationNameAmharic,
       branch,
+      description,
       setting,
       rulesAndRegulation,
       offering,

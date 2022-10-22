@@ -17,7 +17,7 @@ const multer=require("multer");
 const { registerAgent, getAllAgent, getAgentWithNoAccount, updateAgentInfo, deleteAgent } = require('../controllers/agent.controller');
 const { registerAccount, getAllOrganizationAccount, updateAccountInfo } = require('../controllers/bank.controller');
 const { addPayment, getAllOrganizationPayment, updatePaymentInfo } = require('../controllers/payment.controller');
-const { addLookup, getAllOrganizationLookup, updateLookupInfo } = require('../controllers/lookup.controller');
+const { addLookup, getLookup, updateLookupInfo } = require('../controllers/lookup.controller');
 const router = express.Router();
 const fileStorage = multer.memoryStorage()
 
@@ -102,7 +102,7 @@ router.get('/getallorganizationpayment',userauth,authaAdminCasher,getAllOrganiza
 router.put('/updatepayment/:id',userauth,authaAdminCasher,updatePaymentInfo,errorHandler)
 //lookup
 router.post('/addlookup',userauth,authaAdminCasher,addLookup,errorHandler)
-router.get('/getallorganizationlookup',userauth,authaAdminCasher,getAllOrganizationLookup,errorHandler)
+router.get('/getlookup',userauth,authaAdminCasher,getLookup,errorHandler)
 router.put('/updatelookup/:id',userauth,authaAdminCasher,updateLookupInfo,errorHandler)
 //city
 router.post('/registercity',userauth,authaAdminCasher,registerCity,errorHandler)

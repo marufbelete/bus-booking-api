@@ -21,6 +21,9 @@ createdBy:{
   ref: 'user', 
   required: true,
 },
+lastupdatedBy:{
+  type: mongoose.Schema.Types.ObjectId, ref: 'user', 
+},
 organizationCode:{
     type: String,
     trim: true,

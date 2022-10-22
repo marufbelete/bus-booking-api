@@ -2,11 +2,6 @@ const mongoose = require("mongoose");
 const LookupSchema = new mongoose.Schema({
 offer: [String],
 banks:[String],
-createdBy:{
-  type: mongoose.Schema.Types.ObjectId, ref: 'user', 
-  required: true,
-},
-
   
 },
   {

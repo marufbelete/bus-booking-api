@@ -1,15 +1,12 @@
 const Bank = require("../models/bank.model.js");
 exports.registerAccount = async (req, res, next) => {
   try {
-    const {description,bankName,accountNumber,type,remark}=req.body;
+    const {accountNumber}=req.body;
     const orgcode =req.userinfo.organization_code;
+    const sub=req.userinfo.sub
     const newAccount= new Bank({
-      description,
-      bankName,
-      accountNumber,
-      type,
-      remark,
-      createdBy,
+      ...req.body,
+      createdBy:sub,
       organizationCode:orgcode,
     })
     const isAccountNumberexist=await Bank.findOne({accountNumber})
@@ -41,11 +38,14 @@ exports.getAllOrganizationAccount = async (req, res, next) => {
 //get organization by id
 exports.updateAccountInfo = async (req, res, next) => {
   try {
+   const sub=req.userinfo.sub
+   const id=req.params.id
    const bank= await Bank.findByIdAndUpdate(id,{
      $set:{
+      lastupdatedBy:sub,
       ...req.body
      }
-   })
+   },{new:true})
    res.json(bank)
   }
   catch(error) {

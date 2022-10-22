@@ -18,11 +18,14 @@ const OrganizationSchema = new mongoose.Schema({
       type: String,
     },
     branch:[{
+      description:{
+        type: String,
+        },
         location:{
           type: String,
         },
         responsiblePerson:{
-          type: String,
+          type: mongoose.Schema.Types.ObjectId, ref: 'user', 
         },
         contactInfo:{
           type: String,
@@ -32,36 +35,40 @@ const OrganizationSchema = new mongoose.Schema({
         type:[String]
      },
      setting:{
-      returnPercent:{
-        type: String,
-      },
-      maxReturnDate:{
-        type: String,
-      },
+      funding:{
+        returnPercent:{
+          type: String,
+        },
+        maxReturnDate:{
+          type: String,
+        },
+    },
+    bank:{
       isSeparateBank:{
-        type: String,
-      },
-      prepareScheduleBefore:{
-        type:String
-      },
-      prepareScheduleBefore:{
-        type:String
-      },
-      isBusOnlyForOneRoute:{
         type:Boolean
       },
-      isDriverOnlyHasOneBus:{
-        type:Boolean
-      },
-      isBusOnlyHasOneDriver:{
-        type:Boolean
-      },
+    },
+    schedule:{
       isBusMandatoryForSchedule:{
         type:Boolean
       },
       isCasherCreateSchedule:{
         type:Boolean
       }
+    },
+    user:{
+      isDriverOnlyHasOneBus:{
+        type:Boolean
+      },
+      isBusOnlyHasOneDriver:{
+        type:Boolean
+      }
+    },
+    route:{
+      isBusOnlyForOneRoute:{
+        type:Boolean
+      },
+    }
      },
     rulesAndRegulation: {
       fundingInfo:{

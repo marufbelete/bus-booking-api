@@ -107,6 +107,28 @@ exports.getOrgRules = async (req, res, next) => {
   }
 };
 //update organization  //add here
+exports.updateBrnach=async (req,res,next)=>{
+  try{
+const orgId=req.params.id
+const {description,location,responsiblePerson,contactInfo,branchId}=req.body
+let opt={}
+if(description){opt={"branch.$[el].description":description}}
+if(location){opt={...opt,"branch.$[el].location":location}}
+if(responsiblePerson){opt={...opt,"branch.$[el].responsiblePerson":responsiblePerson}}
+if(contactInfo){opt={...opt,"branch.$[el].contactInfo":contactInfo}}
+
+const organization=await Organization.findByIdAndUpdate(orgId,{$set:{...opt}},
+{arrayFilters:[{"el._id":branchId}],new:true,useFindAndModify:false})
+
+return res.json(organization)
+}
+
+catch(error) {
+  console.log(error)
+  next(error)
+}
+}
+
 exports.updateOrganization = async (req, res, next) => {
   try {
     console.log("in")

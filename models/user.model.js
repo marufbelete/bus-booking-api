@@ -15,11 +15,13 @@ lastName:{
   type: String,
   trim: true,
   required: true,
-
 },
 agentId:{
   type: mongoose.Schema.Types.ObjectId,  
   ref: 'agent',
+},
+branch:{
+  type:String,
 },
 isAssigned:{
   type: String,

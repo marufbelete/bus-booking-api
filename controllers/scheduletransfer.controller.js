@@ -160,7 +160,7 @@ exports.postPoneTrip = async (req, res, next) => {
   }
 }
 //canccel ticket
-exports.cancelTicket = async (req, res, next) => {
+exports.cancelPassTicket = async (req, res, next) => {
   try {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
@@ -191,6 +191,14 @@ exports.cancelTicket = async (req, res, next) => {
         error.statusCode=401
         throw error
       }
+
+      const schedule_info=await Schedule.findById(schedule_id,{passangerInfo:1})
+      if(schedule_info.passangerInfo?.filter(e=>e.uniqueId===pass_id).length==0)
+      {
+        const error=new Error("sit number doesn't match with passanger id")
+        error.statusCode=401
+        throw error
+      }
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
       await Schedule.findByIdAndUpdate(schedule_id,
@@ -215,7 +223,6 @@ exports.cancelTicket = async (req, res, next) => {
   return res.json({message:"ticket refund Date Exired"})
   }
   catch(error) {
-    console.log(error)
     next(error)
   }
 }

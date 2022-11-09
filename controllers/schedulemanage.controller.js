@@ -5,9 +5,7 @@ const moment=require('moment')
 const mongoose = require("mongoose");
 const Load= require('lodash');
 const ShortUniqueId = require('short-unique-id');
-let sitTimer;
-let unlockSit=()=>{};
-let isSitReserved=false;
+const {onlyUnique}=require('../helpers/uniqueArr')
 exports.addSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
   session.startTransaction()  
@@ -69,7 +67,7 @@ exports.addSchedule = async (req, res, next) => {
       await location.save({session})
     }
   
-    session.commitTransaction()
+    await session.commitTransaction()
     return res.json(savedSchedule)
   }  
   else
@@ -87,94 +85,98 @@ catch(error) {
 };
 //lock sit 
 exports.lockSit = async (req, res, next) => {
+  const session=await mongoose.startSession()
+  session.startTransaction()  
   try {
    const id=req.params.id
    const sit =req.body.sits
-   if(isSitReserved)
+   const schedule=await Schedule.findById(id)
+   if(schedule.occupiedSitNo.some(e=>sit.includes(e))||schedule.tempOccupiedSitNo.some(e=>sit.includes(e)))
    {
-    clearTimeout(sitTimer)
-    await unlockSit()
-   }
-   const isSitFree=await Schedule.findById(id)
-   if(isSitFree.occupiedSitNo.some(e=>sit.includes(e)))
-   {
-    const error=new Error("sit already reserved before, please try another sit")
+    const error=new Error("sit already reserved before, please try again")
     error.statusCode=400
     throw error
    }
    else{
     const reserve= await Schedule.findByIdAndUpdate(id,{
       $addToSet:{
-       occupiedSitNo:{$each:sit}
+       tempOccupiedSitNo:{$each:sit}
       }
-    },{new:true,useFindAndModify:false})
-    isSitReserved=true
-    unlockSit=async()=>{ 
-    isSitReserved=false
-    const unlocking= await Schedule.findByIdAndUpdate(id,{
+    },{new:true,useFindAndModify:false,session})
+    const unlockSit=async()=>{ 
+    await Schedule.findByIdAndUpdate(id,{
        $pullAll:{
-         occupiedSitNo:sit
+        tempOccupiedSitNo:sit
         }
-    },{new:true,useFindAndModify:false})
-    return unlocking
+    },{new:true,useFindAndModify:false,session})
  }
     //socket io 
-    sitTimer=setTimeout(unlockSit,150000)
-    req.sitlock=sitTimer
-    return res.json(reserve)
+     setTimeout(unlockSit,195000)
+    const reserved_sit=[...reserve.tempOccupiedSitNo,...reserve.occupiedSitNo]
+    const uninque_reserved=reserved_sit.filter(onlyUnique)
+    await session.commitTransaction()
+    return res.json({reserve:uninque_reserved})
    }
    
   }
   catch(error) {
+    await session.abortTransaction();
     next(error)
   }
 }
 //book ticket use io
 exports.bookTicketFromSchedule = async (req, res, next) => {
+  const session=await mongoose.startSession()
+  session.startTransaction() 
   try {
-    if(isSitReserved)
-    {
-    clearTimeout(sitTimer)
-    await unlockSit()
-   const id=req.params.id
+    const id=req.params.id
+    let tickets=[]
    let passlength=req.body.length
-   for(let i=0;i<passlength;i++)
-     {
+  for(let i=0;i<passlength;i++)
+    {
     const passange_name = req.body[i].passname;
     const pass_phone_number = req.body[i].passphone;
     const psss_ocupied_sit_no= req.body[i].sits
     const booked_by = req.userinfo.sub;
     const uid = new ShortUniqueId({ length: 12 });
-    const isSitFree=await Schedule.findById(id)
-    if(isSitFree.occupiedSitNo.includes(psss_ocupied_sit_no))
+    const schedule=await Schedule.findById(id)
+
+    if(schedule.occupiedSitNo.includes(psss_ocupied_sit_no))
     {
-     const error=new Error(`sit ${psss_ocupied_sit_no} already reserved before, please try another sit`)
+     const error=new Error(`sit No ${psss_ocupied_sit_no} already reserved before, please try another sit`)
      error.statusCode=400
      throw error
     }
-    const new_ticket={
-      passangerName:passange_name,
-      passangerPhone:pass_phone_number,
-      passangerOccupiedSitNo:psss_ocupied_sit_no,
-      uniqueId:uid(),
-      bookedBy:booked_by}
-    await Schedule.findByIdAndUpdate(id,{
-      $push:{passangerInfo:new_ticket},
-       $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
-   },{new:true,useFindAndModify:false})
-   return res.json({message:"success",ticket:new_ticket,status:true})
-   }
+    if(schedule.tempOccupiedSitNo.includes(psss_ocupied_sit_no))
+    {
+      const new_ticket={
+        passangerName:passange_name,
+        passangerPhone:pass_phone_number,
+        passangerOccupiedSitNo:psss_ocupied_sit_no,
+        uniqueId:uid(),
+        bookedBy:booked_by}
+        tickets.push(new_ticket)
+      await Schedule.findByIdAndUpdate(id,{
+        $push:{passangerInfo:new_ticket},
+         $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
+     },{new:true,useFindAndModify:false,session})
+    }
+    else{
+      const error=new Error("Your Sit Reservation Already Expired Please Try Again")
+      error.statusCode=400
+      throw error
   }
-  else{
-    const error=new Error("Your Sit Reservation Already Expired Please Try Again")
-    error.statusCode=400
-    throw error
-  }
+   
+}
+   await session.commitTransaction()
+   return res.json({message:"success",ticket:tickets,status:true})
   }
   catch(error) {
+    await session.abortTransaction();
     next(error)
   }
 };
+
 exports.getAllSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
@@ -189,11 +191,12 @@ exports.getAllSchgedule=async(req,res,next)=>{
     next(error)
   }
 }
+
 exports.getAllFilterSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
-    const now =new Date()
-    const schedule=await Schedule.find({organizationCode:orgcode},{source:1,destination:1,departureDateAndTime:1})
+    const schedule=await Schedule.find({organizationCode:orgcode},
+      {source:1,destination:1,departureDateAndTime:1})
     return res.json(schedule)
   }
   catch(error) {
@@ -213,13 +216,21 @@ exports.getSchgeduleById=async(req,res,next)=>{
         $unwind:"$passangerInfo"
       },
       {
-        $project:{"departureDateAndTime":1,"passangerName":"$passangerInfo.passangerName","tarif":1,"bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTripCanceled":1,"isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo","phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},"To Be Departed","Departed"]}}
+        $project:{"departureDateAndTime":1,"passangerName":"$passangerInfo.passangerName","tarif":1,
+        "bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTripCanceled":1,
+        "isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo",
+        "phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},
+        "To Be Departed","Departed"]}}
       },
       {
-        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"isTicketCanceled":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled Trip","$status"]}}
+        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"isTicketCanceled":1,
+        "passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},
+        "Canceled Trip","$status"]}}
       },
       {
-        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTiacketRefunded"]},"Refunded","$status"]}}
+        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"passangerId":1,
+        "bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTiacketRefunded"]},
+        "Refunded","$status"]}}
       },
     
     ])
@@ -231,7 +242,6 @@ exports.getSchgeduleById=async(req,res,next)=>{
 }
 //get all schedule
 exports.getAllSpecialSchgedule=async(req,res,next)=>{
- //departureDateAndTime:{$gte:now}
   try{
 const orgcode =req.userinfo.organization_code;
 const now =new Date()
@@ -240,10 +250,13 @@ const schedule=await Schedule.aggregate([
     $match:{organizationCode:orgcode}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},"isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":"$assignedBus","departureDateAndTime":1,"status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},
+    "isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":"$assignedBus","departureDateAndTime":1,
+    "status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departureDateAndTime":1,"departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
+    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departureDateAndTime":1,
+    "departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
   }
 ])
 return res.json(schedule)
@@ -252,7 +265,6 @@ return res.json(schedule)
     next(error)
   }
 }
-
 
 //by route
 exports.getActiveScheduleByRoute = async (req, res, next) => {
@@ -272,10 +284,13 @@ exports.getActiveScheduleByRoute = async (req, res, next) => {
 exports.getRiservedSit = async (req, res, next) => {
   try {
    const id=req.params.id
-   const bus= await Schedule.findById(id,{
-    occupiedSitNo:1,totalNoOfSit:1
+   const sitInfo= await Schedule.findById(id,{
+    occupiedSitNo:1,totalNoOfSit:1,tempOccupiedSitNo:1
    })
-   return res.json(bus)
+   const reserved_sit=[...sitInfo.tempOccupiedSitNo,...sitInfo.occupiedSitNo]
+    const uninque_reserved=reserved_sit.filter(onlyUnique)
+    const info={uninque_reserved,totalNoOfSit:sitInfo.totalNoOfSit}
+   return res.json(info)
   }
   catch(error) {
     next(error)

@@ -285,7 +285,6 @@ exports.loginOrganizationUser = async (req, res, next) => {
     const phone_number  = req.body.phonenumber;
     const password=req.body.password
     const organization_code=req.body.organizationcode;
-   
     if (!phone_number || !password || !organization_code) {
       const error = new Error("Please fill all field." )
       error.statusCode = 400
@@ -300,6 +299,7 @@ exports.loginOrganizationUser = async (req, res, next) => {
       error.statusCode = 400
       throw error;
     }
+    console.log(user)
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       const error = new Error("Invalid credential.")

@@ -132,6 +132,13 @@ exports.cancelTicket = async (req, res, next) => {
     const schedule=await Schedule.findById(schedule_id)
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
+      const schedule_info=await Schedule.findById(schedule_id,{passangerInfo:1})
+      if(schedule_info.passangerInfo?.filter(e=>e.uniqueId===pass_id).length==0)
+      {
+        const error=new Error("sit number doesn't match with passanger id")
+        error.statusCode=401
+        throw error
+      }
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].sitCanceled":pass_sit,
       "passangerInfo.$[el].isTiacketCanceled":true
       // ,"passangerInfo.$[el].canceledBy":userid

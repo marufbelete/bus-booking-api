@@ -121,6 +121,10 @@ passangerInfo:[{
     type: [Number],
     trim: true,
   },
+  tempOccupiedSitNo:{
+    type: [Number],
+    trim: true,
+  },
 //change during assignment
 assignedBus:{
   type: mongoose.Schema.Types.ObjectId, 

@@ -34,11 +34,12 @@ exports.updateLookupInfo = async (req, res, next) => {
   try {
     const {offer,bank}=req.body
     const id =req.params.id
-   const payment= await Lookup.findByIdAndUpdate(id,{
-     $addToSet:{offer:offer},
-     $addToSet:{banks:bank},
-   },{new:true})
-   res.json(payment)
+    console.log(req.body)
+   const look= await Lookup.findByIdAndUpdate(id,{
+     $addToSet:{offer:offer,banks:bank},
+    //  $addToSet:{},
+   },{new:true,useFindAndModify:false})
+   res.json(look)
   }
   catch(error) {
     next(error)

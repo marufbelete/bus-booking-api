@@ -30,15 +30,13 @@ if (req.file)
       organizationName,
       organizationNameAmharic,
       branch,
-      description,
       setting,
       rulesAndRegulation,
       offering,
       logo:imgurl
     })
-    console.log(organization)
     const savedorg=await organization.save()
-    res.json(savedorg)
+    return res.json(savedorg)
   }
 catch(error) {
   console.log(error)
@@ -131,7 +129,6 @@ catch(error) {
 
 exports.updateOrganization = async (req, res, next) => {
   try {
-    console.log("in")
   const id=req.params.id
    let updateObj = {};
 for(let [key, value] of Object.entries(req.body)){
@@ -157,34 +154,63 @@ if (req.file)
 }
 let branch_push={}
 let offer_push={}
+let schedule_push={}
+let fund_push={}
+let bank_push={}
+let user_push={}
+let route_push={}
+let regulation_push={}
 if(updateObj.branch){
   delete updateObj.branch
-  branch_push={$push:{branch:req.body.branch}}
+  branch_push={branch:req.body.branch}
 }
 if(updateObj.offering){
+  offer_push={offering:req.body.offering}
   delete updateObj.offering
-  offer_push={$addToSet:{offering:req.body.offering}}
 }
 
-if(updateObj.funding){
-  for(let [key, value] of Object.entries(updateObj.funding)){
-    if(value !== undefined){
-        updateObj.funding[key] = value;
-    }
+// if(updateObj.funding){
+//   for(let [key, value] of Object.entries(updateObj.funding)){
+//     if(value !== undefined){
+//         updateObj.funding[key] = value;
+//     }
+// }
+// }
+
+if(updateObj.setting.funding){
+  fund_push={'setting.funding':req.body.setting.funding}
 }
-  updateObj.rulesAndRegulation={funding:updateObj.funding}
-  delete updateObj.funding
+if(updateObj.setting.bank){
+  bank_push={'setting.bank':req.body.setting.bank}
 }
+if(updateObj.setting.schedule){
+  schedule_push={'setting.schedule':req.body.setting.schedule}
+}
+if(updateObj.setting.user){
+  user_push={'setting.user':req.body.setting.user}
+}
+if(updateObj.setting.route){
+  route_push={'setting.route':req.body.setting.route}
+}
+if(updateObj.rulesAndRegulation){
+  regulation_push={rulesAndRegulation:req.body.rulesAndRegulation}
+  delete updateObj.rulesAndRegulation
+}
+delete updateObj.setting
 updateObj=convertToDotNotation(updateObj)
 if(imgurl){updateObj.logo=imgurl}
-console.log(updateObj)
+// console.log(offer_push,regulation_push)
    const organization= await Organization.findByIdAndUpdate(id,
     { 
       $set:{
-        ...updateObj,
+        ...updateObj
       
       },
-      ...branch_push,...offer_push
+     $addToSet:{...branch_push,...bank_push,...offer_push,...user_push,
+    ...route_push,...regulation_push,...schedule_push,...fund_push}
+    ,
+      
+
     },{new:true,useFindAndModify:false})
    res.json(organization)
   }

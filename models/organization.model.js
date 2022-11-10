@@ -31,50 +31,64 @@ const OrganizationSchema = new mongoose.Schema({
           type: String,
         },
      }],
-     offering:{
-        type:[String]
-     },
+    offering:[{
+      title:{
+        type:String
+      },
+      description:{
+        type:String
+      } 
+     }],
   setting:{
-      funding:{
-        returnPercent:{
+      funding:[{
+        settingDescription:{
           type: String,
         },
-        maxReturnDate:{
-          type: String,
+        settingValue:{
+          type: mongoose.Schema.Types.Mixed,
         },
-    },
-        bank:{
-          isSeparateBank:{
-            type:Boolean
+      }],
+        bank:[{
+          settingDescription:{
+            type: String,
           },
-        },
-        schedule:{
-          isBusMandatoryForSchedule:{
-            type:Boolean
+          settingValue:{
+            type: mongoose.Schema.Types.Mixed,
           },
-          isCasherCreateSchedule:{
-            type:Boolean
-          }
-        },
-        user:{
-          isDriverOnlyHasOneBus:{
-            type:Boolean
+        }],
+        schedule:[{
+          settingDescription:{
+            type: String,
           },
-          isBusOnlyHasOneDriver:{
-            type:Boolean
-          }
-        },
-        route:{
-          isBusOnlyForOneRoute:{
-            type:Boolean
+          settingValue:{
+            type: mongoose.Schema.Types.Mixed,
           },
-    }
+        }],
+        user:[{
+          settingDescription:{
+            type: String,
+          },
+          settingValue:{
+            type: mongoose.Schema.Types.Mixed,
+          },
+        }],
+        route:[{
+          settingDescription:{
+            type: String,
+          },
+          settingValue:{
+            type: mongoose.Schema.Types.Mixed,
+          },
+        }]
      },
-    rulesAndRegulation: {
-      fundingInfo:{
+    rulesAndRegulation: [{
+      ruleTitle:{
         type: String,
       },
-    }
+      ruleDescription:{
+        type: String,
+      },
+    }]
 },
   {
     timestamps: true,

@@ -1,7 +1,8 @@
 const Lookup = require("../models/lookup.model");
 exports.addLookup= async (req, res, next) => {
   try {
-    const lookup= await Lookup.find()
+    const lookup= await Lookup.findOne()
+    console.log(lookup)
 if(lookup){
   const error = new Error("only one lookup supported, please update existing one." )
   error.statusCode = 400
@@ -39,7 +40,7 @@ exports.updateLookupInfo = async (req, res, next) => {
      $addToSet:{offer:offer,banks:bank},
     //  $addToSet:{},
    },{new:true,useFindAndModify:false})
-   res.json(look)
+   return res.json(look)
   }
   catch(error) {
     next(error)

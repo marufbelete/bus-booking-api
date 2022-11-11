@@ -171,7 +171,7 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const organization_code=req.userinfo.organization_code;
     const saved_by=req.userinfo.sub
     const user_role=req.userinfo.user_role
-    const branchId=req.user.branch
+    const branchId=req.body.branch
     const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?
     process.env.UNASSIGNEDUSER:process.env.DEFAULTUSER
 console.log(typeof isAssigned)
@@ -217,9 +217,9 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
       organizationCode:organization_code,
       password: passwordHash,
       createdBy:saved_by,
-      gender:gender,
-      branch:branchId
+      gender:gender
     }
+    if(branchId){user_to_add.branch=branchId}
     if(add_role===process.env.CASHERAGENT||add_role===process.env.SUPERAGENT)
     {
       const user= await User.findById(saved_by)

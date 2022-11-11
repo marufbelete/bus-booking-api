@@ -1,7 +1,21 @@
 const mongoose = require("mongoose");
 const LookupSchema = new mongoose.Schema({
-offer: [String],
-banks:[String],
+offer: [{
+  title:{
+    type:String
+  },
+  description:{
+    type:String
+  } 
+ }],
+banks:[{
+  name:{
+    type:String
+  },
+  description:{
+    type:String
+  } 
+ }],
   
 },
   {

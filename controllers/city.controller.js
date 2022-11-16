@@ -5,23 +5,19 @@ exports.registerCity = async (req, res, next) => {
     const cityname = Load.capitalize(req.body.cityName);
     const departureplace= req.body.departurePlace.map(e=>Load.capitalize(e));
     const orgcode =req.userinfo.organization_code;
-
-    let is_city_exist=await City.findOne({cityName:cityname})
-    if(is_city_exist){
-     return res.json({message:"this city already exist"})
+    const isCityExist=await City.findOne({cityName:cityname})
+    if(isCityExist)
+    {
+  const error = new Error("This city already exist!")
+  error.statusCode = 400
+  throw error;
     }
     const newbus= new City({
       cityName:cityname,
       departurePlace:departureplace,
       organizationCode:orgcode,
     })
-    const isCityExist=await City.findOne({cityName:cityname})
-    if(isCityExist)
-    {
-  const error = new Error("This city already exist, try another one")
-  error.statusCode = 400
-  throw error;
-    }
+   
     const savedbus=await newbus.save()
     return res.json(savedbus)
   }

@@ -68,6 +68,7 @@ exports.getOrganizationById = async (req, res, next) => {
 exports.getOrganizationByCode = async (req, res, next) => {
   try {
    const code=req.params.code
+   console.log(code)
    const organization= await Organization.findOne({organizationCode:code})
    if(organization)
    {
@@ -177,22 +178,22 @@ if(updateObj.offering){
 // }
 // }
 
-if(updateObj.setting.funding){
+if(updateObj?.setting?.funding){
   fund_push={'setting.funding':req.body.setting.funding}
 }
-if(updateObj.setting.bank){
+if(updateObj?.setting?.bank){
   bank_push={'setting.bank':req.body.setting.bank}
 }
-if(updateObj.setting.schedule){
+if(updateObj?.setting?.schedule){
   schedule_push={'setting.schedule':req.body.setting.schedule}
 }
-if(updateObj.setting.user){
+if(updateObj?.setting?.user){
   user_push={'setting.user':req.body.setting.user}
 }
-if(updateObj.setting.route){
+if(updateObj?.setting?.route){
   route_push={'setting.route':req.body.setting.route}
 }
-if(updateObj.rulesAndRegulation){
+if(updateObj?.rulesAndRegulation){
   regulation_push={rulesAndRegulation:req.body.rulesAndRegulation}
   delete updateObj.rulesAndRegulation
 }
@@ -215,6 +216,7 @@ if(imgurl){updateObj.logo=imgurl}
    res.json(organization)
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 };

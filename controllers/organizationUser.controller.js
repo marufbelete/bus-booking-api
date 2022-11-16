@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
 const Bus = require("../models/bus.model");
 const Agent = require("../models/agent.model");
+const mongoose = require("mongoose");
 
 exports.checkAuth = (req, res, next) => {
   try{
@@ -160,6 +161,8 @@ exports.saveOwner = async (req, res, next) => {
     }
   }
 exports.saveOrganizationUser = async (req, res, next) => {
+  const session=await mongoose.startSession()
+  session.startTransaction() 
   try {
     const first_name = req.body.firstname;
     const last_name = req.body.lastname;
@@ -174,7 +177,6 @@ exports.saveOrganizationUser = async (req, res, next) => {
     const branchId=req.body.branch
     const isAssigned=(add_role==process.env.DRIVER||add_role==process.env.REDAT)?
     process.env.UNASSIGNEDUSER:process.env.DEFAULTUSER
-console.log(typeof isAssigned)
 if(add_role===process.env.SUPERADMIN || add_role===process.env.OWNER)
 { 
  const error = new Error("You don't have access to add super admin or owner, please contact your provider" )
@@ -220,60 +222,72 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
       gender:gender
     }
     if(branchId){user_to_add.branch=branchId}
-    if(add_role===process.env.CASHERAGENT||add_role===process.env.SUPERAGENT)
+    if(add_role===process.env.CASHERAGENT)
     {
-      const user= await User.findById(saved_by)
-      let agent_obj
-      let totaluser
-      if(add_role===process.env.SUPERAGENT)
+      if(user_role===process.env.SUPERAGENT)
       {
-      const {agentName,phoneNumber,tin,maxUser,location,isActive}=req.body;
-      const newagent= new Agent({
-          agentName,
-          phoneNumber,
-          tin,
-          maxUser,
-          location,
-          isActive,
-          organizationCode:organization_code,
-      })
-      const isAgentExist=await Agent.findOne({tin:tin})
-      if(isAgentExist)
+        const user= await User.findById(saved_by)
+        let agent_obj=await Agent.findById(user.agentId)
+        let totaluser=User.find({agentId:user.agentId})
+        if(totaluser.length-1>=agent_obj.maxUser)
       {
-    const error = new Error("Agent with is tin already exist.")
-    error.statusCode = 400
-    throw error;
+        const error = new Error("you reached maximum account creation limit. please contact your provider for more info" )
+        error.statusCode = 400
+        throw error;
       }
-      const newAgent=await newagent.save()
-      user_to_add.agentId=newAgent._id
+       user_to_add.agentId=user?.agentId
+      }
+      else{
+      const error = new Error("Only super agent able to register casher-agent." )
+      error.statusCode = 400
+      throw error;
+      }
+    }
 
+    if(add_role===process.env.SUPERAGENT)
+    {
+      if(user_role===process.env.ADMIN||user_role===process.env.SUPERADMIN)
+      {
+     const agentId=req.body.agentId
+     const agentobj= await Agent.findById(agentId)
+     if(!agentId)
+      {
+      const error = new Error("Please provide agent ID to which the user belong." )
+      error.statusCode = 400
+      throw error;
+     }
+     if(!agentobj)
+     {
+      const error = new Error("Incorrect agent-ID, please check agent-ID field." )
+      error.statusCode = 400
+      throw error;
+     }
+     if(agentobj?.isAcountExist)
+     {
+      const error = new Error("User with Super-Agent privilage already exist for this agent." )
+      error.statusCode = 400
+      throw error;
+     }
+      
+    user_to_add.agentId=agentId
+    const agetnUpadet= await Agent.findOneAndUpdate({_id:agentId},
+      {$set:{isAcountExist:true}},
+      {useFindAndModify:false,session,new:true})
+     console.log(agetnUpadet)
     }
     else{
-      agent_obj=await Agent.findById(user.agentId)
-      totaluser=User.find({agentId:user.agentId})
-      user_to_add.agentId=user.agentId
-
+    const error = new Error("You don'y have privilage to register super-agent." )
+    error.statusCode = 400
+    throw error;
     }
-
-      if(add_role===process.env.CASHERAGENT&&!(user_role===process.env.SUPERAGENT))
-      {
-        return res.json({message:"you don't have access to register casher agent!!"})
-      }
-      if(add_role===process.env.CASHERAGENT&&totaluser.length-1>=agent_obj.maxUser)
-      {
-        return res.json({message:"you reached maximum account creation limit. please contact your provider for more info"})
-      }
-    }
-    const user = new User(user_to_add)
-    const neworguser=await user.save()
-  if(add_role===process.env.SUPERAGENT)
-{
-  const agentId=req.body.agentId
-  await Agent.findByIdAndUpdate(agentId,{set:{isAcountExist:true}})
 }
-   return res.json(neworguser)
+    const user = new User(user_to_add)
+    const neworguser=await user.save({session})
+    await session.commitTransaction()
+    return res.json(neworguser)
   }
   catch(error) {
+    await session.abortTransaction();
     next(error)
      }
 };

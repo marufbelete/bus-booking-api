@@ -35,11 +35,9 @@ exports.updateLookupInfo = async (req, res, next) => {
   try {
     const {offer,banks}=req.body
     const id =req.params.id
-    console.log(req.body)
     let update_option={}
     offer?update_option.offer=offer:update_option
     banks?update_option.banks=banks:update_option
-    console.log(update_option)
    const look= await Lookup.findByIdAndUpdate(id,{
      $addToSet:{...update_option},
    },{new:true,useFindAndModify:false})

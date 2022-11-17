@@ -8,7 +8,7 @@ exports.createRole = async (req, res, next) => {
     roleType:user_role   
     })
     const addedrole=await role.save()
-    res.json(addedrole)
+    return res.json(addedrole)
   }
 catch(error) {
 next(error);
@@ -18,7 +18,7 @@ next(error);
 exports.getRole = async (req, res, next) => {
   try {
    const role= await Role.find()
-   res.json(role)
+   return res.json(role)
   }
   catch(error) {
     next(error)
@@ -29,6 +29,7 @@ exports.deleteRole = async (req, res, next) => {
   try {
    const deleteid=req.params.id
    await Role.findByIdAndDelete(deleteid)
+   return res.json({message:"role deleted success",status:true})
   }
   catch(error) {
     next(error)

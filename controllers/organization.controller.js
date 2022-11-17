@@ -2,7 +2,6 @@ const Organization = require("../models/organization.model");
 const fs=require('fs')
 const sharp=require('sharp');
 const { convertToDotNotation } = require("../helpers/todot");
-//signup for mobile user
 exports.createOrganization = async (req, res, next) => {
   try {
 const {organizationName,organizationCode,organizationNameAmharic,
@@ -39,7 +38,6 @@ if (req.file)
     return res.json(savedorg)
   }
 catch(error) {
-  console.log(error)
 next(error);
   }
 };
@@ -47,7 +45,7 @@ next(error);
 exports.getAllOrganization = async (req, res, next) => {
   try {
    const allorganization= await Organization.find()
-   res.json(allorganization)
+   return res.json(allorganization)
   }
   catch(error) {
     next(error)
@@ -58,7 +56,7 @@ exports.getOrganizationById = async (req, res, next) => {
   try {
    const id=req.params.id
    const organization= await Organization.findById(id)
-   res.json(organization)
+   return res.json(organization)
   }
   catch(error) {
     next(error)
@@ -97,11 +95,11 @@ exports.getMyOrganization = async (req, res, next) => {
 exports.getOrgRules = async (req, res, next) => {
   try {
     const orgcode =req.userinfo.organization_code;
-    const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
+    const org_rule= await Organization.findOne({organizationCode:orgcode},
+      {rulesAndRegulation:1})
     return res.json(org_rule)
   }
   catch(error) {
-    console.log(error)
     next(error)
   }
 };
@@ -123,7 +121,6 @@ return res.json(organization)
 }
 
 catch(error) {
-  console.log(error)
   next(error)
 }
 }
@@ -170,14 +167,6 @@ if(updateObj.offering){
   delete updateObj.offering
 }
 
-// if(updateObj.funding){
-//   for(let [key, value] of Object.entries(updateObj.funding)){
-//     if(value !== undefined){
-//         updateObj.funding[key] = value;
-//     }
-// }
-// }
-
 if(updateObj?.setting?.funding){
   fund_push={'setting.funding':req.body.setting.funding}
 }
@@ -200,7 +189,6 @@ if(updateObj?.rulesAndRegulation){
 delete updateObj.setting
 updateObj=convertToDotNotation(updateObj)
 if(imgurl){updateObj.logo=imgurl}
-// console.log(offer_push,regulation_push)
    const organization= await Organization.findByIdAndUpdate(id,
     { 
       $set:{
@@ -216,7 +204,6 @@ if(imgurl){updateObj.logo=imgurl}
    res.json(organization)
   }
   catch(error) {
-    console.log(error)
     next(error)
   }
 };

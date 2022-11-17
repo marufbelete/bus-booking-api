@@ -56,7 +56,9 @@ exports.addSchedule = async (req, res, next) => {
       const nex_day=moment(departure_date_and_time).add(1,'d')
       if(is_not_free)
       {
-       return res.json({message:"this bus is alredy assigned for the given date"})
+        const error=new Error("this bus is alredy assigned for the given date")
+        error.statusCode=401
+        throw error
       }
       const location=new Location({        
         location:destination,
@@ -76,8 +78,7 @@ exports.addSchedule = async (req, res, next) => {
     error.statusCode=401
     throw error
   }
-
-  }
+}
 catch(error) {
   await session.abortTransaction();
   next(error);
@@ -203,6 +204,7 @@ exports.getAllFilterSchgedule=async(req,res,next)=>{
     next(error)
   }
 }
+
 exports.getSchgeduleById=async(req,res,next)=>{
   try{
     const id=mongoose.Types.ObjectId(req.params.id)
@@ -240,6 +242,7 @@ exports.getSchgeduleById=async(req,res,next)=>{
     next(error)
   }
 }
+
 //get all schedule
 exports.getAllSpecialSchgedule=async(req,res,next)=>{
   try{
@@ -274,7 +277,7 @@ exports.getActiveScheduleByRoute = async (req, res, next) => {
   req.query.source?search.source=req.query.source:''
   req.query.destination?search.destination=req.query.destination:''
   const allSchedule= await Schedule.find(search)
-  res.json(allSchedule)
+  return res.json(allSchedule)
   }
   catch(error) {
     next(error)
@@ -311,18 +314,21 @@ exports.assignBusToSchedule = async (req, res, next) => {
    console.log(sheduleinfo)
    if(!sheduleinfo)
    {
-    return res.json({message:"trip departure time already expired"})
+    const error=new Error("trip departure time already expired")
+    error.statusCode=401
+    throw error
    }
    const assign_date=await Location.find({busId:bus})
    const businfo=assign_date?.map(e=>e?.assigneDate)
    const is_not_free=businfo.map(e=>moment(e).dayOfYear()).includes(moment(sheduleinfo.departureDateAndTime).dayOfYear())
    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
    const is_bus_assigned_before=sheduleinfo.assignedBus
-   console.log(is_not_free)
-   console.log(sheduleinfo)
+
    if(is_not_free&&is_bus_assigned_before!=bus)
    {
-    return res.json({message:"this bus is alredy assigned for the given date"})
+    const error=new Error("this bus is alredy assigned for the given date")
+    error.statusCode=401
+    throw error
    }
    if(is_bus_assigned_before)
    {
@@ -340,14 +346,12 @@ exports.assignBusToSchedule = async (req, res, next) => {
     const number_sit=busInfo.totalNoOfSit
     update_option.totalNoOfSit=number_sit
    }
-   console.log(update_option)
    const buses= await Schedule.findOneAndUpdate(
     {_id:id,departureDateAndTime:{$gte:timenow}},
     {$set:{
      ...update_option
      }
    },{new:true,useFindAndModify:false,session})
-   console.log(buses)
   const location=new Location({
     date:nex_day,
     location:sheduleinfo.destination,
@@ -357,7 +361,8 @@ exports.assignBusToSchedule = async (req, res, next) => {
   })  
    await location.save({session})//location save
    session.commitTransaction()
-   return res.json({_id:buses._id,assignedBus:buses.assignedBus,departurePlace:buses.departurePlace})
+   return res.json({_id:buses._id,assignedBus:buses.assignedBus,
+    departurePlace:buses.departurePlace})
   }
   catch(error) {
     session.abortTransaction()
@@ -377,7 +382,8 @@ exports.updateScheduleDateAndTime = async (req, res, next) => {
    })
    //change location info of bus
    const next_date=moment(departureDateAndTime).add(1,'d')
-   await Location.findOneAndUpdate({busId:schedule_info.bus,date:schedule_info.departureDateAndTime},{
+   await Location.findOneAndUpdate({busId:schedule_info.bus,
+    date:schedule_info.departureDateAndTime},{
     $set:{
       date:departureDateAndTime,
       assigneDate:next_date
@@ -398,14 +404,19 @@ exports.updatePassinfo = async (req, res, next) => {
    const passangerName=req.body.passangerName;
    const passangerPhone=req.body.phoneNumber;
    const timenow=new Date()
-   const sheduleinfo=await Schedule.findOne({_id:schedule_id,departureDateAndTime:{$gte:timenow}})
+   const sheduleinfo=await Schedule.findOne({_id:schedule_id,
+    departureDateAndTime:{$gte:timenow}})
    if(!sheduleinfo)
    {
-    return res.json({message:"trip departure time already expired"})
+    const error=new Error("trip departure time already expired")
+    error.statusCode=401
+    throw error
    }
-   await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].passangerName":passangerName,"passangerInfo.$[el].passangerPhone":passangerPhone}},
+   await Schedule.findByIdAndUpdate(schedule_id,{$set:
+    {"passangerInfo.$[el].passangerName":passangerName,
+    "passangerInfo.$[el].passangerPhone":passangerPhone}},
      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
-      return res.json("done")
+      return res.json({message:"passanger info updated",success:true})
   }
   catch(error) {
     next(error)
@@ -417,7 +428,6 @@ exports.cancelSchedule= async (req, res, next) => {
   const session=await mongoose.startSession()
   try {
   //find and copmare the date if pass dont cancel
-  console.log("canceld")
    const id=req.params.id
    const canceler_id=req.userinfo.sub
    const timenow=new Date()
@@ -427,12 +437,12 @@ exports.cancelSchedule= async (req, res, next) => {
    session.startTransaction()
   const update_schedule=await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isTripCanceled:true,
-  canceledBy:canceler_id
-   }},{session})
-   console.log(update_schedule)
+  canceledBy:canceler_id}},{session})
    if(!update_schedule)
    {
-    return res.json({message:"schedule can't calceled, already departed",status:true})
+    const error=new Error("already departed schedule can't calceled")
+    error.statusCode=401
+    throw error
    }
    if(bus_id)
    {
@@ -466,7 +476,9 @@ exports.undoCanceldSchedule= async (req, res, next) => {
    }})
    if(!undo_schedule)
    {
-    return res.json({message:"departure time expired can't undo this schedule",status:true})
+    const error=new Error("departure time expired can't undo this schedule")
+    error.statusCode=401
+    throw error
    }
    return res.json({message:"schedule undo completed",status:true})
   }
@@ -492,7 +504,9 @@ exports.checkTicketExist=async(req,res,next)=>{
   {arrayFilters:[{"el.uniqueId":ticket_id}],new:true,useFindAndModify:false})
    return res.json({message:"Ticket Exist",status:true})
   }
-  return res.json({message:"No Ticket Found",status:false})
+  const error=new Error("No Ticket Found")
+  error.statusCode=401
+  throw error
   }
   catch(error) {
     next(error)

@@ -54,7 +54,7 @@ exports.updateAgentInfo = async (req, res, next) => {
   try {
    const id=req.params.id
    const {agentName,phoneNumber,tin,maxUser,location,isActive}=req.body;
-  const update={}
+   const update={}
   if(agentName){update.agentName=agentName}
   if(phoneNumber){update.phoneNumber=phoneNumber}
   if(tin){update.tin=tin}
@@ -66,7 +66,7 @@ exports.updateAgentInfo = async (req, res, next) => {
       ...update
      }
    })
-   res.json(agent)
+   return res.json(agent)
   }
   catch(error) {
     next(error)
@@ -77,7 +77,7 @@ exports.deleteAgent = async (req, res, next) => {
   try {
    const deleteid=req.params.id
    await Agent.findByIdAndDelete(deleteid)
-   res.json({message:"deleted successfully"})
+   return res.json({message:"deleted successfully"})
   }
   catch(error) {
     next(error)

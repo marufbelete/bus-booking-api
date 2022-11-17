@@ -83,8 +83,8 @@ exports.updateHotelOrPensionInfo = async (req, res, next) => {
 exports.deleteHotelOrPension = async (req, res, next) => {
   try {
    const deleteid=req.params.id
-   await HotelAndPension.findByIdOrDelete(deleteid)
-   res.json("deleted successfully")
+   await HotelAndPension.findByIdAndDelete(deleteid)
+   return res.json({message:"deleted successfully",status:true})
   }
   catch(error) {
     next(error)

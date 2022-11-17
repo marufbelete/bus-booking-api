@@ -12,6 +12,7 @@ const {
   GraphQLDateTime,
   GraphQLTime
 } = require("graphql-scalars");
+const { errorHandler } = require("./gqlerrorHandler");
 
 const resolvers={
   Date: GraphQLDate,
@@ -26,7 +27,6 @@ Query:{
         let currentWeek=moment(now).weeks()-1;
         let today =moment(now).dayOfYear();
         const sort=args.input.filter
-        console.log(sort)
         let filter1
         filter1=sort=="day"?{"day":dayY}:filter1
         filter1=sort=="week"?{"week":week}:filter1
@@ -76,7 +76,7 @@ Query:{
       }
     
       catch(error) {
-        return []
+        return errorHandler
         }
     },
     getLocalSpecificTotalSale:async(parent,args,context)=>{
@@ -87,7 +87,6 @@ Query:{
       let currentWeek=moment(now).weeks()-1;
       let today =moment(now).dayOfYear();
       const sort=args.input.filter
-      console.log(sort)
       let filter1
       filter1=sort=="day"?{"day":dayY}:filter1
       filter1=sort=="week"?{"week":week}:filter1
@@ -136,14 +135,13 @@ Query:{
       }
     },
       ] )
-      console.log(allSchedule)
       return allSchedule[0]
 
     }
   
     catch(error) {
-      return []
-      }
+      return errorHandler
+    }
   },
   getAgenTotalTicket:async(parent,args,context)=>{
     try{
@@ -153,7 +151,6 @@ Query:{
     let currentWeek=moment(now).weeks()-1;
     let today =moment(now).dayOfYear();
     const sort=args.input.filter
-    console.log(sort)
     let filter1
     filter1=sort=="day"?{"day":dayY}:filter1
     filter1=sort=="week"?{"week":week}:filter1
@@ -199,16 +196,12 @@ Query:{
     }
   },
     ] )
-    console.log(agent_id)
-    console.log("agent ticket")
-    console.log(allSchedule)
     return allSchedule[0]
 
   }
-
   catch(error) {
-    return []
-    }
+    return errorHandler
+  }
 },
   getLocalSpecificCanceledSale:async(parent,args,context)=>{
     try{
@@ -233,7 +226,6 @@ Query:{
     const orgcode =context.organization_code;
     const sales=context.sub
     const sales_id=mongoose.Types.ObjectId(sales)
-    console.log(sales_id)
     const allSchedule= await Schedule.aggregate( [
   {
       $match:{organizationCode:orgcode}
@@ -267,15 +259,13 @@ Query:{
     }
   },
     ] )
-    console.log("test")
-    console.log(allSchedule)
     return allSchedule[0]
 
   }
 
   catch(error) {
-    return []
-    }
+    return errorHandler
+  }
 },
 //canceled by agent
 getAgentCanceledTicket:async(parent,args,context)=>{
@@ -334,15 +324,13 @@ $lookup:{
   }
 },
   ] )
-  console.log("agent canceled")
-  console.log(allSchedule)
   return allSchedule
 
 }
 
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 getAgentTotalSale:async(parent,args,context)=>{
       try{
@@ -400,8 +388,8 @@ getAgentTotalSale:async(parent,args,context)=>{
     }
   
     catch(error) {
-      return []
-      }
+      return errorHandler
+    }
   },
 
   getMobileTotalSale:async(parent,args,context)=>{
@@ -459,8 +447,8 @@ getAgentTotalSale:async(parent,args,context)=>{
 
   }
   catch(error) {
-    return []
-    }
+    return errorHandler
+  }
 },
 getTotalSale:async(parent,args,context)=>{
   try{
@@ -513,13 +501,12 @@ $lookup:{
   }
 }
   ] )
-  console.log(allSchedule[0])
   return allSchedule[0]
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 //donut
 getEachAgentSale:async(parent,args,context)=>{
@@ -575,9 +562,6 @@ $lookup:{
     as:"agent"
   }
   },
-// {
-//   $project:{ "_id":0,"totalTicket":1,"agentName":{$arrayElemAt:["$agent.agentName",0]} }
-// }
 
   ] )
   console.log("valauejsfaksd")
@@ -587,8 +571,8 @@ $lookup:{
 }
 catch(error) {
   console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 //donut agent
 getOneAgentSale:async(parent,args,context)=>{
@@ -640,15 +624,13 @@ $lookup:{
 },
 
   ] )
-  console.log("valauejsfaksd")
-  console.log(allSchedule)
+
   return allSchedule
 
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 //monthly comparsion
 //agent ticket month
@@ -690,8 +672,8 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 getAgentTicketInbr:async(parent,args,context)=>{
   try{
@@ -759,8 +741,8 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 //birr
 getGroupAgentTicketInbr:async(parent,args,context)=>{
@@ -826,8 +808,8 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 
 
@@ -866,13 +848,12 @@ $lookup:{
 }
 
   ] )
-  console.log(allSchedule)
   return allSchedule
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 //birr year large
 getGroupLocalTicketInbr:async(parent,args,context)=>{
@@ -883,7 +864,6 @@ getGroupLocalTicketInbr:async(parent,args,context)=>{
   let currentMonth=moment(now).month()+1;
   let currentWeek=moment(now).weeks()-1;
   let today =moment(now).dayOfYear();
-  console.log(currentWeek)
   const sort=args.input.filter
   let filter1
   filter1=sort=="day"?{"day":dayY}:filter1
@@ -937,9 +917,8 @@ $lookup:{
 
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 //specific cashersale in birr
 getCasherTicketInbr:async(parent,args,context)=>{
@@ -974,14 +953,7 @@ getCasherTicketInbr:async(parent,args,context)=>{
 {
   $unwind:"$passangerInfo"
 },
-//   {
-// $lookup:{
-//   from:'users',
-//   foreignField:"_id",
-//   localField:"passangerInfo.bookedBy",
-//   as:"user"
-// }
-// },
+
 {
   $project:{"_id":0,"bookedBy":"$passangerInfo.bookedBy","year":{$year:"$passangerInfo.bookedAt"},...filter1,"price":"$tarif"}
 },
@@ -1000,15 +972,12 @@ getCasherTicketInbr:async(parent,args,context)=>{
   $sort:{"label":1}
 }
   ] )
-  console.log(allSchedule)
-  console.log("end check")
   return allSchedule
 
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 getGroupLocalSpecfcificTicketInbr:async(parent,args,context)=>{
   try{
@@ -1066,9 +1035,8 @@ getGroupLocalSpecfcificTicketInbr:async(parent,args,context)=>{
 return allSchedule
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 //for canceled
 getGroupLocalSpecfcificCanceledTicketInbr:async(parent,args,context)=>{
@@ -1082,7 +1050,6 @@ getGroupLocalSpecfcificCanceledTicketInbr:async(parent,args,context)=>{
   const sales=context.sub
   const sales_id=mongoose.Types.ObjectId(sales)
   const sort=args.input.filter
-  console.log(sort)
   let filter1
   filter1=sort=="day"?{"day":dayY}:filter1
   filter1=sort=="week"?{"week":week,"day":dayW}:filter1
@@ -1127,9 +1094,8 @@ getGroupLocalSpecfcificCanceledTicketInbr:async(parent,args,context)=>{
 return allSchedule
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 getAgentCanceledTicketBirr:async(parent,args,context)=>{
   try{
@@ -1142,7 +1108,6 @@ getAgentCanceledTicketBirr:async(parent,args,context)=>{
   const user=await User.findById(context.sub)
   const agent_id=mongoose.Types.ObjectId(user.agentId)
   const sort=args.input.filter
-  console.log(sort)
   let filter1
   filter1=sort=="day"?{"day":dayY}:filter1
   filter1=sort=="week"?{"week":week,"day":dayW}:filter1
@@ -1190,14 +1155,12 @@ getAgentCanceledTicketBirr:async(parent,args,context)=>{
   }
 },
   ] )
-  console.log("canceled refund")
-  console.log(allSchedule)
+
 return allSchedule
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 //Mobile ticket month
 getGroupMonthMobileTicket:async(parent,args,context)=>{
@@ -1238,8 +1201,8 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 //birr
 getGroupMobileTicketInbr:async(parent,args,context)=>{
@@ -1304,8 +1267,8 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 
 //sale map in br
@@ -1361,8 +1324,8 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 //sale map in br
 //cancel
@@ -1418,9 +1381,8 @@ $lookup:{
 
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 //sale map in br
 getDaysInbr:async(parent,args,context)=>{
@@ -1584,8 +1546,8 @@ $project:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 //cancel
 getDaysMobileTicketInbr:async(parent,args,context)=>{
@@ -1639,8 +1601,8 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 
 //large graph all in br
@@ -1705,9 +1667,8 @@ $lookup:{
 
 }
 catch(error) {
-  console.log(error)
-  return []
-  }
+  return errorHandler
+}
 },
 //all sales
 //sale map in br
@@ -1763,22 +1724,12 @@ $lookup:{
 
 }
 catch(error) {
-  return []
-  }
+  return errorHandler
+}
 },
 
 },
-// User:{
-//   async customer(parent,args) {
-//     return await Customer.findOne({where:{customerID:parent.customerID}})
-//     },
-//     async driver(parent,args) {
-//       return await User.findByPk(parent.driverAssigned)
-//       },
-//   async warehouse(parent,args) {
-//     return await Warehouse.findOne({where:{_id:parent.hubID}})
-//     },
-//   },
+
 }
 
 module.exports=resolvers

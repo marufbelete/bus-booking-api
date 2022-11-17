@@ -101,7 +101,7 @@ exports.getDetailOrganizationBus = async (req, res, next) => {
     $project:{"_id":1,"busState":1,"busPlateNo":1,"busSideNo":1,"serviceYear":1,"totalNoOfSit":1,"driverId":1,"redatId":1,"drverPhone":{$arrayElemAt:["$driver.phoneNumber",0]},"redatPhone":{$arrayElemAt:["$redat.phoneNumber",0]},}
   },
 ])
-  res.json(allbus)
+  return res.json(allbus)
   }
   catch(error) {
     next(error)
@@ -171,7 +171,6 @@ exports.getOrganizationFreeBus = async (req, res, next) => {
 exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
   try {
   const {source,destination}=req.query
-  console.log(req.query)
   const orgcode =req.userinfo.organization_code;
   const final_result=[]
   const today=new Date()
@@ -213,10 +212,8 @@ exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
     ])
     const not_freeBus_ids=not_free_bus.map(e=>e.busId)
     const free_bus_id=bus_in_route?.bus.filter(e=>!(not_freeBus_ids.includes(e)))
-    console.log(free_bus_id)
 for(let bus_id of free_bus_id)
 {
-  console.log(bus_id)
   const push_bus=await Location.aggregate([
     {
       $match:{organizationCode:orgcode,busId:bus_id}
@@ -250,7 +247,6 @@ for(let bus_id of free_bus_id)
      return res.json(final_result)
   }
   catch(error) {
-    console.log(error)
     next(error)
   }
 };
@@ -270,7 +266,6 @@ exports.updateBusInfo = async (req, res, next) => {
    req.body.serviceYear?updated.serviceYear=req.body.serviceYear:updated
    session.startTransaction()  
    const bus_user= await Bus.findById(id)
-   console.log(bus_user)
    if(bus_user.driverId!=req.body.driverId)
    {
     await User.findByIdAndUpdate(bus_user.driverId,{
@@ -306,7 +301,6 @@ exports.updateBusInfo = async (req, res, next) => {
    return res.json(bus)
   }
   catch(error) {
-    console.log(error)
     await session.abortTransaction()
     next(error)
   }
@@ -321,9 +315,8 @@ exports.updateBusStatus = async (req, res, next) => {
       busState:bus_status
      }
    },{new:true})
-   console.log(bus)
 
-   res.json(bus)
+   return res.json(bus)
   }
   catch(error) {
     next(error)
@@ -334,7 +327,7 @@ exports.deleteBus = async (req, res, next) => {
   try {
    const deleteid=req.params.id
    await Bus.findByIdAndDelete(deleteid)
-   res.json("deleted successfully")
+   return res.json({message:"deleted successfully",status:true})
   }
   catch(error) {
     next(error)

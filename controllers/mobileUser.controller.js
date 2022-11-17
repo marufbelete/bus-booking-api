@@ -40,8 +40,7 @@ exports.saveMobileUser = async (req, res, next) => {
     })
     const user=await newuser.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, process.env.SECRET);
-    res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'})
-    return res.status(200).json({auth:true,token:token})
+    return res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'}).json({auth:true,token:token})
   }
 catch(error) {
  next(error)
@@ -72,8 +71,8 @@ exports.loginMobileUser = async (req, res, next) => {
       throw error;
     }
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number},process.env.SECRET);
-    res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'})
-    return res.json({auth:true,token:token})
+    return res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'})
+    .json({auth:true,token:token,role:user.userRole})
   }
   catch(error) {
     next(error)
@@ -108,8 +107,4 @@ exports.updateMobileUser = async (req, res, next) => {
   }
 };
 
-exports.deleteMobileUser=async(req,res,next)=>{
-     await User.deleteMany({isMobileUser:true})
-     res.json("done")
-}
 

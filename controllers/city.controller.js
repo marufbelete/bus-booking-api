@@ -90,7 +90,6 @@ exports.updateCityInfo = async (req, res, next) => {
    const departure_place= req.body?.departurePlace?.map(e=>Load.startCase(e));
    let add={}
    if(departure_place){add={$addToSet:{departurePlace:departure_place}}}
-   console.log(add)
   const city= await City.findByIdAndUpdate(id,{
      ...add
    },{new:true,useFindAndModify:false})
@@ -105,7 +104,7 @@ exports.deleteCity = async (req, res, next) => {
   try {
    const deleteid=req.params.id
    await City.findByIdAndDelete(deleteid)
-   res.json("deleted successfully")
+   return res.json({message:"deleted successfully",status:true})
   }
   catch(error) {
     next(error)

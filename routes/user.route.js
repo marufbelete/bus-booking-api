@@ -1,9 +1,15 @@
 const express = require('express');
-const { saveMobileUser,loginMobileUser,updateMobileUser, deleteMobileUser } = require('../controllers/mobileUser.controller');
-const {saveOwner,loginOnwer,saveSuperadmin,changePassword,saveOrganizationUser,loginOrganizationUser,updateOrganizationUser,deactivateOrganizationUser,activateOrganizationUser,getAllOrganizationUser, getUserByRole, checkAuth, getAllOrganizationDriver, tempResetPassword, getAssignedUserByRole, getUserByRoleWithEdit, getUserById} = require('../controllers/organizationUser.controller');
+const { saveMobileUser,loginMobileUser,updateMobileUser} = require('../controllers/mobileUser.controller');
+const {saveOwner,loginOnwer,saveSuperadmin,changePassword,
+    saveOrganizationUser,loginOrganizationUser,updateOrganizationUser,
+    deactivateOrganizationUser,activateOrganizationUser,
+    getAllOrganizationUser, getUserByRole, checkAuth, 
+    getAllOrganizationDriver, tempResetPassword, getAssignedUserByRole, 
+    getUserByRoleWithEdit, getUserById} = require('../controllers/organizationUser.controller');
 const {createRole,getRole,deleteRole}=require('../controllers/manageRole.controller')
 const userauth = require("../middleware/auth.middleware")
-const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
+const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,
+    authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
 const {errorHandler} = require('../middleware/errohandling.middleware')
 const router = express.Router();
 
@@ -19,7 +25,6 @@ router.post('/registersuperadmin',userauth,authOwner,saveSuperadmin,errorHandler
 router.post('/registermobileuser', saveMobileUser,errorHandler)
 router.post('/loginmobileuser',loginMobileUser,errorHandler)
 router.put('/updatemyinfo',updateMobileUser,errorHandler)
-router.delete('/delete',deleteMobileUser,errorHandler)
 
 
 //organization user 

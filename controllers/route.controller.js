@@ -104,7 +104,7 @@ exports.updateRouteInfo = async (req, res, next) => {
     ...option
      }
    })
-   res.json(bus)
+   return res.json(bus)
   }
   catch(error) {
     next(error)
@@ -154,7 +154,7 @@ exports.updateRouteInfoBusAndPlace = async (req, res, next) => {
       bus:assignedbus
      }
    })
-   res.json(bus)
+   return res.json(bus)
   }
   catch(error) {
     next(error)
@@ -165,7 +165,7 @@ exports.deleteRoute = async (req, res, next) => {
   try {
    const deleteid=req.params.id
    await Route.findByIdAndDelete(deleteid)
-   res.json("deleted successfully")
+   return res.json({message:"deleted successfully",success:true})
   }
   catch(error) {
     next(error)

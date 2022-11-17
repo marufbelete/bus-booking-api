@@ -46,7 +46,7 @@ exports.updateAccountInfo = async (req, res, next) => {
       ...req.body
      }
    },{new:true})
-   res.json(bank)
+   return res.json(bank)
   }
   catch(error) {
     next(error)

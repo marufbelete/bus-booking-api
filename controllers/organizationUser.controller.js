@@ -11,13 +11,15 @@ exports.checkAuth = (req, res, next) => {
   if (token) {
     jwt.verify(token,process.env.SECRET, (err, user) => {
       if (err) {
-        return res.status(403).json({msg:"you don't have permission please login first",status:false });
+        const error= new Error("permission denied")
+        error.code = 400
+        throw error;      
       }
-      return res.json({message:"ok"});
     });
+    return res.json({message:"success",auth:true});
   }
   else {
-    return res.status(403).json({message:"no token"});
+    return res.status(403).json({message:"no token",auth:false});
   }
 }
 catch(error)
@@ -62,8 +64,8 @@ exports.saveOwner = async (req, res, next) => {
       password: passwordHash,
     })
     const user=await owner.save()
-    const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,user_role:user.userRole,is_mobileuser:false }, process.env.SECRET);
-    // res.cookie('token',token,{httpOnly:true, sameSite:'strict'});
+    const token = jwt.sign({ sub: user._id, phone_number: user.phoneNumber,
+      user_role:user.userRole,is_mobileuser:false }, process.env.SECRET);
     return res.cookie("access_token",token,{
       sameSite:'none',
       path:'/',
@@ -273,10 +275,9 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
     const agetnUpadet= await Agent.findOneAndUpdate({_id:agentId},
       {$set:{isAcountExist:true}},
       {useFindAndModify:false,session,new:true})
-     console.log(agetnUpadet)
     }
     else{
-    const error = new Error("You don'y have privilage to register super-agent." )
+    const error = new Error("You don't have privilage to register super-agent." )
     error.statusCode = 400
     throw error;
     }
@@ -313,7 +314,6 @@ exports.loginOrganizationUser = async (req, res, next) => {
       error.statusCode = 400
       throw error;
     }
-    console.log(user)
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       const error = new Error("Invalid credential.")
@@ -401,7 +401,8 @@ catch(error) {
 exports.getAllOrganizationDriver= async(req,res,next) =>{
   try{
     const organization_code=req.userinfo.organization_code;
-    const driver=await User.find({userRole:process.env.DRIVER,organizationCode:organization_code,isMobileUser:false,isActive:true})
+    const driver=await User.find({userRole:process.env.DRIVER,
+    organizationCode:organization_code,isMobileUser:false,isActive:true})
      return res.json(driver)
   }
   catch(error) {
@@ -412,7 +413,8 @@ exports.getAllOrganizationDriver= async(req,res,next) =>{
 exports.updateOrganizationUser = async (req, res, next) => {
   try {
     const {user_role,sub}=req.userinfo
-    const {firstName,gender,isActive,lastName,organization_code,id:updateduserid,phoneNumber,userRole,isAssigned}=req.body
+    const {firstName,gender,isActive,lastName,organization_code,
+      id:updateduserid,phoneNumber,userRole,isAssigned}=req.body
     const update_opt={}
     if(firstName){update_opt.firstName=firstName}
     if(gender){update_opt.gender=gender}
@@ -432,12 +434,15 @@ if(user_role===process.env.SUPERADMIN)
     const u_user=await User.findById(updateduserid)
     let filter={}
     let setVal={}
-    u_user.userRole==process.env.DRIVER?filter={driverId:updateduserid}:filter={redatId:updateduserid}
-    u_user.userRole==process.env.DRIVER?setVal={driverId:null}:setVal={redatId:null}
-    await Bus.findOneAndUpdate({...filter,organizationCode:organization_code},{$set:{...setVal}})
+    u_user.userRole==process.env.DRIVER?filter={driverId:updateduserid}:
+    filter={redatId:updateduserid}
+    u_user.userRole==process.env.DRIVER?setVal={driverId:null}:
+    setVal={redatId:null}
+    await Bus.findOneAndUpdate({...filter,organizationCode:organization_code},
+      {$set:{...setVal}})
     }
-  const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
-  $set:{
+  const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},
+  {$set:{
   ...update_opt
 }
   },{useFindAndModify:false})
@@ -450,7 +455,8 @@ else{
     if(gender){update_opt.gender=gender}
     if(lastName){update_opt.lastName=lastName}
     if(isActive){update_opt.isActive=isActive}
-  const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
+  const updateduser=await User.findOneAndUpdate({_id:updateduserid,
+    organizationCode:organization_code},{
     $set:{
    ...update_opt
   }
@@ -579,7 +585,8 @@ exports.activateOrganizationUser = async (req, res, next) => {
       const organization_code=req.userinfo.organization_code;
       const id=req.userinfo._id;
       const user_role=req.userinfo.user_role;
-      const superadminuser=await User.findOne({userRole:process.env.SUPERADMIN,organizationCode:organization_code})
+      const superadminuser=await User.findOne({userRole:process.env.SUPERADMIN,
+        organizationCode:organization_code})
   if(user_role===process.env.SUPERADMIN || user_role===process.env.ADMIN)
   { 
   if(updateduserid==superadminuser._id){ 
@@ -659,7 +666,8 @@ exports.tempResetPassword = async (req, res, next) => {
 }  
 if(role==process.env.ADMIN)
 {
-  await User.findOneAndUpdate({_id:sub,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER,process.env.ADMIN]}},{password:passwordHash})
+  await User.findOneAndUpdate({_id:sub,userRole:{ $nin:[process.env.SUPERADMIN,
+    process.env.OWNER,process.env.ADMIN]}},{password:passwordHash})
   return res.json({success:true})
 }
 

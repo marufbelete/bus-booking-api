@@ -13,7 +13,6 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     let option1={}
     const {freeSit,source,destination,departureDate,organization}=req.query
     let dep_date=moment(new Date(departureDate)).dayOfYear()
-    console.log("date ")
     console.log(dep_date)
     if(freeSit){
       option1={"sitLeft":{$gte:Number(freeSit)}}
@@ -24,14 +23,15 @@ exports.getMobileSchgedule=async(req,res,next)=>{
     let today =moment(now).dayOfYear();
     if(!source||!destination)
     {
-      return res.json({message:"please fill both source and destination field"})
+      const error = new Error("please fill both source and destination field")
+      error.statusCode = 400
+      throw error;
     }
     organization?filter.organizationCode={$in:orgarray}:filter=filter
     source?filter.source=source:filter=filter
     destination?filter.destination=destination:filter=filter
     departureDate?departure_date=dep_date:departure_date=today+1
     const schedule=await Schedule.aggregate([
-      // {$match:{source:source,destination:destination}},
       {$match:{...filter
         ,$and: [{$expr:{ $eq:[{$dayOfYear:"$departureDateAndTime"},departure_date]}},
       {$expr:{$lt:[{$size:"$occupiedSitNo"},"$totalNoOfSit"]}}]
@@ -44,7 +44,11 @@ exports.getMobileSchgedule=async(req,res,next)=>{
       as:"organization"
     }
     },
-    {$project:{"day":{$dayOfYear:"$departureDateAndTime"},"organizationName":{$arrayElemAt:["$organization.organizationName",0]},"source":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1,"sitLeft":{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]}}},
+    {$project:{"day":{$dayOfYear:"$departureDateAndTime"},
+    "organizationName":{$arrayElemAt:["$organization.organizationName",0]},
+    "source":1,"destination":1,"departureDateAndTime":1,"distance":1,
+    "estimatedHour":1,"tarif":1,"sitLeft":{$subtract:["$totalNoOfSit",
+    {$size:"$occupiedSitNo"}]}}},
     {
       $match:option1
     }
@@ -61,11 +65,8 @@ exports.getMobileSchgedule=async(req,res,next)=>{
 //update passanger info
 exports.updateMobilePassinfo = async (req, res, next) => {
   try {
-    console.log("change")
    const schedule_id=req.params.id
-   console.log(schedule_id)
    const ticket_id= req.body.ticketId;
-   console.log(req.body)
    const passangerName=req.body.passangerName;
    const passangerPhone=req.body.passangerPhone;
    const change=await Schedule.findOneAndUpdate({_id:schedule_id},
@@ -73,15 +74,15 @@ exports.updateMobilePassinfo = async (req, res, next) => {
    "passangerInfo.$[el].passangerPhone":passangerPhone}},
    {arrayFilters:[{"el.uniqueId":ticket_id}],
     new:true,useFindAndModify:false})
-    console.log(change)
    if((change?.passangerInfo.filter(e=>e.uniqueId==ticket_id)).length==0)
    {
-    return res.json({message:"passanger not found"})
+    const error = new Error("passanger not found")
+    error.statusCode = 400
+    throw error;
    }
-     return res.json({message:"done"})
+    return res.json({message:"passagner info updated",status:true})
   }
   catch(error) {
-    console.log("error")
     next(error)
   }
 };
@@ -140,13 +141,14 @@ exports.cancelTicket = async (req, res, next) => {
         throw error
       }
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].sitCanceled":pass_sit,
-      "passangerInfo.$[el].isTiacketCanceled":true
-      // ,"passangerInfo.$[el].canceledBy":userid
-    },$pull:{occupiedSitNo: pass_sit }},
+      "passangerInfo.$[el].isTiacketCanceled":true},$pull:{occupiedSitNo: pass_sit }},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
+      
       return res.json({meaage:"sit canceled. please contact bus ticket office for your refund"})
     }
-    return res.json({meaage:"departure time passed. please contact bus ticket office"})
+    const error=new Error("departure time passed. please contact bus ticket office")
+    error.statusCode=401
+    throw error
   }
   catch(error) {
     next(error)

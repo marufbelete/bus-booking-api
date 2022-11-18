@@ -250,7 +250,7 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
     {
       if(user_role===process.env.ADMIN||user_role===process.env.SUPERADMIN)
       {
-     const agentId=req.body.agentId
+     const agentId=req.body.agentid
      const agentobj= await Agent.findById(agentId)
      if(!agentId)
       {
@@ -272,7 +272,7 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
      }
       
     user_to_add.agentId=agentId
-    const agetnUpadet= await Agent.findOneAndUpdate({_id:agentId},
+    await Agent.findOneAndUpdate({_id:agentId},
       {$set:{isAcountExist:true}},
       {useFindAndModify:false,session,new:true})
     }

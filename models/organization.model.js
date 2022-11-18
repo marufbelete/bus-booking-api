@@ -9,6 +9,11 @@ const OrganizationSchema = new mongoose.Schema({
   organizationNameAmharic: {
     type: String,
   },
+  tin:{
+    type:String,
+    required: true,
+    unique:true
+  },
   organizationCode:{
     type: String,
     required: true,

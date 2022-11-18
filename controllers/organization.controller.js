@@ -5,9 +5,8 @@ const { convertToDotNotation } = require("../helpers/todot");
 exports.createOrganization = async (req, res, next) => {
   try {
 const {organizationName,organizationCode,organizationNameAmharic,
-  branch,offering,setting,rulesAndRegulation
+  branch,tin,offering,setting,rulesAndRegulation
 }=req.body
-console.log(req.body)
 let imgurl
 if (req.file)
     {
@@ -29,6 +28,7 @@ if (req.file)
       organizationName,
       organizationNameAmharic,
       branch,
+      tin,
       setting,
       rulesAndRegulation,
       offering,
@@ -66,7 +66,6 @@ exports.getOrganizationById = async (req, res, next) => {
 exports.getOrganizationByCode = async (req, res, next) => {
   try {
    const code=req.params.code
-   console.log(code)
    const organization= await Organization.findOne({organizationCode:code})
    if(organization)
    {

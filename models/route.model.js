@@ -33,6 +33,11 @@ maximumTrip: {
   type: Number,
   trim: true,
 },
+isActive:{
+  type:Boolean,
+  required: true, 
+  default:true 
+},
 bus: {
   type: [mongoose.Schema.Types.ObjectId],
   ref:'bus',

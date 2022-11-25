@@ -176,20 +176,20 @@ exports.cancelPassTicket = async (req, res, next) => {
     const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
     if(schedule&&moment(schedule.departureDateAndTime).add(Number(org_rule?.rulesAndRegulation?.maxReturnDate),'d').isAfter(timenow))
     {
-      const {isPassangerDeparted,isTiacketRefunded,isTiacketCanceled}=schedule.passangerInfo.filter(e=>e.uniqueId==pass_id)[0]
+      const {isPassangerDeparted,isTicketRefunded,isTicketCanceled}=schedule.passangerInfo.filter(e=>e.uniqueId==pass_id)[0]
       if(isPassangerDeparted)
       {
         const error=new Error("this passanger already departed")
         error.statusCode=401
         throw error
       }
-      if(isTiacketRefunded)
+      if(isTicketRefunded)
       {
         const error=new Error("this ticket already refunded")
         error.statusCode=401
         throw error
       }
-      if(isTiacketCanceled)
+      if(isTicketCanceled)
       {
         const error=new Error("this ticket already canceled")
         error.statusCode=401
@@ -206,7 +206,7 @@ exports.cancelPassTicket = async (req, res, next) => {
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
       await Schedule.findByIdAndUpdate(schedule_id,
-      {$set:{"passangerInfo.$[el].isTiacketCanceled":true,
+      {$set:{"passangerInfo.$[el].isTicketCanceled":true,
       "passangerInfo.$[el].canceledBy":cancelr_id,
       "passangerInfo.$[el].sitCanceled":pass_sit},
       $pull:{occupiedSitNo: pass_sit }},
@@ -216,7 +216,7 @@ exports.cancelPassTicket = async (req, res, next) => {
     }
     else{
       await Schedule.findByIdAndUpdate(schedule_id,
-      {$set:{"passangerInfo.$[el].isTiacketCanceled":true,
+      {$set:{"passangerInfo.$[el].isTicketCanceled":true,
       "passangerInfo.$[el].canceledBy":cancelr_id,
       "passangerInfo.$[el].sitCanceled":pass_sit}},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,
@@ -245,14 +245,14 @@ exports.refundRequest = async (req, res, next) => {
     const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
     if(schedule&&moment(schedule.departureDateAndTime).add(Number(org_rule?.rulesAndRegulation?.maxReturnDate),'d').isAfter(timenow))
     {
-      const {isPassangerDeparted,isTiacketRefunded}=schedule.passangerInfo.filter(e=>e.uniqueId==pass_id)[0]
+      const {isPassangerDeparted,isTicketRefunded}=schedule.passangerInfo.filter(e=>e.uniqueId==pass_id)[0]
       if(isPassangerDeparted)
       {
         const error=new Error("this passanger already departed")
         error.statusCode=401
         throw error
       }
-      if(isTiacketRefunded)
+      if(isTicketRefunded)
       {
         const error=new Error("this ticket already refunded")
         error.statusCode=401
@@ -260,15 +260,15 @@ exports.refundRequest = async (req, res, next) => {
       }
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,
-      "passangerInfo.$[el].isTiacketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTicketCanceled":true,
+      "passangerInfo.$[el].isTicketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
       "passangerInfo.$[el].sitCanceled":pass_sit},$pull:{occupiedSitNo: pass_sit }},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
 
     }
     else{
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTiacketCanceled":true,
-      "passangerInfo.$[el].isTiacketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
+      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTicketCanceled":true,
+      "passangerInfo.$[el].isTicketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
       "passangerInfo.$[el].sitCanceled":pass_sit}},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
     }

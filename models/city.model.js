@@ -12,6 +12,11 @@ departurePlace: {
     type: [String],
     trim: true,
 },
+isActive:{
+  type:Boolean,
+  required: true, 
+  default:true 
+},
 organizationCode:{
     type: String,
     trim: true,

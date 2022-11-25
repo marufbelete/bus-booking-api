@@ -55,9 +55,6 @@ isAssigned:{
     trim: true,
     toLowerCase:true,
   },
-  branch:{
-      type: String,
-    },
   isMasterAgent:{
     type:Boolean,
     default: false

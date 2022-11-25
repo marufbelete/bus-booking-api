@@ -141,7 +141,7 @@ exports.cancelTicket = async (req, res, next) => {
         throw error
       }
       await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].sitCanceled":pass_sit,
-      "passangerInfo.$[el].isTiacketCanceled":true},$pull:{occupiedSitNo: pass_sit }},
+      "passangerInfo.$[el].isTicketCanceled":true},$pull:{occupiedSitNo: pass_sit }},
       {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
       
       return res.json({meaage:"sit canceled. please contact bus ticket office for your refund"})

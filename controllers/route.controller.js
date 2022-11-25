@@ -41,9 +41,11 @@ next(error);
 };
 exports.getOrganizationRoute = async (req, res, next) => {
   try {
-  
+  const status=req.query.status
   const orgcode =req.userinfo.organization_code;
-  const allroute= await Route.find({organizationCode:orgcode})
+  const filter={organizationCode:orgcode}
+  if(activeOnly!=="undefined"){filter.isActive=status}
+  const allroute= await Route.find(filter)
   return res.json(allroute)
   }
   catch(error) {
@@ -91,6 +93,7 @@ exports.updateRouteInfo = async (req, res, next) => {
    const estimated_hour = req.body.estimatedHour;
    const max_trip=req.body.maxtrip//array of bus
    const dep_plcae=req.body.departureplace;
+   const isActive=req.body.isActive
    let option={}
    if(tarif){option.tarif=tarif}
    if(distance){option.distance=distance}
@@ -98,6 +101,7 @@ exports.updateRouteInfo = async (req, res, next) => {
    if(max_trip){option.maximumTrip=max_trip}
    if(dep_plcae){option.departurePlace=dep_plcae}
    if(assignedbus){option.bus=assignedbus}
+   if(isActive){option.isActive=isActive}
    
    const bus= await Route.findByIdAndUpdate(id,{
      $set:{

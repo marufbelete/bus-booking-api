@@ -77,11 +77,11 @@ passangerInfo:[{
       type: mongoose.Schema.Types.ObjectId,  
       ref: 'user', 
       },
-    isTiacketCanceled: {
+    isTicketCanceled: {
       type: Boolean,  
       default:false,
       },
-    isTiacketRefunded: {
+    isTicketRefunded: {
       type: Boolean,  
       default:false,
       },

@@ -5,9 +5,14 @@ const OrganizationSchema = new mongoose.Schema({
   organizationName: {
     type: String,
     required: true,
+    unique:true
   },
   organizationNameAmharic: {
     type: String,
+  },
+  lastTicket:{
+    type:Number,
+    default:0
   },
   tin:{
     type:String,

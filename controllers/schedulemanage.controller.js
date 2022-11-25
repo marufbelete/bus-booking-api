@@ -4,8 +4,9 @@ const Location=require('../models/Date_Location.model')
 const moment=require('moment')
 const mongoose = require("mongoose");
 const Load= require('lodash');
-const ShortUniqueId = require('short-unique-id');
-const {onlyUnique}=require('../helpers/uniqueArr')
+// const ShortUniqueId = require('short-unique-id');
+const {onlyUnique}=require('../helpers/uniqueArr');
+const Organization = require("../models/organization.model");
 exports.addSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
   session.startTransaction()  
@@ -94,7 +95,7 @@ exports.lockSit = async (req, res, next) => {
    const schedule=await Schedule.findById(id)
    if(schedule.occupiedSitNo.some(e=>sit.includes(e))||schedule.tempOccupiedSitNo.some(e=>sit.includes(e)))
    {
-    const error=new Error("sit already reserved before, please try again")
+    const error=new Error("sit already reserved before, please try another sit")
     error.statusCode=400
     throw error
    }
@@ -139,8 +140,15 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     const pass_phone_number = req.body[i].passphone;
     const psss_ocupied_sit_no= req.body[i].sits
     const booked_by = req.userinfo.sub;
-    const uid = new ShortUniqueId({ length: 12 });
     const schedule=await Schedule.findById(id)
+    const organization=await Organization.findOne({organizationCode:schedule.organizationCode})
+    const now=new Date()
+    const prefix=`${organization.organizationName}-${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`
+    const lastTicket=organization.lastTicket
+    const uid = `${prefix}-${Number(lastTicket)+1}`
+    organization.lastTicket=lastTicket+1
+    await organization.save({session})
+    // new ShortUniqueId({ length: 12 });
 
     if(schedule.occupiedSitNo.includes(psss_ocupied_sit_no))
     {
@@ -154,7 +162,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
         passangerName:passange_name,
         passangerPhone:pass_phone_number,
         passangerOccupiedSitNo:psss_ocupied_sit_no,
-        uniqueId:uid(),
+        uniqueId:uid,
         bookedBy:booked_by}
         tickets.push(new_ticket)
       await Schedule.findByIdAndUpdate(id,{
@@ -174,6 +182,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
   }
   catch(error) {
     await session.abortTransaction();
+    console.log(error)
     next(error)
   }
 };
@@ -210,6 +219,8 @@ exports.getSchgeduleById=async(req,res,next)=>{
     const id=mongoose.Types.ObjectId(req.params.id)
     const orgcode =req.userinfo.organization_code;
     const now =new Date()
+    // const pas=await Schedule.findOne({organizationCode:orgcode,_id:id})
+    // console.log(pas.passangerInfo)
     const schedule=await Schedule.aggregate([
       {
         $match:{organizationCode:orgcode,_id:id}
@@ -220,18 +231,24 @@ exports.getSchgeduleById=async(req,res,next)=>{
       {
         $project:{"departureDateAndTime":1,"passangerName":"$passangerInfo.passangerName","tarif":1,
         "bookedAt":"$passangerInfo.bookedAt","passangerId":"$passangerInfo.uniqueId","isTripCanceled":1,
-        "isTicketCanceled":"$passangerInfo.isTiacketCanceled","sit":"$passangerInfo.passangerOccupiedSitNo",
+        "isTicketCanceled":"$passangerInfo.isTicketCanceled","isTicketRefunded":"$passangerInfo.isTicketRefunded",
+        "sit":"$passangerInfo.passangerOccupiedSitNo",
         "phoneNumber":"$passangerInfo.passangerPhone","status":{$cond:[{$gt:["$departureDateAndTime",now]},
         "To Be Departed","Departed"]}}
       },
       {
-        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"isTicketCanceled":1,
+        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"isTripCanceled":1,
+        "isTicketRefunded":1,"passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketCanceled"]},
+        "Canceled Sit","$status"]}}
+      },
+      {
+        $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"isTicketRefunded":1,
         "passangerId":1,"bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},
         "Canceled Trip","$status"]}}
       },
       {
         $project:{"departureDateAndTime":1,"passangerName":1,"tarif":1,"sit":1,"passangerId":1,
-        "bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTiacketRefunded"]},
+        "bookedAt":1,"phoneNumber":1,"status":{$cond:[{$eq:[true,"$isTicketRefunded"]},
         "Refunded","$status"]}}
       },
     

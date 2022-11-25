@@ -362,7 +362,7 @@ try{
     //     return res.json(result)
     // });
     // return;
-    const allcasher=await User.find({userRole:{$in:[process.env.CASHER,process.env.DRIVER,process.env.AGENT,process.env.REDAT]},
+    const allcasher=await User.find({userRole:{$in:[process.env.CASHER,process.env.DRIVER,process.env.SUPERAGENT,process.env.REDAT]},
     organizationCode:organization_code,isMobileUser:false})
     return res.json(allcasher)
   }
@@ -386,9 +386,10 @@ try{
     //   return res.json(result)
     // });
     // return;
+    const {sub}=req.userinfo
+    const superagrnt=await User.findById(sub)
     const all=await User.find({userRole:process.env.CASHERAGENT,
-    organizationCode:organization_code,isMobileUser:false})
-    console.log(all)
+    organizationCode:organization_code,agentId:superagrnt.agentId,isMobileUser:false})
     return res.json(all)
   }
 }
@@ -412,14 +413,15 @@ exports.getAllOrganizationDriver= async(req,res,next) =>{
 //update organization user info
 exports.updateOrganizationUser = async (req, res, next) => {
   try {
-    const {user_role,sub}=req.userinfo
-    const {firstName,gender,isActive,lastName,organization_code,
-      id:updateduserid,phoneNumber,userRole,isAssigned}=req.body
+    const {user_role,sub,organization_code}=req.userinfo
+    const {id:updateduserid}=req.params
+    const {firstName,gender,isActive,lastName,
+      phoneNumber,userRole,isAssigned}=req.body
     const update_opt={}
     if(firstName){update_opt.firstName=firstName}
     if(gender){update_opt.gender=gender}
     if(lastName){update_opt.lastName=lastName}
-    if(isActive){update_opt.isActive=isActive}
+    if(typeof isActive !== "undefined"){update_opt.isActive=isActive}
     if(phoneNumber){update_opt.phoneNumber=phoneNumber}
     if(userRole){update_opt.userRole=userRole}
     if(isAssigned){update_opt.isAssigned=isAssigned}
@@ -440,7 +442,7 @@ if(user_role===process.env.SUPERADMIN)
     setVal={redatId:null}
     await Bus.findOneAndUpdate({...filter,organizationCode:organization_code},
       {$set:{...setVal}})
-    }
+    }  
   const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},
   {$set:{
   ...update_opt
@@ -514,14 +516,21 @@ if(user_role===process.env.ADMIN )
   throw error;
 
 }
-const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
-  $set:{
-    isActive:isActive,
+if(user_role===process.env.SUPERAGENT&&editeduser.userRole==process.env.CASHERAGENT )
+{
+  const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
+    $set:{
+        ...update_opt
+      }
+    },{useFindAndModify:false,new:true})
+    return res.json(updateduser)
 }
-  },{useFindAndModify:false,new:true})
-  return res.json(updateduser)
+const error = new Error( "you have no privilage to edit user info.")
+error.statusCode = 400
+throw error;
 }
   catch(error) {
+    console.log(error)
     next(error)
      }
 };
@@ -649,6 +658,7 @@ exports.tempResetPassword = async (req, res, next) => {
     const password=req.body.password
     let passwordHash
     const role=req.userinfo.user_role;
+    console.log(sub,req.body)
   if(password)
 {
     if (password.length < 5) {

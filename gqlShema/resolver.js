@@ -234,7 +234,7 @@ Query:{
     $unwind:"$passangerInfo"
   },
   {
-    $match:{"passangerInfo.isTiacketRefunded":true,"passangerInfo.canceledBy":sales_id}
+    $match:{"passangerInfo.isTicketRefunded":true,"passangerInfo.canceledBy":sales_id}
   },
   {
   $lookup:{
@@ -299,7 +299,7 @@ getAgentCanceledTicket:async(parent,args,context)=>{
   $unwind:"$passangerInfo"
 },
 {
-  $match:{"passangerInfo.isTiacketRefunded":true,}
+  $match:{"passangerInfo.isTicketRefunded":true,}
 },
 {
 $lookup:{
@@ -1074,7 +1074,7 @@ getGroupLocalSpecfcificCanceledTicketInbr:async(parent,args,context)=>{
   $unwind:"$passangerInfo"
 },
 {
-  $match:{"passangerInfo.isTiacketRefunded":true,"passangerInfo.canceledBy":sales_id}
+  $match:{"passangerInfo.isTicketRefunded":true,"passangerInfo.canceledBy":sales_id}
 },
 {
   $project:{"_id":0,"year":{$year:"$passangerInfo.bookedAt"},...filter1,"price":"$tarif"}
@@ -1130,7 +1130,7 @@ getAgentCanceledTicketBirr:async(parent,args,context)=>{
   $unwind:"$passangerInfo"
 },
 {
-  $match:{"passangerInfo.isTiacketRefunded":true}
+  $match:{"passangerInfo.isTicketRefunded":true}
 },
 {
   $lookup:{

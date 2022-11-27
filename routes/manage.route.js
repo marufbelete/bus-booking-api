@@ -1,23 +1,48 @@
 const express = require('express');
 const userauth = require("../middleware/auth.middleware")
-const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
-const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,getRiservedSit,cancelSchedule,undoCanceldSchedule,getActiveScheduleByRoute, getAllSchgedule, getAllSpecialSchgedule,getAllFilterSchgedule,getSchgeduleById, updatePassinfo, updateScheduleDateAndTime, checkTicketExist}= require("../controllers/schedulemanage.controller")
-const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute, updateRouteInfoBusAndPlace, getOrganizationDetailRoute, getOrganizationBusByRoute, getOrganizationRouteById}=require("../controllers/route.controller")
+const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,
+  authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
+const {addSchedule,lockSit,bookTicketFromSchedule,assignBusToSchedule,
+  getRiservedSit,cancelSchedule,undoCanceldSchedule,getActiveScheduleByRoute,
+   getAllSchgedule, getAllSpecialSchgedule,getAllFilterSchgedule,getSchgeduleById,
+    updatePassinfo, updateScheduleDateAndTime, 
+    checkTicketExist}= require("../controllers/schedulemanage.controller")
+const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute,
+   updateRouteInfoBusAndPlace, getOrganizationDetailRoute, 
+   getOrganizationBusByRoute, getOrganizationRouteById,
+    getRouteDepPlace}=require("../controllers/route.controller")
 const {createRole,getRole,deleteRole}=require("../controllers/manageRole.controller")
-const {addPolicy,getPolicy,updatePolicyInfo,deletePolicy}=require("../controllers/policy.controller")
-const {createOrganization,getAllOrganization,getOrganizationByCode,updateOrganization,deleteOrganization, getOrganizationById, getMyOrganization, getOrgRules, updateBrnach}=require("../controllers/organization.controller")
-const {registerHotelOrPension,getGetAllHotelOrPension,getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
+const {addPolicy,getPolicy,updatePolicyInfo,
+  deletePolicy}=require("../controllers/policy.controller")
+const {createOrganization,getAllOrganization,getOrganizationByCode,
+  updateOrganization,deleteOrganization, getOrganizationById, 
+  getMyOrganization, getOrgRules, 
+  updateBrnach}=require("../controllers/organization.controller")
+const {registerHotelOrPension,getGetAllHotelOrPension,
+  getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,
+  deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
 // const {addRoute,getOrganizationRoute,updateRouteInfo,deleteRoute}=require("../controllers/feedback.controller")
-const {registerCity,getAllOrganizationCity,updateCityInfo,deleteCity, getAllDepPlace, getCityNameOnly, getCity}=require("../controllers/city.controller")
-const {registerBus,getAllOrganizationBus,updateBusStatus,updateBusInfo,deleteBus, getAllOrganizationBusByState, getDetailOrganizationBus, getOrganizationActiveBus, getOrganizationFreeBus, getOrganizationFreeBusInRoute}=require("../controllers/bus.controller")
-const {getMobileSchgedule,updateMobilePassinfo,getTicketHistory,cancelTicket,getMyPassanger}=require("../controllers/mobileuserapi.controller")
+const {registerCity,getAllOrganizationCity,updateCityInfo,
+  deleteCity, getAllDepPlace, getCityNameOnly, 
+  getCity}=require("../controllers/city.controller")
+const {registerBus,getAllOrganizationBus,updateBusStatus,
+  updateBusInfo,deleteBus, getAllOrganizationBusByState, 
+  getDetailOrganizationBus, getOrganizationActiveBus,
+  getOrganizationFreeBusInRoute,
+  getBusById}=require("../controllers/bus.controller")
+const {getMobileSchgedule,updateMobilePassinfo,getTicketHistory,
+  cancelTicket,getMyPassanger}=require("../controllers/mobileuserapi.controller")
 const {errorHandler} = require('../middleware/errohandling.middleware')
 
 const multer=require("multer");
-const { registerAgent, getAllAgent, getAgentWithNoAccount, updateAgentInfo, deleteAgent } = require('../controllers/agent.controller');
-const { registerAccount, getAllOrganizationAccount, updateAccountInfo } = require('../controllers/bank.controller');
-const { addPayment, getAllOrganizationPayment, updatePaymentInfo } = require('../controllers/payment.controller');
-const { addLookup, getLookup, updateLookupInfo } = require('../controllers/lookup.controller');
+const { registerAgent, getAllAgent, getAgentWithNoAccount, 
+  updateAgentInfo, deleteAgent } = require('../controllers/agent.controller');
+const { registerAccount, getAllOrganizationAccount,
+   updateAccountInfo } = require('../controllers/bank.controller');
+const { addPayment, getAllOrganizationPayment,
+   updatePaymentInfo } = require('../controllers/payment.controller');
+const { addLookup, getLookup, 
+  updateLookupInfo } = require('../controllers/lookup.controller');
 const router = express.Router();
 const fileStorage = multer.memoryStorage()
 
@@ -39,6 +64,7 @@ const upload=multer({ storage: fileStorage, fileFilter: filefilter })
 //route
 router.post('/addroute',userauth,authaAdminCasher,addRoute,errorHandler)
 router.get('/getorganizationroute',userauth,authaAdminCasher,getOrganizationRoute,errorHandler)
+router.get('/getroutedepplace',userauth,authaAdminCasher,getRouteDepPlace,errorHandler)
 router.get('/getorganizationroutebyid/:id',userauth,authaAdminCasher,getOrganizationRouteById,errorHandler)
 router.get('/getorganizationdetailroute',userauth,authaAdminCasher,getOrganizationDetailRoute,errorHandler)
 router.get('/getorganizationbusbyroute',userauth,authaAdminCasher,getOrganizationBusByRoute,errorHandler)
@@ -114,9 +140,9 @@ router.put('/updatecityinfo/:id',userauth,authaAdminCasher,updateCityInfo,errorH
 router.delete('/deletecity/:id',userauth,authaAdminCasher,deleteCity,errorHandler)
 //bus
 router.post('/registerbus',userauth,authaAdminCasher,registerBus,errorHandler)
-router.get('/getorganizationfreebusbydate',userauth,authAdmin,getOrganizationFreeBus,errorHandler)
 router.get('/getorganizationfreebusbydateinroute',userauth,authAdmin,getOrganizationFreeBusInRoute,errorHandler)
 router.get('/getallorganizationbus',userauth,authaAdminCasher,getAllOrganizationBus,errorHandler)
+router.get('/getbusbyid',userauth,authaAdminCasher,getBusById,errorHandler)
 router.get('/getdetailorganizationbus',userauth,authaAdminCasher,getDetailOrganizationBus,errorHandler)
 router.put('/updatebusinfo/:id',userauth,authaAdminCasher,updateBusInfo,errorHandler)
 router.get('/getorganizationbusbystate',userauth,authaAdminCasher,getAllOrganizationBusByState,errorHandler)

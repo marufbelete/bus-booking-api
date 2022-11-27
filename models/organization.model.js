@@ -57,6 +57,13 @@ const OrganizationSchema = new mongoose.Schema({
         settingValue:{
           type: mongoose.Schema.Types.Mixed,
         },
+        settingType:{
+          type: String,
+          enum:{
+            values:["list","bool","single"],
+            message: '{VALUE} is not supported'
+          },
+        }
       }],
         bank:[{
           settingDescription:{
@@ -65,6 +72,13 @@ const OrganizationSchema = new mongoose.Schema({
           settingValue:{
             type: mongoose.Schema.Types.Mixed,
           },
+          settingType:{
+            type: String,
+            enum:{
+              values:["list","bool","single"],
+              message: '{VALUE} is not supported'
+            },
+          }
         }],
         schedule:[{
           settingDescription:{
@@ -73,6 +87,13 @@ const OrganizationSchema = new mongoose.Schema({
           settingValue:{
             type: mongoose.Schema.Types.Mixed,
           },
+          settingType:{
+            type: String,
+            enum:{
+              values:["list","bool","single"],
+              message: '{VALUE} is not supported'
+            },
+          }
         }],
         user:[{
           settingDescription:{
@@ -81,6 +102,13 @@ const OrganizationSchema = new mongoose.Schema({
           settingValue:{
             type: mongoose.Schema.Types.Mixed,
           },
+          settingType:{
+            type: String,
+            enum:{
+              values:["list","bool","single"],
+              message: '{VALUE} is not supported'
+            },
+          }
         }],
         route:[{
           settingDescription:{
@@ -89,6 +117,13 @@ const OrganizationSchema = new mongoose.Schema({
           settingValue:{
             type: mongoose.Schema.Types.Mixed,
           },
+          settingType:{
+            type: String,
+            enum:{
+              values:["list","bool","single"],
+              message: '{VALUE} is not supported'
+            },
+          }
         }]
      },
     rulesAndRegulation: [{
@@ -98,6 +133,7 @@ const OrganizationSchema = new mongoose.Schema({
       ruleDescription:{
         type: String,
       },
+      
     }]
 },
   {

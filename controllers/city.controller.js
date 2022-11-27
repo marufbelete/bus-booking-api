@@ -2,6 +2,7 @@ const City = require("../models/city.model");
 const Load= require('lodash');
 exports.registerCity = async (req, res, next) => {
   try {
+    console.log(req.body)
     const cityname = Load.capitalize(req.body.cityName);
     const departureplace= req.body.departurePlace.map(e=>Load.capitalize(e));
     const orgcode =req.userinfo.organization_code;
@@ -25,6 +26,7 @@ catch(error) {
 next(error)
   }
 };
+
 //get all city in organization
 exports.getAllOrganizationCity = async (req, res, next) => {
   try {
@@ -65,7 +67,8 @@ exports.getCity = async (req, res, next) => {
 exports.getAllDepPlace = async (req, res, next) => {
   try {
   let query={}
-  req.query.source?query={cityName:req.query.source}:query=query
+  console.log(req.query)
+  req.query?.source?query={cityName:req.query.source}:query=query
   const orgcode =req.userinfo.organization_code;
   const allcity= await City.find({organizationCode:orgcode,...query},{departurePlace:1})
   return res.json(allcity)

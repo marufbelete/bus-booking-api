@@ -52,6 +52,21 @@ exports.getOrganizationRoute = async (req, res, next) => {
     next(error)
   }
 };
+exports.getRouteDepPlace = async (req, res, next) => {
+  try {
+  let query={}
+  console.log(req.query)
+  console.log("in import")
+  req.query?.source?query.source=req.query.source:query=query
+  req.query?.destination?query.destination=req.query.destination:query=query
+  const orgcode =req.userinfo.organization_code;
+  const depPlace= await Route.find({organizationCode:orgcode,...query},{departurePlace:1})
+  return res.json(depPlace)
+  }
+  catch(error) {
+    next(error)
+  }
+};
 exports.getOrganizationRouteById = async (req, res, next) => {
   try {
   const id=req.params.id

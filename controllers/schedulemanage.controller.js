@@ -53,7 +53,8 @@ exports.addSchedule = async (req, res, next) => {
     if(busid)
     {
       const businfo=await Bus.findById(busid)
-      const is_not_free=businfo.assigneDate?.map(e=>e.getDate()).includes(departure_date_and_time?.getDate())
+      const is_not_free=businfo.assigneDate?.map(e=>e.getDate())
+      .includes(departure_date_and_time?.getDate())
       const nex_day=moment(departure_date_and_time).add(1,'d')
       if(is_not_free)
       {
@@ -335,9 +336,10 @@ exports.assignBusToSchedule = async (req, res, next) => {
     error.statusCode=401
     throw error
    }
-   const assign_date=await Location.find({busId:bus})
-   const businfo=assign_date?.map(e=>e?.assigneDate)
-   const is_not_free=businfo.map(e=>moment(e).dayOfYear()).includes(moment(sheduleinfo.departureDateAndTime).dayOfYear())
+   const location_track=await Location.find({busId:bus})
+   const assign_date=location_track?.map(e=>e?.assigneDate)
+   const is_not_free=assign_date.map(e=>moment(e).dayOfYear())
+   .includes(moment(sheduleinfo.departureDateAndTime).dayOfYear())
    const nex_day=moment(sheduleinfo.departureDateAndTime).add(1,'d')
    const is_bus_assigned_before=sheduleinfo.assignedBus
 
@@ -402,8 +404,8 @@ exports.updateScheduleDateAndTime = async (req, res, next) => {
    await Location.findOneAndUpdate({busId:schedule_info.bus,
     date:schedule_info.departureDateAndTime},{
     $set:{
-      date:departureDateAndTime,
-      assigneDate:next_date
+      date:next_date,
+      assigneDate:departureDateAndTime
     }
    })
    return res.json({message:"success for departure date and time change"})
@@ -481,6 +483,8 @@ exports.cancelSchedule= async (req, res, next) => {
 };
 // undo cancel
 exports.undoCanceldSchedule= async (req, res, next) => {
+  const session=await mongoose.startSession()
+  session.startTransaction() 
   try {
     // delete cancel_by
   //find and copmare the date if pass dont cancel
@@ -497,9 +501,11 @@ exports.undoCanceldSchedule= async (req, res, next) => {
     error.statusCode=401
     throw error
    }
+   await session.commitTransaction()
    return res.json({message:"schedule undo completed",status:true})
   }
   catch(error) {
+    await session.abortTransaction()
     next(error)
   }
 };

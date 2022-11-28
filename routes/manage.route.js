@@ -17,7 +17,10 @@ const {addPolicy,getPolicy,updatePolicyInfo,
 const {createOrganization,getAllOrganization,getOrganizationByCode,
   updateOrganization,deleteOrganization, getOrganizationById, 
   getMyOrganization, getOrgRules, 
-  updateBrnach}=require("../controllers/organization.controller")
+  updateBrnach,
+  updateSetting,
+  updateOffer,
+  updateRulesAndRegulation}=require("../controllers/organization.controller")
 const {registerHotelOrPension,getGetAllHotelOrPension,
   getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,
   deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
@@ -112,6 +115,9 @@ router.get('/getorganizationbyid/:id',getOrganizationById,errorHandler)
 router.get('/getorganizationbycode/:code',getOrganizationByCode,errorHandler)
 router.put('/updateorganization/:id',userauth,authSuperAdmin,upload.single('logo'),updateOrganization,errorHandler)
 router.put('/updateborganizationbranch/:id',userauth,authSuperAdmin,updateBrnach,errorHandler)
+router.put('/updateborganizationsetting/:id',userauth,authSuperAdmin,updateSetting,errorHandler)
+router.put('/updateborganizationoffer/:id',userauth,authSuperAdmin,updateOffer,errorHandler)
+router.put('/updateborganizationrules/:id',userauth,authSuperAdmin,updateRulesAndRegulation,errorHandler)
 router.delete('/deleteorganization/:id',userauth,authOwner,deleteOrganization,errorHandler)
 //hotel and pension
 router.post('/addhotelorpension',userauth,authaAdminCasher,registerHotelOrPension,errorHandler)

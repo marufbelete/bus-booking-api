@@ -125,7 +125,65 @@ catch(error) {
   next(error)
 }
 }
+//edit setting  //add here
+exports.updateSetting=async (req,res,next)=>{
+  try{
+const orgId=req.params.id
+const {settingDescription,settingValue,settingType,settingId,setting}=req.body
+let opt={}
+let queryDescription="setting."+setting+".$[el].settingDescription"
+let queryValue="setting."+setting+".$[el].settingValue"
+let queryType="setting."+setting+".$[el].settingType"
+if(settingDescription){opt={[queryDescription]:settingDescription}}
+if(settingValue){opt={...opt,[queryValue]:settingValue}}
+if(settingType){opt={...opt,[queryType]:settingType}}
+const organization=await Organization.findByIdAndUpdate(orgId,{$set:{...opt}},
+{arrayFilters:[{"el._id":settingId}],new:true,useFindAndModify:false})
 
+return res.json(organization)
+}
+
+catch(error) {
+  console.log(error)
+  next(error)
+}
+}
+//offer
+exports.updateOffer=async (req,res,next)=>{
+  try{
+const orgId=req.params.id
+const {description,title,offerId}=req.body
+let opt={}
+if(description){opt={"offering.$[el].description":description}}
+if(title){opt={...opt,"offering.$[el].title":title}}
+const organization=await Organization.findByIdAndUpdate(orgId,{$set:{...opt}},
+{arrayFilters:[{"el._id":offerId}],new:true,useFindAndModify:false})
+return res.json(organization)
+}
+
+catch(error) {
+  next(error)
+}
+}
+//rules and regulation
+exports.updateRulesAndRegulation=async (req,res,next)=>{
+  try{
+const orgId=req.params.id
+const {description,title,regulationId}=req.body
+let opt={}
+if(description){opt={"rulesAndRegulation.$[el].description":description}}
+if(title){opt={...opt,"rulesAndRegulation.$[el].title":title}}
+const organization=await Organization.findByIdAndUpdate(orgId,{$set:{...opt}},
+{arrayFilters:[{"el._id":regulationId}],new:true,useFindAndModify:false})
+
+return res.json(organization)
+}
+
+catch(error) {
+  next(error)
+}
+}
+//organization update add
 exports.updateOrganization = async (req, res, next) => {
   try {
   const id=req.params.id

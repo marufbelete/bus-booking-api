@@ -20,7 +20,7 @@ exports.addSchedule = async (req, res, next) => {
     const departure_date_and_time= new Date(req.body.depdateandtime);
     const departure_place = req.body.depplace?req.body.depplace:null;
     const busid=req.body.assignedbus?req.body.assignedbus:null
-    const number_of_schedule = req.body.numberofschedule?e.numberofschedule:1;
+    const number_of_schedule = req.body.numberofschedule?req.body.numberofschedule:1;
     const created_by =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
    
@@ -39,16 +39,25 @@ exports.addSchedule = async (req, res, next) => {
       createdBy:created_by,
       organizationCode:orgcode,
       assignedBus:busid
+
     }
     if(busid){
       const busInfo=await Bus.findById(busid)
       const number_sit=busInfo.totalNoOfSit
       newschedule.totalNoOfSit=number_sit
     }
+    const organization=await Organization.findOne({organizationCode:orgcode})
+    const prefix=`${organization.organizationName}-${source}-${destination}`
+    let lastSchedule=organization.lastSchedule
     for(let i=0;i<number_of_schedule;i++)
     {
-      schedules.push(newschedule)
+      lastSchedule++
+      const scheduleId=`${prefix}-${Number(lastSchedule)}`
+      newschedule.scheduleId=scheduleId
+      schedules.push({...newschedule})
     } 
+    organization.lastSchedule=Number(lastSchedule)
+    await organization.save({session})
     const savedSchedule=await Schedule.insertMany(schedules,{session})
     if(busid)
     {
@@ -146,8 +155,8 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     const now=new Date()
     const prefix=`${organization.organizationName}-${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`
     const lastTicket=organization.lastTicket
-    const uid = `${prefix}-${Number(lastTicket)+1}`
-    organization.lastTicket=lastTicket+1
+    const uid = `${prefix}-${Number(lastTicket)+i+1}`
+    organization.lastTicket=Number(lastTicket)+i+1
     await organization.save({session})
     // new ShortUniqueId({ length: 12 });
 
@@ -207,7 +216,7 @@ exports.getAllFilterSchgedule=async(req,res,next)=>{
   try{
     const orgcode =req.userinfo.organization_code;
     const schedule=await Schedule.find({organizationCode:orgcode},
-      {source:1,destination:1,departureDateAndTime:1})
+      {source:1,scheduleId:1,destination:1,departureDateAndTime:1})
     return res.json(schedule)
   }
   catch(error) {
@@ -271,12 +280,12 @@ const schedule=await Schedule.aggregate([
     $match:{organizationCode:orgcode}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},
+    $project:{"_id":1,"scheduleId":1,"source":1,"destination":1,"reservedSit":{$size:"$occupiedSitNo"},
     "isTripCanceled":1,"tarif":1,"departurePlace":1,"bus":"$assignedBus","departureDateAndTime":1,
     "status":{$cond:[{$gt:["$departureDateAndTime",now]},"Not Departed","Departed"]}}
   },
   {
-    $project:{"_id":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departureDateAndTime":1,
+    $project:{"_id":1,"scheduleId":1,"source":1,"destination":1,"reservedSit":1,"tarif":1,"departureDateAndTime":1,
     "departurePlace":1,"bus":1,"status":{$cond:[{$eq:[true,"$isTripCanceled"]},"Canceled","$status"]}}
   }
 ])
@@ -456,6 +465,7 @@ exports.cancelSchedule= async (req, res, next) => {
    session.startTransaction()
   const update_schedule=await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
   isTripCanceled:true,
+  assignedBus:null,
   canceledBy:canceler_id}},{session})
    if(!update_schedule)
    {
@@ -482,18 +492,15 @@ exports.cancelSchedule= async (req, res, next) => {
   }
 };
 // undo cancel
-exports.undoCanceldSchedule= async (req, res, next) => {
-  const session=await mongoose.startSession()
-  session.startTransaction() 
+exports.undoCanceldSchedule= async (req, res, next) => { 
   try {
     // delete cancel_by
   //find and copmare the date if pass dont cancel
    const id=req.params.id
-   const canceler_id=req.userinfo.sub
    const timenow=new Date()
-   const undo_schedule=await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},{$set:{
+   const undo_schedule=await Schedule.findOneAndUpdate({_id:id,departureDateAndTime:{$gte:timenow}},
+    {$set:{
     isTripCanceled:false,
-    canceledBy:canceler_id
    }})
    if(!undo_schedule)
    {
@@ -501,11 +508,9 @@ exports.undoCanceldSchedule= async (req, res, next) => {
     error.statusCode=401
     throw error
    }
-   await session.commitTransaction()
    return res.json({message:"schedule undo completed",status:true})
   }
   catch(error) {
-    await session.abortTransaction()
     next(error)
   }
 };

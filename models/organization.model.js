@@ -14,6 +14,10 @@ const OrganizationSchema = new mongoose.Schema({
     type:Number,
     default:0
   },
+  lastSchedule:{
+    type:Number,
+    default:0
+  },
   tin:{
     type:String,
     required: true,

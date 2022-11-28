@@ -239,7 +239,8 @@ exports.getOrganizationFreeBusInRoute = async (req, res, next) => {
     ])
     const not_freeBus_ids=not_free_bus?.map(e=>String(e.busId))
     const free_bus_id=bus_in_route?.bus?.filter(e=>!not_freeBus_ids.includes(String(e)))
-    currentBusId&&free_bus_id.push(currentBusId)
+    if(currentBusId!="null"){
+      free_bus_id.push(currentBusId)}
 for(let bus_id of free_bus_id)
 {
   //choose the nearest tracked location for those free bus
@@ -273,6 +274,7 @@ for(let bus_id of free_bus_id)
      return res.json(final_result)
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 };

@@ -130,6 +130,9 @@ assignedBus:{
   type: mongoose.Schema.Types.ObjectId, 
   ref: 'bus', 
 },
+scheduleId:{
+  type:String,
+},
 driverUserName: {
   type:String, 
   trim: true,

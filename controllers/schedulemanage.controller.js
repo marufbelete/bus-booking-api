@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const Load= require('lodash');
 // const ShortUniqueId = require('short-unique-id');
 const {onlyUnique}=require('../helpers/uniqueArr');
+const {checkIfArrayIsUnique}=require('../helpers/checkUnique')
 const Organization = require("../models/organization.model");
 exports.addSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
@@ -47,7 +48,7 @@ exports.addSchedule = async (req, res, next) => {
       newschedule.totalNoOfSit=number_sit
     }
     const organization=await Organization.findOne({organizationCode:orgcode})
-    const prefix=`${organization.organizationName}-${source}-${destination}`
+    const prefix=`${source}-${destination} @schedule`
     let lastSchedule=organization.lastSchedule
     for(let i=0;i<number_of_schedule;i++)
     {
@@ -102,6 +103,12 @@ exports.lockSit = async (req, res, next) => {
   try {
    const id=req.params.id
    const sit =req.body.sits
+   if(!checkIfArrayIsUnique(sit))
+   {
+    const error=new Error("duplicate sit error")
+    error.statusCode=400
+    throw error
+   }
    const schedule=await Schedule.findById(id)
    if(schedule.occupiedSitNo.some(e=>sit.includes(e))||schedule.tempOccupiedSitNo.some(e=>sit.includes(e)))
    {
@@ -144,22 +151,27 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     const id=req.params.id
     let tickets=[]
    let passlength=req.body.length
+   const sitArr=req.body?.map(e=>e.sits)
+   console.log(sitArr)
+   if(!checkIfArrayIsUnique(sitArr))
+   {
+    const error=new Error("duplicate sit error")
+    error.statusCode=400
+    throw error
+   }
+   const schedule=await Schedule.findById(id)
+    const organization=await Organization.findOne({organizationCode:schedule.organizationCode})
+    const now=new Date()
+    const prefix=`${organization.organizationName}-${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`
+    let lastTicket=organization.lastTicket
   for(let i=0;i<passlength;i++)
     {
+    lastTicket++
     const passange_name = req.body[i].passname;
     const pass_phone_number = req.body[i].passphone;
     const psss_ocupied_sit_no= req.body[i].sits
     const booked_by = req.userinfo.sub;
-    const schedule=await Schedule.findById(id)
-    const organization=await Organization.findOne({organizationCode:schedule.organizationCode})
-    const now=new Date()
-    const prefix=`${organization.organizationName}-${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`
-    const lastTicket=organization.lastTicket
-    const uid = `${prefix}-${Number(lastTicket)+i+1}`
-    organization.lastTicket=Number(lastTicket)+i+1
-    await organization.save({session})
-    // new ShortUniqueId({ length: 12 });
-
+    const uid = `${prefix}-${lastTicket}`
     if(schedule.occupiedSitNo.includes(psss_ocupied_sit_no))
     {
      const error=new Error(`sit No ${psss_ocupied_sit_no} already reserved before, please try another sit`)
@@ -187,12 +199,13 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
   }
    
 }
+   organization.lastTicket=lastTicket
+   await organization.save({session})
    await session.commitTransaction()
    return res.json({message:"success",ticket:tickets,status:true})
   }
   catch(error) {
     await session.abortTransaction();
-    console.log(error)
     next(error)
   }
 };

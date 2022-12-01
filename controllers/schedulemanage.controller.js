@@ -7,6 +7,7 @@ const Load= require('lodash');
 const User = require("../models/user.model");
 const {onlyUnique}=require('../helpers/uniqueArr');
 const {checkIfArrayIsUnique}=require('../helpers/checkUnique')
+const {randomFixedInteger}=require('../helpers/generatendigit')
 const Organization = require("../models/organization.model");
 const Managecash = require("../models/managelocalcash.model");
 const Manageagentcash=require("../models/manageagentcash.model");
@@ -70,7 +71,7 @@ exports.addSchedule = async (req, res, next) => {
       const nex_day=moment(departure_date_and_time).add(1,'d')
       if(is_not_free)
       {
-        const error=new Error("this bus is alredy assigned for the given date")
+        const error=new Error("This bus is alredy assigned for the given date")
         error.statusCode=401
         throw error
       }
@@ -88,7 +89,7 @@ exports.addSchedule = async (req, res, next) => {
   }  
   else
   {
-    const error=new Error("please fill all required field")
+    const error=new Error("Please fill all required field")
     error.statusCode=401
     throw error
   }
@@ -201,6 +202,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
         passangerPhone:pass_phone_number,
         passangerOccupiedSitNo:psss_ocupied_sit_no,
         uniqueId:uid,
+        confirmationNumber:randomFixedInteger(6),
         bookedBy:booked_by}
         tickets.push(new_ticket)
       await Schedule.findByIdAndUpdate(id,{

@@ -5,13 +5,11 @@ const BusSchema = new mongoose.Schema({
 busPlateNo: {
     type: String,
     trim: true,
-    required: true,
     unique:[true,"Bus Plate Number Already Exist"]
   },
 busSideNo: {
     type: String,
     trim: true,
-    required: true,
     unique:[true,"Bus Side Number Already Exist"]
 },
 redatId: {
@@ -25,7 +23,6 @@ driverId: {
 serviceYear: {
   type:Number, 
   trim: true,
-  required: true,
 },
 totalNoOfSit: {
     type: Number,
@@ -40,7 +37,6 @@ busState:{
   type:String,
   enum:["Active","Inactive","On-Repair","Damaged"],
   default:"Active",
-  required: true,
 },
 organizationCode:{
     type: String,

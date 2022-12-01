@@ -28,7 +28,7 @@ exports.addRoute = async (req, res, next) => {
     const isRouteExist=await Route.findOne({organizationCode:orgcode,source,destination})
     if(isRouteExist)
     {
-  const error = new Error("This Route Already Exist. Please Check The Route List")
+  const error = new Error("This route already exist. Please check the route list")
   error.statusCode = 400
   throw error;
     }
@@ -55,8 +55,6 @@ exports.getOrganizationRoute = async (req, res, next) => {
 exports.getRouteDepPlace = async (req, res, next) => {
   try {
   let query={}
-  console.log(req.query)
-  console.log("in import")
   req.query?.source?query.source=req.query.source:query=query
   req.query?.destination?query.destination=req.query.destination:query=query
   const orgcode =req.userinfo.organization_code;
@@ -137,7 +135,6 @@ exports.getOrganizationBusByRoute = async (req, res, next) => {
   const {source,destination}=req.query
   if(source){filter.source=source}
   if(destination){filter.destination=destination}
-  // {busPlateNo:1,busSideNo:1 }
   const allbus= await Route.aggregate([
     {
       $match:{organizationCode:orgcode,...filter},

@@ -4,15 +4,17 @@ const User = require("../models/user.model");
 const Route = require("../models/route.model");
 const mongoose = require("mongoose");
 const moment=require('moment')
+const {isBusPlateNumberUnique,isBusSideNumberUnique} =require("../helpers/bus_helper")
 exports.registerBus = async (req, res, next) => {
   const session=await mongoose.startSession()
   session.startTransaction()  
   try {
+    const timenow=new Date()
     const busplateno = req.body.busplateno;
     const bussideno= req.body.bussideno;
     const redat_id =req.body.redatid;
     const driver_id =req.body.driverid;
-    const service_year=req.body.serviceyear;
+    const service_year=timenow.getFullYear()-(Number(req.body.serviceyear))
     const totalsit =req.body.totalsit;
     const createdby =req.userinfo.sub;
     const orgcode =req.userinfo.organization_code;
@@ -33,6 +35,16 @@ if(!!busplateno && !!bussideno && !!driver_id && !!totalsit)
       createdBy:createdby,
       organizationCode:orgcode,
     })
+    if(!(await isBusPlateNumberUnique(busplateno))){
+      const error = new Error("bus with given plate number exist")
+      error.statusCode = 400
+      throw error;
+    }
+    if(!(await isBusSideNumberUnique(bussideno))){
+      const error = new Error("bus with given side number exist")
+      error.statusCode = 400
+      throw error;
+    }
     const savedbus=await newbus.save({session})
     const location=new Location({        
       busId:savedbus._id,
@@ -282,17 +294,18 @@ for(let bus_id of free_bus_id)
 //get organization by id
 exports.updateBusInfo = async (req, res, next) => {
   const session=await mongoose.startSession()
+  session.startTransaction()  
   try {
+    const timenow=new Date()
    const updated={createdBy:req.userinfo.sub}
    const id=req.params.id
    req.body.busState?updated.busState=req.body.busState:updated
    req.body.totalNoOfSit?updated.totalNoOfSit=req.body.totalNoOfSit:updated
    req.body.driverId?updated.driverId=req.body.driverId:updated
    req.body.redatId?updated.redatId=req.body.redatId:updated
-   req.body.plateNo?updated.busPlateNo=req.body.plateNo:updated
-   req.body.sideNo?updated.busSideNo=req.body.sideNo:updated
-   req.body.serviceYear?updated.serviceYear=req.body.serviceYear:updated
-   session.startTransaction()  
+   req.body.busPlateNo?updated.busPlateNo=req.body.busPlateNo:updated
+   req.body.busSideNo?updated.busSideNo=req.body.busSideNo:updated
+   req.body.serviceYear?updated.serviceYear=timenow.getFullYear()-(Number(req.body.serviceYear)):updated
    const bus_user= await Bus.findById(id)
    if(bus_user.driverId!=req.body.driverId)
    {
@@ -329,6 +342,7 @@ exports.updateBusInfo = async (req, res, next) => {
    return res.json(bus)
   }
   catch(error) {
+    console.log(error)
     await session.abortTransaction()
     next(error)
   }

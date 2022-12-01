@@ -250,6 +250,7 @@ exports.refundRequest = async (req, res, next) => {
     const schedule=await Schedule.findById(schedule_id)
     const refunder_id=req.userinfo.sub
     const refunder_role=req.userinfo.user_role
+    const confirmationNumber=Number(req.body.confirmationNumber)
     const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
     //give max date dynamically
     const max_date=10
@@ -268,6 +269,12 @@ exports.refundRequest = async (req, res, next) => {
         const error=new Error("this ticket already refunded")
         error.statusCode=401
         throw error
+      }
+    if(schedule.passangerInfo?.filter(e=>e.confirmationNumber===confirmationNumber).length==0)
+    {
+    const error=new Error("Invalid confirmation number")
+    error.statusCode=401
+    throw error
       }
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
@@ -335,7 +342,6 @@ exports.refundRequest = async (req, res, next) => {
   throw error
   }
   catch(error) {
-    console.log(error)
     await session.abortTransaction();
     next(error)
   }

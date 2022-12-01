@@ -113,6 +113,9 @@ passangerInfo:[{
       type: String, 
       trim:true,
       },
+      confirmationNumber:{
+       type:Number,
+      },
     bookedAt: { 
       type : Date, 
       default: Date.now }

@@ -562,7 +562,12 @@ $lookup:{
     as:"agent"
   }
   },
-
+{
+  $project:{
+      totalTicket:1,"agentName":{$arrayElemAt:["$agent.agentName",0]}
+    }
+  
+}
   ] )
   console.log("valauejsfaksd")
   console.log(allSchedule)
@@ -614,13 +619,20 @@ $lookup:{
 }
 },
 {
-  $project:{"_id":0,"casherName":{$arrayElemAt:["$user.firstName",0]},"agentId":{$arrayElemAt:["$user.agentId",0]},"userID":{$arrayElemAt:["$user._id",0]},"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},...filter1,"userRole":{$arrayElemAt:["$user.userRole",0]}}
+  $project:{"_id":0,"casherName":{$arrayElemAt:["$user.firstName",0]},
+  "agentId":{$arrayElemAt:["$user.agentId",0]},
+  "userID":{$arrayElemAt:["$user._id",0]},
+  "isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},
+  "year":{$year:"$passangerInfo.bookedAt"},...filter1,
+  "userRole":{$arrayElemAt:["$user.userRole",0]}}
 },
 {
-  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"agentId":agent_id,...filter2}
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,
+    process.env.SUPERAGENT]},"agentId":agent_id,...filter2}
 },
 {
-  $group:{_id:filter3,"totalTicket":{$sum:1},"agentName":{$first:"$casherName"}}
+  $group:{_id:filter3,"totalTicket":{$sum:1},
+  "agentName":{$first:"$casherName"}}
 },
 
   ] )
@@ -653,10 +665,14 @@ $lookup:{
 }
 },
 {
-  $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},"year":{$year:"$passangerInfo.bookedAt"},"month":{$month:"$passangerInfo.bookedAt"},"userRole":{$arrayElemAt:["$user.userRole",0]}}
+  $project:{"_id":0,"isMobileUser":{$arrayElemAt:["$user.isMobileUser",0]},
+  "year":{$year:"$passangerInfo.bookedAt"},
+  "month":{$month:"$passangerInfo.bookedAt"},
+  "userRole":{$arrayElemAt:["$user.userRole",0]}}
 },
 {
-  $match:{"userRole":{$in:[process.env.CASHERAGENT,process.env.SUPERAGENT]},"isMobileUser":false}
+  $match:{"userRole":{$in:[process.env.CASHERAGENT,
+    process.env.SUPERAGENT]},"isMobileUser":false}
 },
 {
   $group:{_id:{"year":"$year","month":"$month"},"totalTicket":{$sum:1}}

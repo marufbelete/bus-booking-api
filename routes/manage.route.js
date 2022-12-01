@@ -20,7 +20,9 @@ const {createOrganization,getAllOrganization,getOrganizationByCode,
   updateBrnach,
   updateSetting,
   updateOffer,
-  updateRulesAndRegulation}=require("../controllers/organization.controller")
+  updateRulesAndRegulation,
+  getOrgBranch,
+  getSetting}=require("../controllers/organization.controller")
 const {registerHotelOrPension,getGetAllHotelOrPension,
   getGetAllHotelOrPensionByCity,updateHotelOrPensionInfo,
   deleteHotelOrPension}=require("../controllers/hotelandpension.controller")
@@ -46,6 +48,10 @@ const { addPayment, getAllOrganizationPayment,
    updatePaymentInfo } = require('../controllers/payment.controller');
 const { addLookup, getLookup, 
   updateLookupInfo } = require('../controllers/lookup.controller');
+const { giveToCasher, receiveFromCasher, getAllManageCah, getAllManageCash } = require('../controllers/managelocalcash.controller');
+const { getCashTransaction } = require('../controllers/localcashtransaction.controller');
+const { getAllManageAgentCash, receiveFromAgent } = require('../controllers/manageagentcash.controller');
+const { getAgentCashTransaction } = require('../controllers/agentcashtransaction.controller');
 const router = express.Router();
 const fileStorage = multer.memoryStorage()
 
@@ -109,6 +115,8 @@ router.delete('/deleteagent/:id',userauth,authAdmin,deleteAgent,errorHandler)
 //organization
 router.post('/createorganization',userauth,authAdmin,upload.single('logo'),createOrganization,errorHandler)
 router.get('/getallorganization',getAllOrganization,errorHandler)
+router.get('/getorganizationbranch',userauth,getOrgBranch,errorHandler)
+router.get('/getorganizationsetting',userauth,getSetting,errorHandler)
 router.get('/getmyorganization',userauth,authaAdminCasher,getMyOrganization,errorHandler)
 router.get('/getmyorgrules',userauth,authaAdminCasher,getOrgRules,errorHandler)
 router.get('/getorganizationbyid/:id',getOrganizationById,errorHandler)
@@ -155,7 +163,14 @@ router.get('/getorganizationbusbystate',userauth,authaAdminCasher,getAllOrganiza
 router.get('/getorganizationactivebus',userauth,authaAdminCasher,getOrganizationActiveBus,errorHandler)
 router.put('/updatebusstatus/:id',userauth,authaAdminCasher,updateBusStatus,errorHandler)
 router.delete('/deletebus/:id',userauth,authaAdminCasher,deleteBus,errorHandler)
-
+//managecash
+router.get('/getcashinfo',userauth,authAdmin,getAllManageCash,errorHandler)
+router.get('/getcashtransaction',userauth,authAdmin,getCashTransaction,errorHandler)
+router.put('/givetocasher/:id',userauth,authAdmin,giveToCasher,errorHandler)
+router.put('/takefromcasher/:id',userauth,authAdmin,receiveFromCasher,errorHandler)
+router.get('/getagentcashinfo',userauth,authAdmin,getAllManageAgentCash,errorHandler)
+router.get('/getagentcashtransaction',userauth,authAdmin,getAgentCashTransaction,errorHandler)
+router.put('/takefromagent/:id',userauth,authAdmin,receiveFromAgent,errorHandler)
 //mobile
 router.get('/getorganizationlist',getAllOrganization,errorHandler)
 router.get('/getschedule',getMobileSchgedule,errorHandler)

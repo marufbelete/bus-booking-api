@@ -4,10 +4,12 @@ const Location=require('../models/Date_Location.model')
 const moment=require('moment')
 const mongoose = require("mongoose");
 const Load= require('lodash');
-// const ShortUniqueId = require('short-unique-id');
+const User = require("../models/user.model");
 const {onlyUnique}=require('../helpers/uniqueArr');
 const {checkIfArrayIsUnique}=require('../helpers/checkUnique')
 const Organization = require("../models/organization.model");
+const Managecash = require("../models/managelocalcash.model");
+const Manageagentcash=require("../models/manageagentcash.model");
 exports.addSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
   session.startTransaction()  
@@ -110,6 +112,13 @@ exports.lockSit = async (req, res, next) => {
     throw error
    }
    const schedule=await Schedule.findById(id)
+   const timenow = new Date
+   if(schedule&&moment(schedule.departureDateAndTime).isBefore(timenow))
+    {
+      const error=new Error("closed schedule, please try again")
+      error.statusCode=401
+      throw error
+    }
    if(schedule.occupiedSitNo.some(e=>sit.includes(e))||schedule.tempOccupiedSitNo.some(e=>sit.includes(e)))
    {
     const error=new Error("sit already reserved before, please try another sit")
@@ -152,25 +161,32 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
     let tickets=[]
    let passlength=req.body.length
    const sitArr=req.body?.map(e=>e.sits)
-   console.log(sitArr)
    if(!checkIfArrayIsUnique(sitArr))
    {
     const error=new Error("duplicate sit error")
     error.statusCode=400
     throw error
    }
-   const schedule=await Schedule.findById(id)
+    const schedule=await Schedule.findById(id)
+    const timenow = new Date
+    if(schedule&&moment(schedule.departureDateAndTime).isBefore(timenow))
+     {
+       const error=new Error("closed schedule, please try again")
+       error.statusCode=401
+       throw error
+     }
     const organization=await Organization.findOne({organizationCode:schedule.organizationCode})
     const now=new Date()
     const prefix=`${organization.organizationName}-${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`
     let lastTicket=organization.lastTicket
+    const booked_by = req.userinfo.sub;
+    const bookerRole=req.userinfo.user_role
   for(let i=0;i<passlength;i++)
     {
     lastTicket++
     const passange_name = req.body[i].passname;
     const pass_phone_number = req.body[i].passphone;
     const psss_ocupied_sit_no= req.body[i].sits
-    const booked_by = req.userinfo.sub;
     const uid = `${prefix}-${lastTicket}`
     if(schedule.occupiedSitNo.includes(psss_ocupied_sit_no))
     {
@@ -189,7 +205,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
         tickets.push(new_ticket)
       await Schedule.findByIdAndUpdate(id,{
         $push:{passangerInfo:new_ticket},
-         $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
+        $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
      },{new:true,useFindAndModify:false,session})
     }
     else{
@@ -197,14 +213,29 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
       error.statusCode=400
       throw error
   }
-   
 }
    organization.lastTicket=lastTicket
    await organization.save({session})
+   if(bookerRole===process.env.CASHER)
+   {
+      const totalCash=Number(schedule.tarif)*passlength
+      await Managecash.findOneAndUpdate({user:booked_by},
+      {$inc:{cashInHand:totalCash}},
+      {new:true,useFindAndModify:false,session})
+   }
+   if(bookerRole===process.env.CASHERAGENT)
+   {
+      const totalCash=Number(schedule.tarif)*passlength
+      const user=await User.findById(booked_by)
+      await Manageagentcash.findOneAndUpdate({agent:user.agentId},
+      {$inc:{cashInHand:totalCash}},
+      {new:true,useFindAndModify:false,session})
+   }
    await session.commitTransaction()
    return res.json({message:"success",ticket:tickets,status:true})
   }
   catch(error) {
+    console.log(error)
     await session.abortTransaction();
     next(error)
   }

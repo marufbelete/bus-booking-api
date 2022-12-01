@@ -28,7 +28,7 @@ router.put('/updatemyinfo',updateMobileUser,errorHandler)
 
 
 //organization user 
-router.post('/registerorganizationuser',userauth,authAdmin,saveOrganizationUser,errorHandler)
+router.post('/registerorganizationuser',userauth,saveOrganizationUser,errorHandler)
 router.post('/loginorganizationuser', loginOrganizationUser,errorHandler)
 router.put('/updateorganizationuser/:id',userauth ,authaAdminCasherAgent,updateOrganizationUser,errorHandler)
 router.put('/deactivateorganizationuser/:id',userauth,authAdmin,deactivateOrganizationUser,errorHandler)

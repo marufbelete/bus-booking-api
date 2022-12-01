@@ -2,6 +2,11 @@ const Schedule = require("../models/schedule.model");
 const {sit_gene}=require("../helpers/sit_generator")
 const Organization = require("../models/organization.model");
 const moment=require('moment')
+const Managecash = require("../models/managelocalcash.model");
+const mongoose = require("mongoose");
+const Manageagentcash=require("../models/manageagentcash.model");
+const User = require("../models/user.model");
+
 //transfer schedule request will send request notification to other org nothing more
 // exports.scheduleTransferRequest = async (req, res, next) => {
 //   try {
@@ -234,6 +239,8 @@ exports.cancelPassTicket = async (req, res, next) => {
 }
 //refund we can use for mobile too
 exports.refundRequest = async (req, res, next) => {
+  const session=await mongoose.startSession()
+  session.startTransaction() 
   try {
     const schedule_id=req.params.id
     const pass_id=req.body.uniqueid
@@ -242,8 +249,12 @@ exports.refundRequest = async (req, res, next) => {
     const orgcode =req.userinfo.organization_code;
     const schedule=await Schedule.findById(schedule_id)
     const refunder_id=req.userinfo.sub
+    const refunder_role=req.userinfo.user_role
     const org_rule= await Organization.findOne({organizationCode:orgcode},{rulesAndRegulation:1})
-    if(schedule&&moment(schedule.departureDateAndTime).add(Number(org_rule?.rulesAndRegulation?.maxReturnDate),'d').isAfter(timenow))
+    //give max date dynamically
+    const max_date=10
+    // console.log(Number(org_rule?.rulesAndRegulation?.maxReturnDate))
+    if(schedule&&moment(schedule.departureDateAndTime).add(max_date,'d').isAfter(timenow))
     {
       const {isPassangerDeparted,isTicketRefunded}=schedule.passangerInfo.filter(e=>e.uniqueId==pass_id)[0]
       if(isPassangerDeparted)
@@ -260,18 +271,63 @@ exports.refundRequest = async (req, res, next) => {
       }
     if(moment(schedule.departureDateAndTime).isAfter(timenow))
     { 
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTicketCanceled":true,
+      const scheduleData=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTicketCanceled":true,
       "passangerInfo.$[el].isTicketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
       "passangerInfo.$[el].sitCanceled":pass_sit},$pull:{occupiedSitNo: pass_sit }},
-      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
-
+      {arrayFilters:[{"el.uniqueId":pass_id}],session,new:true,useFindAndModify:false})
+      if(refunder_role===process.env.CASHER)
+      {
+        // make 0.5 from organization rule
+      const deduceCash=Number(scheduleData.tarif)*0.5
+      if(bookerRole===process.env.CASHER)
+      {
+      await Managecash.findOneAndUpdate({user:refunder_id},
+        {$inc:{cashInHand:-deduceCash,
+          totalRefundedAmount:deduceCash,
+          totalRefundedTicket:1,},
+      },
+        {new:true,useFindAndModify:false,session})
+    }
+  if(bookerRole===process.env.CASHERAGENT)
+   {
+      const totalCash=Number(schedule.tarif)*passlength
+      const user=await User.findById(booked_by)
+      await Manageagentcash.findOneAndUpdate({agent:user.agentId},
+      {$inc:{cashInHand:totalCash}},
+      {new:true,useFindAndModify:false,session})
+   }
+      }
     }
     else{
-      await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTicketCanceled":true,
+      const scheduleData=await Schedule.findByIdAndUpdate(schedule_id,{$set:{"passangerInfo.$[el].isTicketCanceled":true,
       "passangerInfo.$[el].isTicketRefunded":true,"passangerInfo.$[el].refundedBy":refunder_id,
       "passangerInfo.$[el].sitCanceled":pass_sit}},
-      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,useFindAndModify:false})
+      {arrayFilters:[{"el.uniqueId":pass_id}],new:true,session,useFindAndModify:false})
+      if(refunder_role===process.env.CASHER)
+      {
+        // make 0.5 from organization rule
+      const deduceCash=Number(scheduleData.tarif)*0.5
+      if(bookerRole===process.env.CASHER)
+      {
+      await Managecash.findOneAndUpdate({user:refunder_id},
+        {$inc:{cashInHand:-deduceCash,
+          totalRefundedAmount:deduceCash,
+          totalRefundedTicket:1,},
+      },
+        {new:true,useFindAndModify:false,session})
     }
+        if(bookerRole===process.env.CASHERAGENT)
+        {
+           const totalCash=Number(schedule.tarif)*passlength
+           const user=await User.findById(booked_by)
+           await Manageagentcash.findOneAndUpdate({agent:user.agentId},
+           {$inc:{cashInHand:totalCash}},
+           {new:true,useFindAndModify:false,session})
+        }
+
+      }
+    }
+    await session.commitTransaction()
     return res.json({message:"refund done"})
   }
   const error=new Error("ticket refund Date Exired")
@@ -279,6 +335,8 @@ exports.refundRequest = async (req, res, next) => {
   throw error
   }
   catch(error) {
+    console.log(error)
+    await session.abortTransaction();
     next(error)
   }
 }

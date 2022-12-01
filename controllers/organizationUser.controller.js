@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const Managecash=require("../models/managelocalcash.model")
 const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken');
 const Bus = require("../models/bus.model");
@@ -284,6 +285,15 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
 }
     const user = new User(user_to_add)
     const neworguser=await user.save({session})
+    if(add_role===process.env.CASHER)
+    {
+      const managecash=new Managecash({
+        user:neworguser._id,
+        cashInHand:0,
+        organizationCode:organization_code,
+      })
+      await managecash.save({session})
+    }
     await session.commitTransaction()
     return res.json(neworguser)
   }
@@ -292,7 +302,6 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
     next(error)
      }
 };
-
 
 //log in organization user
 exports.loginOrganizationUser = async (req, res, next) => {

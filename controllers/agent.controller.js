@@ -1,5 +1,10 @@
 const Agent = require("../models/agent.model");
+const Manageagentcash=require("../models/manageagentcash.model")
+const mongoose = require("mongoose");
+
 exports.registerAgent = async (req, res, next) => {
+  const session=await mongoose.startSession()
+  session.startTransaction()
   try {
     const {agentName,phoneNumber,tin,maxUser,location,isActive}=req.body;
     const orgcode =req.userinfo.organization_code;
@@ -20,9 +25,18 @@ exports.registerAgent = async (req, res, next) => {
   throw error;
     }
     const savedagent=await newagent.save()
+    const managecash=new Manageagentcash({
+      agent:savedagent._id,
+      cashInHand:0,
+      organizationCode:orgcode,
+    })
+    await managecash.save({session})
+
+    await session.commitTransaction()
     return res.json(savedagent)
   }
 catch(error) {
+await session.abortTransaction()
 next(error)
   }
 };

@@ -104,6 +104,30 @@ exports.getOrgRules = async (req, res, next) => {
     next(error)
   }
 };
+exports.getOrgBranch = async (req, res, next) => {
+  try {
+    const orgcode =req.userinfo.organization_code;
+    const org_branch= await Organization.findOne({organizationCode:orgcode},
+      {branch:1})
+    return res.json(org_branch)
+  }
+  catch(error) {
+    console.log(error)
+    next(error)
+  }
+};
+exports.getSetting = async (req, res, next) => {
+  try {
+    const orgcode =req.userinfo.organization_code;
+    const org_branch= await Organization.findOne({organizationCode:orgcode},
+      {setting:1})
+    return res.json(org_branch)
+  }
+  catch(error) {
+    console.log(error)
+    next(error)
+  }
+};
 //update organization  //add here
 exports.updateBrnach=async (req,res,next)=>{
   try{
@@ -171,8 +195,8 @@ exports.updateRulesAndRegulation=async (req,res,next)=>{
 const orgId=req.params.id
 const {description,title,regulationId}=req.body
 let opt={}
-if(description){opt={"rulesAndRegulation.$[el].description":description}}
-if(title){opt={...opt,"rulesAndRegulation.$[el].title":title}}
+if(description){opt={"rulesAndRegulation.$[el].ruleTitle":description}}
+if(title){opt={...opt,"rulesAndRegulation.$[el].ruleDescription":title}}
 const organization=await Organization.findByIdAndUpdate(orgId,{$set:{...opt}},
 {arrayFilters:[{"el._id":regulationId}],new:true,useFindAndModify:false})
 

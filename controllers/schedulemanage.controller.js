@@ -3,7 +3,7 @@ const Bus = require("../models/bus.model");
 const Location=require('../models/Date_Location.model')
 const moment=require('moment')
 const mongoose = require("mongoose");
-const Load= require('lodash');
+// const Load= require('lodash');
 const User = require("../models/user.model");
 const {onlyUnique}=require('../helpers/uniqueArr');
 const {checkIfArrayIsUnique}=require('../helpers/checkUnique')
@@ -140,7 +140,7 @@ exports.lockSit = async (req, res, next) => {
     },{new:true,useFindAndModify:false,session})
  }
     //socket io 
-     setTimeout(unlockSit,195000)
+    setTimeout(unlockSit,195000)
     const reserved_sit=[...reserve.tempOccupiedSitNo,...reserve.occupiedSitNo]
     const uninque_reserved=reserved_sit.filter(onlyUnique)
     await session.commitTransaction()
@@ -158,8 +158,8 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
   const session=await mongoose.startSession()
   session.startTransaction() 
   try {
-    const id=req.params.id
-    let tickets=[]
+   const id=req.params.id
+   let tickets=[]
    let passlength=req.body.length
    const sitArr=req.body?.map(e=>e.sits)
    if(!checkIfArrayIsUnique(sitArr))
@@ -205,7 +205,7 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
         confirmationNumber:randomFixedInteger(6),
         bookedBy:booked_by}
         tickets.push(new_ticket)
-      await Schedule.findByIdAndUpdate(id,{
+        await Schedule.findByIdAndUpdate(id,{
         $push:{passangerInfo:new_ticket},
         $addToSet:{occupiedSitNo:psss_ocupied_sit_no},
      },{new:true,useFindAndModify:false,session})
@@ -216,8 +216,8 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
       throw error
   }
 }
-   organization.lastTicket=lastTicket
-   await organization.save({session})
+    organization.lastTicket=lastTicket
+    await organization.save({session})
    if(bookerRole===process.env.CASHER)
    {
       const totalCash=Number(schedule.tarif)*passlength
@@ -237,7 +237,6 @@ exports.bookTicketFromSchedule = async (req, res, next) => {
    return res.json({message:"success",ticket:tickets,status:true})
   }
   catch(error) {
-    console.log(error)
     await session.abortTransaction();
     next(error)
   }

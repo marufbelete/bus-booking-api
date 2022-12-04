@@ -1648,7 +1648,7 @@ getDaysMobileTicketInbr:async(parent,args,context)=>{
     let currentMonth=moment(now).month()+1;
     let currentWeek=moment(now).weeks()-1;
     let today =moment(now).dayOfYear();
-    const sort=args.input.filter
+    const sort=args.input.filternvm
     let filter1
     filter1=sort=="week"?{"week":week}:filter1
     filter1=sort=="month"?{"month":month}:filter1

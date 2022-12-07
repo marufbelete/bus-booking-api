@@ -44,11 +44,12 @@ exports.getOrganizationRoute = async (req, res, next) => {
   const status=req.query.status
   const orgcode =req.userinfo.organization_code;
   const filter={organizationCode:orgcode}
-  if(activeOnly!=="undefined"){filter.isActive=status}
+  if(status){filter.isActive=status}
   const allroute= await Route.find(filter)
   return res.json(allroute)
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 };

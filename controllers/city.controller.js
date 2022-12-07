@@ -34,7 +34,7 @@ exports.getAllOrganizationCity = async (req, res, next) => {
   const orgcode =req.userinfo.organization_code;
   const status=req.query.status
   let filter={organizationCode:orgcode}
-  if(typeof activeOnly!=="undefined"){filter.isActive=status}
+  if(status){filter.isActive=status}
   const allcity= await City.find(filter)
   return res.json(allcity)
   }

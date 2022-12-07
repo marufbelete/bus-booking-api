@@ -12,6 +12,13 @@ type Ticket{
     bookedAt:Date
     label:Int
  }
+ type sitInfo{
+    source:String
+    destination:String
+    label:Int
+    avgOpenSit:Float
+    avgReservedSit:Float
+ }
 input SaleInputFilteasr {
     day:Boolean
     week:Boolean
@@ -59,6 +66,9 @@ getDaysAgentTicketInbr(input:SaleInputFilter):[Ticket]
 getDaysLocalTicketInbr(input:SaleInputFilter):[Ticket]
 getDaysMobileTicketInbr(input:SaleInputFilter):[Ticket]
 getDaysAllTicketInbr(input:SaleInputFilter):[Ticket]
+
+getAggregateSitReserve(input:SaleInputFilter):sitInfo
+getRouteAggregateSitReserve(input:SaleInputFilter):[sitInfo]
 }
 `
 module.exports=typeDefs

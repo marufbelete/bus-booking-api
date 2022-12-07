@@ -74,7 +74,7 @@ Query:{
       },
         ] )
         console.log(allSchedule)
-        return allSchedule[0]
+        return (allSchedule[0]||null)
 
       }
     
@@ -141,7 +141,7 @@ Query:{
       }
     },
       ] )
-      return allSchedule[0]
+      return (allSchedule[0]||null)
 
     }
   
@@ -205,7 +205,7 @@ Query:{
     }
   },
     ] )
-    return allSchedule[0]
+    return (allSchedule[0]||null)
 
   }
   catch(error) {
@@ -270,7 +270,7 @@ Query:{
     }
   },
     ] )
-    return allSchedule[0]
+    return (allSchedule[0]||null)
 
   }
 
@@ -400,7 +400,7 @@ getAgentTotalSale:async(parent,args,context)=>{
       }
     }
       ] )
-      return allSchedule[0]
+      return (allSchedule[0]||null)
 
     }
   
@@ -462,7 +462,7 @@ getAgentTotalSale:async(parent,args,context)=>{
     }
   }
     ] )
-    return allSchedule[0]
+    return (allSchedule[0]||null)
 
   }
   catch(error) {
@@ -521,7 +521,7 @@ $lookup:{
   }
 }
   ] )
-  return allSchedule[0]
+  return (allSchedule[0]||null)
 
 }
 catch(error) {
@@ -791,7 +791,7 @@ catch(error) {
 //birr
 getGroupAgentTicketInbr:async(parent,args,context)=>{
   try{
-  // const orgcode ='001000';
+  const orgcode ='001000';
   const now=new Date()
   let currentYear=now.getFullYear()
   let currentMonth=moment(now).month()+1;
@@ -810,9 +810,10 @@ getGroupAgentTicketInbr:async(parent,args,context)=>{
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
   let filter3={"year":"$year","day":"$day"}
   filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
+  //just to pass the label argument not to group
   let filter31={"label":{$first:"$day"}}
   filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
-  const orgcode =context.organization_code;
+  // const orgcode =context.organization_code;
   const allSchedule= await Schedule.aggregate( [
 {
     $match:{organizationCode:orgcode}
@@ -1286,8 +1287,8 @@ getGroupMobileTicketInbr:async(parent,args,context)=>{
   filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
   filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
   filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
-  let filter3={"year":"$year","day":"$day","agent":"$userID"}
-  filter3=sort=="year"?  {"year":"$year","month":"$month","agent":"$userID"}:filter3
+  let filter3={"year":"$year","day":"$day"}
+  filter3=sort=="year"?  {"year":"$year","month":"$month"}:filter3
   let filter31={"label":{$first:"$day"}}
   filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
   const orgcode =context.organization_code;
@@ -1334,7 +1335,115 @@ catch(error) {
   return errorHandler
 }
 },
+//bus sit reserve report
+getAggregateSitReserve:async(parent,args,context)=>{
+  try{
+ const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const sort=args.input.filter
+  
+  let filter1={"year":currentYear}
+  filter1=sort=="day"?{"year":currentYear,"day":today}:filter1
+  filter1=sort=="week"?{"year":currentYear,"week":currentWeek}:filter1
+  filter1=sort=="month"?{"year":currentYear,"month":currentMonth}:filter1
+  let group1={"year":"$year"}
+  group1=sort=="day"?{"year":"$year","day":"$day"}:group1
+  group1=sort=="week"?{"year":"$year","week":"$week"}:group1
+  group1=sort=="month"?{"year":"$year","month":"$month"}:group1
+  // let filter31={"label":{$first:"$day"}}
+  // filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
+  const orgcode =context.organization_code;
+  
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode,departureDateAndTime:{$lt:now}}
+},
+{
+  $project:{totalNoOfSit:1,"occupiedSit":{$size:"$occupiedSitNo"},departureDateAndTime:1,
+   openSit:{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]} ,"year":{$year:"$departureDateAndTime"},"month":{$month:"$departureDateAndTime"},
+    "week":{$week:"$departureDateAndTime"},"day":{$dayOfYear:"$departureDateAndTime"}}
+},
+{
+  $match:{...filter1}
+},
+{
+  $group:{_id:group1,"avgOpenSit":{$avg:"$openSit"},
+  "avgReservedSit":{$avg:"$occupiedSit"}}
+},
+{
+  $project:{
+    "_id":0,"avgOpenSit":1,"avgReservedSit":1
+  }
+},
+  ] )
+  return (allSchedule[0]||null)
+}
+catch(error) {
+  return errorHandler
+}
+},
 
+getRouteAggregateSitReserve:async(parent,args,context)=>{
+  try{
+ const now=new Date()
+  let currentYear=now.getFullYear()
+  let currentMonth=moment(now).month()+1;
+  let currentWeek=moment(now).weeks()-1;
+  let today =moment(now).dayOfYear();
+  const sort=args.input.filter
+  let filter1
+  filter1=sort=="day"?{"day":{$dayOfYear:"$departureDateAndTime"}}:filter1
+  filter1=sort=="week"?{"week":{$week:"$departureDateAndTime"},"day":{$dayOfWeek:"$departureDateAndTime"}}:filter1
+  filter1=sort=="month"?{"month":{$month:"$departureDateAndTime"},"day":{$dayOfMonth:"$departureDateAndTime"}}:filter1
+  filter1=sort=="year"?{"month":{$month:"$departureDateAndTime"},"day":{$dayOfYear:"$departureDateAndTime"}}:filter1
+  let filter2={"year":currentYear}
+  filter2=sort=="day"?{"year":currentYear,"day":today}:filter2
+  filter2=sort=="week"?{"year":currentYear,"week":currentWeek}:filter2
+  filter2=sort=="month"?{"year":currentYear,"month":currentMonth}:filter2
+  let group1={"year":"$year","source":"$source","destination":"$destination"}
+  group1=sort=="day"?{...group1,"day":"$day"}:group1
+  group1=sort=="week"?{...group1,"week":"$week"}:group1
+  group1=sort=="month"?{...group1,"month":"$month"}:group1
+  let filter31={"label":{$first:"$day"}}
+  filter31=sort=="year"?{"label":{$first:"$month"}}:filter31
+  const orgcode =context.organization_code;
+  // const orgcode="001000"
+  
+  const allSchedule= await Schedule.aggregate( [
+{
+    $match:{organizationCode:orgcode,departureDateAndTime:{$lt:now}}
+},
+{
+  $project:{totalNoOfSit:1,source:1,destination:1,
+    "year":{$year:"$departureDateAndTime"},
+    "occupiedSit":{$size:"$occupiedSitNo"},departureDateAndTime:1,
+     openSit:{$subtract:["$totalNoOfSit",{$size:"$occupiedSitNo"}]},...filter1}
+},
+{
+  $match:{...filter2}
+},
+{
+  $group:{_id:group1,"avgOpenSit":{$avg:"$openSit"},
+  "avgReservedSit":{$avg:"$occupiedSit"},
+  "source":{$first:"$source"},"destination":{$first:"$destination"},...filter31}
+},
+{
+  $project:{
+    "_id":0,"avgOpenSit":1,"avgReservedSit":1,"source":1,"destination":1,"label":1
+  }
+},
+  ] )
+  console.log(allSchedule)
+  return (allSchedule)
+}
+catch(error) {
+  console.log(error)
+  return errorHandler
+}
+},
 //sale map in br
 //cancel
 getDaysAgentTicketInbr:async(parent,args,context)=>{
@@ -1640,7 +1749,7 @@ catch(error) {
   return errorHandler
 }
 },
-//cancel
+//
 getDaysMobileTicketInbr:async(parent,args,context)=>{
   try{
     const now=new Date()

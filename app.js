@@ -32,6 +32,7 @@ const StartServer=async()=>{
   const apolloServer=new ApolloServer({
   typeDefs, 
   resolvers,
+  cache: 'bounded',
   csrfPrevention: true,
   context:async({ req, res }) => {
     console.log(req.cookies)
@@ -57,7 +58,7 @@ const StartServer=async()=>{
   },
 })
 await apolloServer.start()
-apolloServer.applyMiddleware({app:app,cors:{origin: 'http://localhost:3000',
+apolloServer.applyMiddleware({app:app,cors:{origin: ['http://localhost:3000','https://studio.apollographql.com'],
 credentials: true}})
 mongoose.connect("mongodb+srv://maruf:maruf@cluster0.zrkgb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
   useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true

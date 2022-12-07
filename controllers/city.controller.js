@@ -2,11 +2,12 @@ const City = require("../models/city.model");
 const Load= require('lodash');
 exports.registerCity = async (req, res, next) => {
   try {
-    console.log(req.body)
     const cityname = Load.capitalize(req.body.cityName);
     const departureplace= req.body.departurePlace.map(e=>Load.capitalize(e));
     const orgcode =req.userinfo.organization_code;
     const isCityExist=await City.findOne({cityName:cityname})
+    console.log(cityname)
+    console.log(departureplace)
     if(isCityExist)
     {
   const error = new Error("This city already exist!")

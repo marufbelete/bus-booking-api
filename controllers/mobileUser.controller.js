@@ -8,7 +8,9 @@ exports.saveMobileUser = async (req, res, next) => {
     const phone_number = req.body.phoneNumber;
     const password=req.body.password;
     const confirmpassword=req.body.confirmPassword;
-    if (!phone_number || !password||!confirmpassword) {
+    const {firstName,lastName,userRole}=req.body
+    if (!phone_number || !password||!confirmpassword||
+       !firstName||!lastName) {
       const error = new Error("Please fill all field.")
       error.statusCode = 400
       throw error;
@@ -36,11 +38,16 @@ exports.saveMobileUser = async (req, res, next) => {
     const newuser = new User({
       phoneNumber: phone_number,
       password: passwordHash,
+      firstName,
+      lastName,
       isMobileUser:true,    
     })
     const user=await newuser.save()
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number }, process.env.SECRET);
-    return res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'}).json({auth:true,token:token})
+    return res.cookie('token',token,{secure:true,
+      httpOnly:true,SameSite:'strict'}).
+      json({auth:true,token:token,role:user.userRole,
+        firstName:user.firstName,lastName:user.lastName})
   }
 catch(error) {
  next(error)
@@ -57,7 +64,8 @@ exports.loginMobileUser = async (req, res, next) => {
       throw error;
     }
     const user = await User.findOne({
-      phoneNumber: phoneNumber
+      phoneNumber: phoneNumber,
+      isMobileUser:true
     });
     if (!user) {
       const error = new Error("No account with this Phone exist.")
@@ -72,7 +80,8 @@ exports.loginMobileUser = async (req, res, next) => {
     }
     const token = jwt.sign({ sub: user._id, phone_number: user.phone_number},process.env.SECRET);
     return res.cookie('token',token,{secure:true,httpOnly:true,SameSite:'strict'})
-    .json({auth:true,token:token,role:user.userRole})
+    .json({auth:true,token:token,role:user.userRole,
+      firstName:user.firstName,lastName:user.lastName})
   }
   catch(error) {
     next(error)

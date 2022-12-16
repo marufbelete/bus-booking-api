@@ -224,6 +224,10 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
       createdBy:saved_by,
       gender:gender
     }
+    if(add_role===process.env.DRIVER||add_role===process.env.REDAT)
+    {
+      user_to_add.isMobileUser=true
+    }
     if(branchId){user_to_add.branch=branchId}
     if(add_role===process.env.CASHERAGENT)
     {
@@ -527,7 +531,11 @@ if(user_role===process.env.ADMIN )
 }
 if(user_role===process.env.SUPERAGENT&&editeduser.userRole==process.env.CASHERAGENT )
 {
-  const updateduser=await User.findOneAndUpdate({_id:updateduserid,organizationCode:organization_code},{
+  if(update_opt?.userRole){
+    delete update_opt.userRole
+  }
+  const updateduser=await User.findOneAndUpdate({_id:updateduserid,
+    organizationCode:organization_code},{
     $set:{
         ...update_opt
       }
@@ -587,14 +595,18 @@ exports.getUserById=async(req,res,next)=>{
 exports.getAssignedUserByRole=async(req,res,next)=>{
   const role=req.query.role
   const organization_code=req.userinfo.organization_code;
-  const user=await User.find({userRole:role,organizationCode:organization_code,isAssigned:process.env.ASSIGNEDUSER})
+  const user=await User.find({userRole:role,
+    organizationCode:organization_code,
+    isAssigned:process.env.ASSIGNEDUSER})
   return res.json(user)
 }
 exports.getUserByRoleWithEdit=async(req,res,next)=>{
   const role=req.query.role
   const current_user=req.query.current
   const organization_code=req.userinfo.organization_code;
-  const user=await User.find({$or:[{_id:current_user},{userRole:role,organizationCode:organization_code,isAssigned:process.env.UNASSIGNEDUSER}]})
+  const user=await User.find({$or:[{_id:current_user},
+    {userRole:role,organizationCode:organization_code,
+      isAssigned:process.env.UNASSIGNEDUSER}]})
   return res.json(user)
 }
 exports.activateOrganizationUser = async (req, res, next) => {

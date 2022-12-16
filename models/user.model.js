@@ -8,13 +8,11 @@ const UserSchema = new mongoose.Schema({
 firstName:{
     type: String,
     trim: true,
-    required: true,
 
 },
 lastName:{
   type: String,
   trim: true,
-  required: true,
 },
 agentId:{
   type: mongoose.Schema.Types.ObjectId,  

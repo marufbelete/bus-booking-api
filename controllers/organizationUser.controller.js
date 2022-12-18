@@ -359,7 +359,9 @@ try{
   const user_role=req.userinfo.user_role
   if(user_role===process.env.SUPERADMIN)
   {
-   const alluser=await User.find({organizationCode:organization_code,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER,process.env.CASHERAGENT]},isMobileUser:false})
+   const alluser=await User.find({organizationCode:organization_code,userRole:
+    { $in:[process.env.ADMIN,process.env.SUPERAGENT,
+      process.env.CASHER,process.env.DRIVER,process.env.REDAT]}})
    return res.json(alluser)
   //  User.paginate({organizationCode:organization_code,...search,...filter,userRole:{ $nin:[process.env.SUPERADMIN,process.env.OWNER]},isMobileUser:false}, options, function (err, result) {
   //   console.log(result)
@@ -375,8 +377,9 @@ try{
     //     return res.json(result)
     // });
     // return;
-    const allcasher=await User.find({userRole:{$in:[process.env.CASHER,process.env.DRIVER,process.env.SUPERAGENT,process.env.REDAT]},
-    organizationCode:organization_code,isMobileUser:false})
+    const allcasher=await User.find({userRole:{$in:[process.env.CASHER,
+      process.env.DRIVER,process.env.SUPERAGENT,process.env.REDAT]},
+    organizationCode:organization_code})
     return res.json(allcasher)
   }
   if(user_role===process.env.CASHER)
@@ -388,7 +391,7 @@ try{
     // });
     // return;
     const all=await User.find({userRole:{$in:[process.env.DRIVER,process.env.REDAT]},
-    organizationCode:organization_code,isMobileUser:false})
+    organizationCode:organization_code})
     return res.json(all)
   }
   if(user_role===process.env.SUPERAGENT)
@@ -416,7 +419,7 @@ exports.getAllOrganizationDriver= async(req,res,next) =>{
   try{
     const organization_code=req.userinfo.organization_code;
     const driver=await User.find({userRole:process.env.DRIVER,
-    organizationCode:organization_code,isMobileUser:false,isActive:true})
+    organizationCode:organization_code,isActive:true})
      return res.json(driver)
   }
   catch(error) {

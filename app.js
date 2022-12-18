@@ -11,11 +11,9 @@ const {ApolloServer}=require('apollo-server-express')
 const resolvers =require('./gqlShema/resolver')
 const typeDefs =require('./gqlShema/typedefs')
 const jwt = require("jsonwebtoken");
-// const responseTime=require('response-time')
 require('dotenv').config()
 
-// const socketio=require("./socket/socketio")
-app.use(cors({ origin:['http://localhost:3000','https://studio.apollographql.com'], credentials: true }))
+app.use(cors({ origin:['http://localhost:3000','http://localhost:3006','https://studio.apollographql.com'], credentials: true }))
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
@@ -58,7 +56,7 @@ const StartServer=async()=>{
   },
 })
 await apolloServer.start()
-apolloServer.applyMiddleware({app:app,cors:{origin: ['http://localhost:3000','https://studio.apollographql.com'],
+apolloServer.applyMiddleware({app:app,cors:{origin: ['http://localhost:3000','http://localhost:3006','https://studio.apollographql.com'],
 credentials: true}})
 mongoose.connect("mongodb+srv://maruf:maruf@cluster0.zrkgb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
   useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true

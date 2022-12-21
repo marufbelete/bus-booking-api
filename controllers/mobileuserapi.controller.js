@@ -157,7 +157,12 @@ exports.cancelTicket = async (req, res, next) => {
 //driver get my pass
 exports.getMyPassanger=async(req,res,next)=>{
   try{
-    const driver_id=mongoose.Types.ObjectId(req.user.sub)
+    const driver_id=mongoose.Types.ObjectId(req?.user?.sub)
+    if(!driver_id){
+    const error=new Error("driver not found")
+    error.statusCode=401
+    throw error
+    }
     const now =new Date()
     const schedule=await Schedule.aggregate([
 {
@@ -209,6 +214,7 @@ exports.getMyPassanger=async(req,res,next)=>{
     return res.json(schedule)
   }
   catch(error) {
+    // console.log(error)
     next(error)
   }
 }

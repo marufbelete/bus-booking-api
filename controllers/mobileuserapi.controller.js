@@ -89,7 +89,7 @@ exports.updateMobilePassinfo = async (req, res, next) => {
 
 exports.getTicketHistory=async(req,res,next)=>{
   try{
-    const user_id=mongoose.Types.ObjectId(req.user.sub)
+    const user_id=mongoose.Types.ObjectId(req.userinfo.sub)
     const schedule=await Schedule.aggregate([
 {
     $unwind:"$passangerInfo"
@@ -157,12 +157,14 @@ exports.cancelTicket = async (req, res, next) => {
 //driver get my pass
 exports.getMyPassanger=async(req,res,next)=>{
   try{
-    const driver_id=mongoose.Types.ObjectId(req?.user?.sub)
-    if(!driver_id){
-    const error=new Error("driver not found")
-    error.statusCode=401
-    throw error
-    }
+    if(!req?.userinfo?.sub){
+      const error=new Error("driver not found")
+      error.statusCode=401
+      throw error
+      }
+    const driver_id=mongoose.Types.ObjectId(req.userinfo.sub)
+    console.log(driver_id)
+   
     const now =new Date()
     const schedule=await Schedule.aggregate([
 {

@@ -174,16 +174,16 @@ router.put('/takefromagent/:id',userauth,authAdmin,receiveFromAgent,errorHandler
 //mobile
 router.get('/getorganizationlist',getAllOrganization,errorHandler)
 router.get('/getschedule',getMobileSchgedule,errorHandler)
-router.put('/updatepassangerinfo/:id',updateMobilePassinfo,errorHandler)
-router.get('/getmytickethistory',getTicketHistory,errorHandler)
-router.put('/cancelticket/:id',cancelTicket,errorHandler)
-router.get('/getmypassanger',getMyPassanger,errorHandler)
-router.put('/locksitmobile/:id',lockSit,errorHandler)
-router.put('/bookticket/:id',bookTicketFromSchedule,errorHandler)
-router.get('/getsitreserved/:id',getRiservedSit,errorHandler)
+router.put('/updatepassangerinfo/:id',userauth,updateMobilePassinfo,errorHandler)
+router.get('/getmytickethistory',userauth,getTicketHistory,errorHandler)
+router.put('/cancelticket/:id',userauth,cancelTicket,errorHandler)
+router.get('/getmypassanger',userauth,getMyPassanger,errorHandler)
+router.put('/locksitmobile/:id',userauth,lockSit,errorHandler)
+router.put('/bookticket/:id',userauth,bookTicketFromSchedule,errorHandler)
+router.get('/getsitreserved/:id',userauth,getRiservedSit,errorHandler)
 router.get('/getcity',getCity,errorHandler)//mobile
 //qr code 
-router.get('/checkticket',checkTicketExist,errorHandler)//mobile
+router.get('/checkticket',userauth,checkTicketExist,errorHandler)//mobile
 // router.get('/cancelticket',userauth,cancelTicket,errorHandler)//mobile
 
 

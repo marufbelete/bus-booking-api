@@ -100,7 +100,7 @@ exports.updateMobileUser = async (req, res, next) => {
     }
     if(firstName){ change.firstName=firstName}
     if(lastName){change.lastName=lastName}
-   await User.findOneAndUpdate({_id:req.user.sub},{
+   await User.findOneAndUpdate({_id:req.userinfo.sub},{
   $set:{
  ...change
 }

@@ -563,9 +563,44 @@ exports.checkTicketExist=async(req,res,next)=>{
   try{
   const schedule_id=req.query.scheduleId
   const ticket_id=req.query.ticketId
+  const checker_id=req.userinfo.sub
+  const schedule=await Schedule.findOne({_id:schedule_id}).populate('assignedBus')
+  console.log(typeof checker_id)
+  console.log(typeof String(schedule.assignedBus.driverId))
+  const {isPassangerDeparted,isTicketRefunded,isTicketCanceled}=schedule.passangerInfo.filter(e=>e.uniqueId==ticket_id)[0]
+  if(!schedule)
+    {
+      const error=new Error("Trip not found")
+      error.statusCode=401
+      throw error
+    }
+  const timenow = new Date
+  if(moment(schedule.departureDateAndTime).add(6,'h').isBefore(timenow))
+    {
+      const error=new Error("Trip departure date-time expired")
+      error.statusCode=401
+      throw error
+    }
+  if(isPassangerDeparted)
+  {
+    const error=new Error("This passanger already checked")
+    error.statusCode=401
+    throw error
+  }
+  if(isTicketRefunded||isTicketCanceled)
+  {
+    const error=new Error("This  ticket is canceled")
+    error.statusCode=401
+    throw error
+  }
+if(String(schedule.assignedBus.driverId)!==checker_id){
+  const error=new Error("This ticket belong to another driver")
+  error.statusCode=401
+  throw error
+}
   if(!(schedule_id&&ticket_id))
   {
-    const error=new Error("plsease set all field")
+    const error=new Error("Plsease set all field")
     error.statusCode=401
     throw error
   }
@@ -582,6 +617,7 @@ exports.checkTicketExist=async(req,res,next)=>{
   throw error
   }
   catch(error) {
+    console.log(error)
     next(error)
   }
 }

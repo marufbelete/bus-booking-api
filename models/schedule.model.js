@@ -36,11 +36,6 @@ departureDateAndTime:{
   trim: true,
   required: true,
 },
-// departureTime:{
-//   type:String,
-//   trim: true,
-//   required: true,
-// },
 departurePlace:{
   type: String,
   trim: true,
@@ -136,10 +131,6 @@ assignedBus:{
 scheduleId:{
   type:String,
 },
-driverUserName: {
-  type:String, 
-  trim: true,
-},
 isTripCanceled:{
 type:Boolean,
 default:false,
@@ -152,10 +143,10 @@ canceledBy:{
   type: mongoose.Schema.Types.ObjectId, 
   ref: 'user', 
   },
-  transfredBy:{
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'user', 
-    }
+transfredBy:{
+  type: mongoose.Schema.Types.ObjectId, 
+  ref: 'user', 
+  }
     
 },
   {

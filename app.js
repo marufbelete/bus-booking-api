@@ -13,7 +13,8 @@ const typeDefs =require('./gqlShema/typedefs')
 const jwt = require("jsonwebtoken");
 require('dotenv').config()
 
-app.use(cors({ origin:['http://localhost:3000','http://localhost:3006','https://studio.apollographql.com'], credentials: true }))
+app.use(cors({ origin:['http://localhost:3000','https://bus-with-maruf.vercel.app',
+'http://localhost:3006','https://studio.apollographql.com'], credentials: true }))
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())

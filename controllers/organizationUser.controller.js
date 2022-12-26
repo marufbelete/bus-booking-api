@@ -306,7 +306,7 @@ if (!first_name||!last_name || !phone_number || !password || !confirm_password |
     next(error)
      }
 };
-
+https://bus-with-maruf.vercel.app/organization
 //log in organization user
 exports.loginOrganizationUser = async (req, res, next) => {
   try {

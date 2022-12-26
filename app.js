@@ -57,7 +57,7 @@ const StartServer=async()=>{
   },
 })
 await apolloServer.start()
-apolloServer.applyMiddleware({app:app,cors:{origin: ['http://localhost:3000','http://localhost:3006','https://studio.apollographql.com'],
+apolloServer.applyMiddleware({app:app,cors:{origin: ['http://localhost:3000','https://bus-with-maruf.vercel.app','http://localhost:3006','https://studio.apollographql.com'],
 credentials: true}})
 mongoose.connect("mongodb+srv://maruf:maruf@cluster0.zrkgb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
   useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex:true

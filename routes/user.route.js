@@ -5,13 +5,15 @@ const {saveOwner,loginOnwer,saveSuperadmin,changePassword,
     deactivateOrganizationUser,activateOrganizationUser,
     getAllOrganizationUser, getUserByRole, checkAuth, 
     getAllOrganizationDriver, tempResetPassword, getAssignedUserByRole, 
-    getUserByRoleWithEdit, getUserById} = require('../controllers/organizationUser.controller');
+    getUserByRoleWithEdit, getUserById,jotformWebhook} = require('../controllers/organizationUser.controller');
 const {createRole,getRole,deleteRole}=require('../controllers/manageRole.controller')
 const userauth = require("../middleware/auth.middleware")
 const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,
     authaAdminCasherAgent} = require("../middleware/authadmin.middleware")
 const {errorHandler} = require('../middleware/errohandling.middleware')
 const router = express.Router();
+
+router.post('/jotformwebhook',jotformWebhook,errorHandler)
 
 router.get('/checkauth',checkAuth,errorHandler)
 // owner

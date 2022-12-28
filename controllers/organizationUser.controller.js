@@ -715,7 +715,7 @@ if(role==process.env.ADMIN)
 exports.jotformWebhook = async (req, res, next) => {
   try {
     console.log("jotform webhook")
-    console.log(req.steps.trigger.event.body.pretty)
+    console.log(req.event.body.pretty)
     return res.json({data:req.body});
   } catch (err) {
     next(err);

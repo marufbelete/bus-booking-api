@@ -720,6 +720,8 @@ exports.jotformWebhook = async (req, res, next) => {
   const jot_entries = jot_pairs.map(kv => kv.split(':'))
   const jot_obj = Object.fromEntries(jot_entries)
   console.log(jot_obj.token)
+  console.log(typeof jot_obj.token)
+
     return res.json({data:req.body});
   } catch (err) {
     next(err);

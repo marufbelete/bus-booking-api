@@ -710,20 +710,3 @@ if(role==process.env.ADMIN)
     next(err)
   }
 }
-
-
-exports.jotformWebhook = async (req, res, next) => {
-  try {
-    console.log("jotform webhook")
-  const {pretty}= req.body
-  const jot_pairs = pretty.replace(/\s/g, '').split(',') 
-  const jot_entries = jot_pairs.map(kv => kv.split(':'))
-  const jot_obj = Object.fromEntries(jot_entries)
-  console.log(jot_obj.token)
-  console.log(typeof jot_obj.token)
-
-    return res.json({data:req.body});
-  } catch (err) {
-    next(err);
-  }
-};

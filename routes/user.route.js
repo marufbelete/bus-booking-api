@@ -13,10 +13,6 @@ const {authOwner,authSuperAdmin,authAdmin,authaAdminCasher,
 const {errorHandler} = require('../middleware/errohandling.middleware')
 const router = express.Router();
 
-const multer  = require('multer')
-const multipart = multer()
-router.post('/jotformwebhook', multipart.array(),jotformWebhook,errorHandler)
-
 router.get('/checkauth',checkAuth,errorHandler)
 // owner
 router.post('/registerowner',saveOwner,errorHandler)

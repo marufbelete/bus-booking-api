@@ -180,7 +180,7 @@ router.put('/cancelticket/:id',userauth,cancelTicket,errorHandler)
 router.get('/getmypassanger',userauth,getMyPassanger,errorHandler)
 router.put('/locksitmobile/:id',userauth,lockSit,errorHandler)
 router.put('/bookticket/:id',userauth,bookTicketFromSchedule,errorHandler)
-router.get('/getsitreserved/:id',userauth,getRiservedSit,errorHandler)
+router.get('/getsitreserved/:id',getRiservedSit,errorHandler)
 router.get('/getcity',getCity,errorHandler)//mobile
 //qr code 
 router.get('/checkticket',userauth,checkTicketExist,errorHandler)//mobile

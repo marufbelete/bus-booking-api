@@ -171,15 +171,15 @@ exports.getMyPassanger=async(req,res,next)=>{
     $project:{"after3":{
       $dateAdd: {
         startDate:"$departureDateAndTime",
-        unit:"hour",
-        amount:24,
+        unit:"day",
+        amount:240,
      }
     },
    "before8":{
     $dateSubtract: {
       startDate:"$departureDateAndTime",
-      unit:"hour",
-      amount:24,
+      unit:"day",
+      amount:240,
     }
    },"passangerInfo":1,"source":1,"assignedBus":1,"destination":1,"departureDateAndTime":1,"distance":1,"estimatedHour":1,"tarif":1,"organizationCode":1}
 },
@@ -213,10 +213,33 @@ exports.getMyPassanger=async(req,res,next)=>{
 },
 
 ])
-    return res.json(schedule)
+const pass_data={
+
+}
+if(schedule.length>0)
+{
+  const general_info={
+  source: schedule[0]?.source,
+  destination: schedule[0]?.destination,
+  tarif:schedule[0]?.tarif,
+  distance: schedule[0]?.distance,
+  estimatedHour: schedule[0]?.estimatedHour,
+  departureDateAndTime: schedule[0]?.departureDateAndTime,
+  busPlateNo: schedule[0]?.busPlateNo,
+  organizationName:schedule[0]?.organizationName
+}
+  pass_data.general_info=general_info
+}
+const passanger=schedule?.map(e=>({
+passangerName: e.passangerName,
+passangerPhone: e.passangerPhone,
+ticketId: e.ticketId,
+bookedAt:e.bookedAt ,
+passangerSit:e.passangerSit}))
+pass_data.passanger=passanger
+    return res.json(pass_data)
   }
   catch(error) {
-    // console.log(error)
     next(error)
   }
 }
